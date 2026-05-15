@@ -68,6 +68,10 @@ router.post("/teacher-auth/login", async (req, res): Promise<void> => {
   req.session.teacherId = teacher.id;
   req.session.teacherSchoolId = teacher.schoolId;
 
+  await new Promise<void>((resolve, reject) => {
+    req.session.save((err) => (err ? reject(err) : resolve()));
+  });
+
   res.json({
     teacher: {
       id: teacher.id,

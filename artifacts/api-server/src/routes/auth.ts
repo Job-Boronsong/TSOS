@@ -106,6 +106,12 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     }
   }
 
+  // Explicitly save session to PostgreSQL before responding so the browser's
+  // immediate follow-up request (GET /auth/me) always finds it in the store.
+  await new Promise<void>((resolve, reject) => {
+    req.session.save((err) => (err ? reject(err) : resolve()));
+  });
+
   res.json({
     user: safeUser(user),
     schoolSlug,
