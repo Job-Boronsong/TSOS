@@ -1,0 +1,40 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import storageRouter from "./storage";
+import authRouter from "./auth";
+import teacherAuthRouter from "./teacher-auth";
+import schoolsRouter from "./schools";
+import studentsRouter from "./students";
+import financeRouter from "./finance";
+import teachersRouter from "./teachers";
+import dashboardRouter from "./dashboard";
+import syncRouter from "./sync";
+import paymentsRouter from "./payments";
+import operationsRouter from "./operations";
+import feedingRouter from "./feeding";
+import disciplineRouter from "./discipline";
+import payrollRouter from "./payroll";
+import promotionRouter from "./promotion";
+import emailRouter from "./email";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use(storageRouter);
+router.use(authRouter);
+router.use(teacherAuthRouter);
+router.use(schoolsRouter);
+router.use(studentsRouter);
+router.use(financeRouter);
+router.use(teachersRouter);
+router.use(dashboardRouter);
+router.use(syncRouter);
+router.use(paymentsRouter);
+router.use(operationsRouter);
+router.use(feedingRouter);
+router.use(disciplineRouter);
+router.use(payrollRouter);
+router.use(promotionRouter);
+router.use(emailRouter);
+
+export default router;

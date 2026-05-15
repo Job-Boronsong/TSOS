@@ -1,0 +1,122 @@
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import { Sprout, GraduationCap, ArrowRight, Lock } from "lucide-react";
+
+export default function Products() {
+  return (
+    <div className="flex flex-col min-h-screen pt-24 bg-background">
+      {/* Header */}
+      <section className="py-20 border-b border-border bg-muted/30">
+        <div className="container mx-auto px-4 md:px-6 max-w-4xl text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+            Proprietary Platforms
+          </h1>
+          <p className="text-xl text-muted-foreground leading-relaxed">
+            In addition to our custom engineering services, we build and maintain proprietary software platforms solving complex operational challenges in key sectors.
+          </p>
+        </div>
+      </section>
+
+      {/* Products Showcase */}
+      <section className="py-24">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="space-y-32">
+            
+            {/* Product 1 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="order-2 lg:order-1">
+                <div className="aspect-[4/3] rounded-3xl bg-green-950 flex items-center justify-center relative overflow-hidden border border-border shadow-xl">
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+                  <div className="text-center z-10">
+                    <Sprout className="w-24 h-24 text-green-500 mx-auto mb-6" />
+                    <span className="px-4 py-2 bg-background/10 backdrop-blur-md text-white rounded-full text-sm font-bold uppercase tracking-widest border border-white/20">Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="order-1 lg:order-2 space-y-6">
+                <div className="inline-flex items-center gap-2 text-green-600 font-bold tracking-wide uppercase text-sm">
+                  <Sprout className="w-5 h-5" /> Agriculture Sector
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold">Agribusiness Platform</h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  A comprehensive supply chain, logistics, and data management platform designed specifically for large-scale agricultural operations in West Africa.
+                </p>
+                <ul className="space-y-3 pt-4 border-t border-border">
+                  <li className="flex items-center gap-3 font-medium text-foreground"><CheckCircle /> Yield Tracking & Forecasting</li>
+                  <li className="flex items-center gap-3 font-medium text-foreground"><CheckCircle /> Logistics & Distribution Management</li>
+                  <li className="flex items-center gap-3 font-medium text-foreground"><CheckCircle /> Farmer Payment Integration</li>
+                  <li className="flex items-center gap-3 font-medium text-foreground"><CheckCircle /> Real-time Analytics Dashboard</li>
+                </ul>
+                <div className="pt-6">
+                  <Button variant="outline" className="rounded-full h-12" disabled>
+                    <Lock className="w-4 h-4 mr-2" /> Early Access Closed
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Product 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 text-blue-600 font-bold tracking-wide uppercase text-sm">
+                  <GraduationCap className="w-5 h-5" /> Education Sector
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold">School Management System</h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  An all-in-one administrative hub for educational institutions to securely manage student records, grading, staff payroll, and parental communications.
+                </p>
+                <ul className="space-y-3 pt-4 border-t border-border">
+                  <li className="flex items-center gap-3 font-medium text-foreground"><CheckCircle /> Secure Student Information System (SIS)</li>
+                  <li className="flex items-center gap-3 font-medium text-foreground"><CheckCircle /> Automated Grading & Reporting</li>
+                  <li className="flex items-center gap-3 font-medium text-foreground"><CheckCircle /> Fee Collection & Accounting</li>
+                </ul>
+                <div className="pt-6">
+                  <Button variant="outline" className="rounded-full h-12" disabled>
+                    <Lock className="w-4 h-4 mr-2" /> In Closed Beta
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <div className="aspect-[4/3] rounded-3xl bg-blue-950 flex items-center justify-center relative overflow-hidden border border-border shadow-xl">
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(to right, #ffffff11 1px, transparent 1px), linear-gradient(to bottom, #ffffff11 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+                  <div className="text-center z-10">
+                    <GraduationCap className="w-24 h-24 text-blue-500 mx-auto mb-6" />
+                    <span className="px-4 py-2 bg-background/10 backdrop-blur-md text-white rounded-full text-sm font-bold uppercase tracking-widest border border-white/20">Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Custom Solution CTA */}
+      <section className="py-24 bg-primary text-primary-foreground text-center">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Need a custom platform for your industry?</h2>
+          <p className="text-lg text-primary-foreground/80 mb-10">
+            While we build our own products, our primary focus remains engineering bespoke solutions for clients. If off-the-shelf software isn't cutting it, let's build exactly what you need.
+          </p>
+          <Button variant="secondary" size="lg" className="rounded-full px-10 h-14 text-lg group" asChild>
+            <Link href="/contact">
+              Discuss Custom Software
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function CheckCircle() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+  );
+}

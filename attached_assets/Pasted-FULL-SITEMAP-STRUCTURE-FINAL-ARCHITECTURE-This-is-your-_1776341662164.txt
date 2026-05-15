@@ -1,0 +1,138 @@
+FULL SITEMAP STRUCTURE (FINAL ARCHITECTURE)
+
+This is your complete system blueprint going forward.
+
+🏛️ 1. MASTER LAYER (Super Admin System)
+🔐 Authentication
+Login (Super Admin)
+Logout
+🏫 School Management
+Create School
+View Schools
+Enter School (impersonation)
+Activate / Deactivate School
+💳 Subscription Management
+Assign Plan (Basic / Pro / Enterprise)
+Billing Cycle (Monthly / Annual)
+Renew Subscription
+Expiry Tracking
+📊 System Overview
+Total Schools
+Total Users
+Active Subscriptions
+🏫 2. SCHOOL LAYER (Per-School System)
+🧠 Dashboard (Home)
+Welcome message
+Quick stats:
+Students count
+Attendance today
+Fees collected today
+Sales today
+Quick action buttons
+📚 ACADEMICS MODULE
+👩‍🎓 Students
+Add Student
+Edit Student
+Delete Student
+View Students
+Assign Class
+Category (Fee logic)
+🏫 Classes
+Add Class
+Delete Class
+View Classes
+📅 Attendance
+Mark Attendance
+Auto-mark via payment
+View Attendance (read-only)
+🔓 Attendance Controls (Admin Only)
+Override Attendance
+Unlock Attendance Date
+💰 FINANCE MODULE
+💵 Fee Settings
+School Fee
+Bus Fee
+Category Rules
+📊 Finance Dashboard
+Fees Today
+Sales Today
+Expenditure Today
+Net Cash Today
+Expected Fees
+Arrears
+💳 Payments
+Record Payment
+Linked to Attendance
+Daily totals
+🧾 Sales
+Add Sale
+View Daily Sales
+Sales totals
+💸 Expenditure
+Add Expense
+Categorize Expense
+Daily totals
+⚠️ Arrears
+Student Fee Status
+Expected vs Paid
+Outstanding balances
+📊 REPORTS MODULE
+📄 Daily Summary
+Attendance summary
+Payment summary
+Export to PDF
+(Future Expansion)
+Monthly reports
+Student statements
+Financial reports
+⚙️ SYSTEM MODULE
+👨‍🏫 Teacher Management
+Add Teacher
+Deactivate Teacher
+View Teachers
+🏫 School Settings
+School Name
+Contact Info
+Academic Year
+Logo upload
+Theme colors
+🎛 Feature Toggles
+Enable/Disable:
+Attendance
+Finance
+Sales
+Reports
+etc.
+🧩 3. SHARED COMPONENTS (UI/CORE)
+UI Shared
+BaseWindow
+Styled Buttons
+Dialogs (Confirm, Input, Alerts)
+Core
+Authentication
+Security (bcrypt)
+DB session management
+Theme engine
+🧱 4. DATABASE ARCHITECTURE
+🗄 Master DB
+schools
+users
+subscriptions
+🗄 Per-School DB
+students
+classes
+attendance
+payments
+sales
+expenditures
+teachers
+fee_settings
+category_rules
+feature_toggles
+🚀 5. FUTURE EXTENSIONS (Already Supported by Your Design)
+LMS (Courses + Enrollment)
+Parent Portal
+SMS Notifications
+Mobile App
+Web API (FastAPI)
+Multi-branch schools

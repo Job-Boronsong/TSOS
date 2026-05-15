@@ -1,0 +1,26 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "cLN_SMc38GNBCYdUUUdpU"
+uri = "file://TSOS_User_Guide.md"
+type = "text"
+title = "TSOS Complete Step-by-Step User Guide"
+
+[[outputs]]
+id = "wGXbZbP5fJbjS590Q0QSB"
+uri = "file://TSOS_Project_Documentation.md"
+type = "text"
+title = "TSOS — Complete Project Documentation"
+
+[[outputs]]
+id = "yax4gVp9YizfcJGWRXiiH"
+uri = "file://TSOS_project.tar.gz"
+type = "unspecified"
+title = "TSOS — Full Project Source Code (tar.gz)"
+
+[[outputs]]
+id = "imjiEPMRl-tn29sSl1X9j"
+uri = "file://TERMS_OF_SERVICE_MOU.md"
+type = "text"
+title = "TSOS — Terms & Conditions Memorandum of Understanding"

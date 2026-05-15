@@ -1,0 +1,1754 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: EduManage School SaaS API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: schools
+    description: School management (Super Admin)
+  - name: subscriptions
+    description: Subscription management
+  - name: students
+    description: Student management
+  - name: classes
+    description: Class management
+  - name: attendance
+    description: Attendance tracking
+  - name: finance
+    description: Finance management
+  - name: fees
+    description: Fee settings
+  - name: sales
+    description: Sales tracking
+  - name: expenditures
+    description: Expenditure tracking
+  - name: teachers
+    description: Teacher management
+  - name: dashboard
+    description: Dashboard summaries
+  - name: reports
+    description: Reports
+  - name: settings
+    description: School settings
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user session
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          description: Not authenticated
+
+  # SCHOOLS (Super Admin)
+  /schools:
+    get:
+      operationId: listSchools
+      tags: [schools]
+      summary: List all schools
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, all]
+            default: all
+      responses:
+        "200":
+          description: List of schools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/School"
+    post:
+      operationId: createSchool
+      tags: [schools]
+      summary: Create a school
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSchoolBody"
+      responses:
+        "201":
+          description: School created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+
+  /schools/{schoolId}:
+    get:
+      operationId: getSchool
+      tags: [schools]
+      summary: Get school by ID
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+    put:
+      operationId: updateSchool
+      tags: [schools]
+      summary: Update school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSchoolBody"
+      responses:
+        "200":
+          description: Updated school
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+
+  /schools/{schoolId}/status:
+    patch:
+      operationId: updateSchoolStatus
+      tags: [schools]
+      summary: Activate or deactivate a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSchoolStatusBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+
+  /schools/overview:
+    get:
+      operationId: getSystemOverview
+      tags: [schools]
+      summary: Get system-wide overview stats
+      responses:
+        "200":
+          description: System overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemOverview"
+
+  # SUBSCRIPTIONS
+  /schools/{schoolId}/subscription:
+    get:
+      operationId: getSubscription
+      tags: [subscriptions]
+      summary: Get a school's subscription
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+    put:
+      operationId: updateSubscription
+      tags: [subscriptions]
+      summary: Update or assign subscription plan
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubscriptionBody"
+      responses:
+        "200":
+          description: Updated subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+
+  # SCHOOL DASHBOARD
+  /schools/{schoolId}/dashboard:
+    get:
+      operationId: getSchoolDashboard
+      tags: [dashboard]
+      summary: Get school dashboard summary
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolDashboard"
+
+  # STUDENTS
+  /schools/{schoolId}/students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List students in a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: classId
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Add a student
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudentBody"
+      responses:
+        "201":
+          description: Student created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /schools/{schoolId}/students/{studentId}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get student details
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+    put:
+      operationId: updateStudent
+      tags: [students]
+      summary: Update a student
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStudentBody"
+      responses:
+        "200":
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+    delete:
+      operationId: deleteStudent
+      tags: [students]
+      summary: Delete a student
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # CLASSES
+  /schools/{schoolId}/classes:
+    get:
+      operationId: listClasses
+      tags: [classes]
+      summary: List classes
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Class"
+    post:
+      operationId: createClass
+      tags: [classes]
+      summary: Create a class
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClassBody"
+      responses:
+        "201":
+          description: Class created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+
+  /schools/{schoolId}/classes/{classId}:
+    delete:
+      operationId: deleteClass
+      tags: [classes]
+      summary: Delete a class
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ATTENDANCE
+  /schools/{schoolId}/attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: Get attendance records
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: classId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+    post:
+      operationId: markAttendance
+      tags: [attendance]
+      summary: Mark attendance for students
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarkAttendanceBody"
+      responses:
+        "200":
+          description: Attendance marked
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+
+  /schools/{schoolId}/attendance/override:
+    post:
+      operationId: overrideAttendance
+      tags: [attendance]
+      summary: Override attendance record (Admin only)
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OverrideAttendanceBody"
+      responses:
+        "200":
+          description: Overridden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+
+  # FEE SETTINGS
+  /schools/{schoolId}/fee-settings:
+    get:
+      operationId: getFeeSettings
+      tags: [fees]
+      summary: Get fee settings
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fee settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeSettings"
+    put:
+      operationId: updateFeeSettings
+      tags: [fees]
+      summary: Update fee settings
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFeeSettingsBody"
+      responses:
+        "200":
+          description: Updated fee settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeSettings"
+
+  # PAYMENTS
+  /schools/{schoolId}/payments:
+    get:
+      operationId: listPayments
+      tags: [finance]
+      summary: List payment records
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+    post:
+      operationId: recordPayment
+      tags: [finance]
+      summary: Record a payment
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordPaymentBody"
+      responses:
+        "201":
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  # SALES
+  /schools/{schoolId}/sales:
+    get:
+      operationId: listSales
+      tags: [sales]
+      summary: List sales
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sale"
+    post:
+      operationId: createSale
+      tags: [sales]
+      summary: Add a sale
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSaleBody"
+      responses:
+        "201":
+          description: Sale created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sale"
+
+  # EXPENDITURES
+  /schools/{schoolId}/expenditures:
+    get:
+      operationId: listExpenditures
+      tags: [expenditures]
+      summary: List expenditures
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Expenditures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expenditure"
+    post:
+      operationId: createExpenditure
+      tags: [expenditures]
+      summary: Add an expenditure
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExpenditureBody"
+      responses:
+        "201":
+          description: Expenditure created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expenditure"
+
+  # FINANCE DASHBOARD
+  /schools/{schoolId}/finance/summary:
+    get:
+      operationId: getFinanceSummary
+      tags: [finance]
+      summary: Get finance summary (daily totals, arrears, etc.)
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Finance summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinanceSummary"
+
+  # ARREARS
+  /schools/{schoolId}/arrears:
+    get:
+      operationId: listArrears
+      tags: [finance]
+      summary: List students with outstanding fee arrears
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Arrears list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrearsEntry"
+
+  # TEACHERS
+  /schools/{schoolId}/teachers:
+    get:
+      operationId: listTeachers
+      tags: [teachers]
+      summary: List teachers
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Teachers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Teacher"
+    post:
+      operationId: createTeacher
+      tags: [teachers]
+      summary: Add a teacher
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeacherBody"
+      responses:
+        "201":
+          description: Teacher created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+
+  /schools/{schoolId}/teachers/{teacherId}/status:
+    patch:
+      operationId: updateTeacherStatus
+      tags: [teachers]
+      summary: Activate or deactivate a teacher
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: teacherId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStatusBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+
+  # SCHOOL SETTINGS
+  /schools/{schoolId}/settings:
+    get:
+      operationId: getSchoolSettings
+      tags: [settings]
+      summary: Get school settings
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolSettings"
+    put:
+      operationId: updateSchoolSettings
+      tags: [settings]
+      summary: Update school settings
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSchoolSettingsBody"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolSettings"
+
+  # FEATURE TOGGLES
+  /schools/{schoolId}/features:
+    get:
+      operationId: getFeatureToggles
+      tags: [settings]
+      summary: Get feature toggles
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Feature toggles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureToggles"
+    put:
+      operationId: updateFeatureToggles
+      tags: [settings]
+      summary: Update feature toggles
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeatureToggles"
+      responses:
+        "200":
+          description: Updated feature toggles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureToggles"
+
+  # REPORTS
+  /schools/{schoolId}/reports/daily:
+    get:
+      operationId: getDailyReport
+      tags: [reports]
+      summary: Get daily summary report
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Daily report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyReport"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        schoolId:
+          type: integer
+          description: Omit for super admin login
+      required: [username, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    Session:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        school:
+          $ref: "#/components/schemas/School"
+          nullable: true
+      required: [user]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        role:
+          type: string
+          enum: [super_admin, school_admin, teacher]
+        schoolId:
+          type: integer
+          nullable: true
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, username, role, name, createdAt]
+
+    School:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+        logoUrl:
+          type: string
+          nullable: true
+        academicYear:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        subscription:
+          $ref: "#/components/schemas/Subscription"
+          nullable: true
+        studentCount:
+          type: integer
+          nullable: true
+      required: [id, name, contactEmail, status, createdAt]
+
+    CreateSchoolBody:
+      type: object
+      properties:
+        name:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        address:
+          type: string
+        adminUsername:
+          type: string
+        adminPassword:
+          type: string
+        adminName:
+          type: string
+        plan:
+          type: string
+          enum: [basic, pro, enterprise]
+      required: [name, contactEmail, adminUsername, adminPassword, adminName, plan]
+
+    UpdateSchoolBody:
+      type: object
+      properties:
+        name:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        address:
+          type: string
+
+    UpdateSchoolStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, inactive]
+      required: [status]
+
+    SystemOverview:
+      type: object
+      properties:
+        totalSchools:
+          type: integer
+        activeSchools:
+          type: integer
+        totalStudents:
+          type: integer
+        activeSubscriptions:
+          type: integer
+        expiringSubscriptions:
+          type: integer
+        recentSchools:
+          type: array
+          items:
+            $ref: "#/components/schemas/School"
+      required: [totalSchools, activeSchools, totalStudents, activeSubscriptions, expiringSubscriptions, recentSchools]
+
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        plan:
+          type: string
+          enum: [basic, pro, enterprise]
+        billingCycle:
+          type: string
+          enum: [monthly, annual]
+        status:
+          type: string
+          enum: [active, expired, trial]
+        startDate:
+          type: string
+          format: date
+        expiryDate:
+          type: string
+          format: date
+        amount:
+          type: number
+      required: [id, schoolId, plan, billingCycle, status, startDate, expiryDate, amount]
+
+    UpdateSubscriptionBody:
+      type: object
+      properties:
+        plan:
+          type: string
+          enum: [basic, pro, enterprise]
+        billingCycle:
+          type: string
+          enum: [monthly, annual]
+        expiryDate:
+          type: string
+          format: date
+        amount:
+          type: number
+      required: [plan, billingCycle, expiryDate, amount]
+
+    SchoolDashboard:
+      type: object
+      properties:
+        schoolId:
+          type: integer
+        date:
+          type: string
+          format: date
+        studentCount:
+          type: integer
+        attendanceToday:
+          type: integer
+        attendanceRate:
+          type: number
+        feesCollectedToday:
+          type: number
+        salesToday:
+          type: number
+        expenditureToday:
+          type: number
+        netCashToday:
+          type: number
+        recentPayments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+        topArrears:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrearsEntry"
+      required: [schoolId, date, studentCount, attendanceToday, attendanceRate, feesCollectedToday, salesToday, expenditureToday, netCashToday, recentPayments, topArrears]
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        name:
+          type: string
+        studentNumber:
+          type: string
+        classId:
+          type: integer
+          nullable: true
+        className:
+          type: string
+          nullable: true
+        category:
+          type: string
+          enum: [regular, bus, scholarship, staff_child]
+        gender:
+          type: string
+          enum: [male, female, other]
+          nullable: true
+        dateOfBirth:
+          type: string
+          format: date
+          nullable: true
+        parentName:
+          type: string
+          nullable: true
+        parentPhone:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+        createdAt:
+          type: string
+          format: date-time
+        totalFeeExpected:
+          type: number
+          nullable: true
+        totalFeePaid:
+          type: number
+          nullable: true
+        arrears:
+          type: number
+          nullable: true
+      required: [id, schoolId, name, studentNumber, category, status, createdAt]
+
+    CreateStudentBody:
+      type: object
+      properties:
+        name:
+          type: string
+        studentNumber:
+          type: string
+        classId:
+          type: integer
+        category:
+          type: string
+          enum: [regular, bus, scholarship, staff_child]
+        gender:
+          type: string
+          enum: [male, female, other]
+        dateOfBirth:
+          type: string
+          format: date
+        parentName:
+          type: string
+        parentPhone:
+          type: string
+      required: [name, studentNumber, category]
+
+    UpdateStudentBody:
+      type: object
+      properties:
+        name:
+          type: string
+        classId:
+          type: integer
+        category:
+          type: string
+          enum: [regular, bus, scholarship, staff_child]
+        gender:
+          type: string
+          enum: [male, female, other]
+        dateOfBirth:
+          type: string
+          format: date
+        parentName:
+          type: string
+        parentPhone:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+
+    Class:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        name:
+          type: string
+        grade:
+          type: string
+          nullable: true
+        teacherId:
+          type: integer
+          nullable: true
+        teacherName:
+          type: string
+          nullable: true
+        studentCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, schoolId, name, studentCount, createdAt]
+
+    CreateClassBody:
+      type: object
+      properties:
+        name:
+          type: string
+        grade:
+          type: string
+        teacherId:
+          type: integer
+      required: [name]
+
+    AttendanceRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [present, absent, late, excused]
+        markedViaPayment:
+          type: boolean
+        overridden:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+      required: [id, schoolId, studentId, studentName, date, status, markedViaPayment, overridden]
+
+    MarkAttendanceBody:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        records:
+          type: array
+          items:
+            type: object
+            properties:
+              studentId:
+                type: integer
+              status:
+                type: string
+                enum: [present, absent, late, excused]
+              notes:
+                type: string
+            required: [studentId, status]
+      required: [date, records]
+
+    OverrideAttendanceBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [present, absent, late, excused]
+        notes:
+          type: string
+      required: [studentId, date, status]
+
+    FeeSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        schoolFee:
+          type: number
+        busFee:
+          type: number
+        scholarshipDiscount:
+          type: number
+        staffChildDiscount:
+          type: number
+        termBillingEnabled:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, schoolId, schoolFee, busFee, scholarshipDiscount, staffChildDiscount, termBillingEnabled]
+
+    UpdateFeeSettingsBody:
+      type: object
+      properties:
+        schoolFee:
+          type: number
+        busFee:
+          type: number
+        scholarshipDiscount:
+          type: number
+        staffChildDiscount:
+          type: number
+        termBillingEnabled:
+          type: boolean
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        amount:
+          type: number
+        paymentDate:
+          type: string
+          format: date
+        paymentType:
+          type: string
+          enum: [school_fee, bus_fee, other]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, schoolId, studentId, studentName, amount, paymentDate, paymentType, createdAt]
+
+    RecordPaymentBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        amount:
+          type: number
+        paymentDate:
+          type: string
+          format: date
+        paymentType:
+          type: string
+          enum: [school_fee, bus_fee, other]
+        markAttendance:
+          type: boolean
+        notes:
+          type: string
+      required: [studentId, amount, paymentDate, paymentType]
+
+    FinanceSummary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        feesCollected:
+          type: number
+        feesExpected:
+          type: number
+        salesTotal:
+          type: number
+        expenditureTotal:
+          type: number
+        netCash:
+          type: number
+        totalArrears:
+          type: number
+        studentsWithArrears:
+          type: integer
+        collectionRate:
+          type: number
+      required: [date, feesCollected, feesExpected, salesTotal, expenditureTotal, netCash, totalArrears, studentsWithArrears, collectionRate]
+
+    ArrearsEntry:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        studentNumber:
+          type: string
+        className:
+          type: string
+          nullable: true
+        expectedFee:
+          type: number
+        paidFee:
+          type: number
+        arrears:
+          type: number
+        lastPaymentDate:
+          type: string
+          format: date
+          nullable: true
+      required: [studentId, studentName, studentNumber, expectedFee, paidFee, arrears]
+
+    Sale:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+        saleDate:
+          type: string
+          format: date
+        category:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, schoolId, description, amount, saleDate, createdAt]
+
+    CreateSaleBody:
+      type: object
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        saleDate:
+          type: string
+          format: date
+        category:
+          type: string
+      required: [description, amount, saleDate]
+
+    Expenditure:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+          nullable: true
+        expenditureDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, schoolId, description, amount, expenditureDate, createdAt]
+
+    CreateExpenditureBody:
+      type: object
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        expenditureDate:
+          type: string
+          format: date
+        category:
+          type: string
+      required: [description, amount, expenditureDate]
+
+    Teacher:
+      type: object
+      properties:
+        id:
+          type: integer
+        schoolId:
+          type: integer
+        name:
+          type: string
+        subject:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, schoolId, name, status, createdAt]
+
+    CreateTeacherBody:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+      required: [name]
+
+    UpdateStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, inactive]
+      required: [status]
+
+    SchoolSettings:
+      type: object
+      properties:
+        schoolId:
+          type: integer
+        schoolName:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        academicYear:
+          type: string
+          nullable: true
+        logoUrl:
+          type: string
+          nullable: true
+        themeColor:
+          type: string
+          nullable: true
+      required: [schoolId, schoolName, contactEmail]
+
+    UpdateSchoolSettingsBody:
+      type: object
+      properties:
+        schoolName:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        address:
+          type: string
+        academicYear:
+          type: string
+        themeColor:
+          type: string
+
+    FeatureToggles:
+      type: object
+      properties:
+        schoolId:
+          type: integer
+        attendanceEnabled:
+          type: boolean
+        financeEnabled:
+          type: boolean
+        salesEnabled:
+          type: boolean
+        reportsEnabled:
+          type: boolean
+        busEnabled:
+          type: boolean
+      required: [schoolId, attendanceEnabled, financeEnabled, salesEnabled, reportsEnabled, busEnabled]
+
+    DailyReport:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        schoolId:
+          type: integer
+        totalStudents:
+          type: integer
+        presentCount:
+          type: integer
+        absentCount:
+          type: integer
+        lateCount:
+          type: integer
+        attendanceRate:
+          type: number
+        feesCollected:
+          type: number
+        salesTotal:
+          type: number
+        expenditureTotal:
+          type: number
+        netCash:
+          type: number
+        paymentDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+      required: [date, schoolId, totalStudents, presentCount, absentCount, lateCount, attendanceRate, feesCollected, salesTotal, expenditureTotal, netCash, paymentDetails]
