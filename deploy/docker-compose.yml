@@ -31,20 +31,33 @@ services:
 
   minio-init:
     image: minio/mc:latest
+    restart: no
     depends_on:
       minio:
         condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     entrypoint: >
       /bin/sh -c "
-        mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+        mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
         mc mb --ignore-existing local/tsos-public;
         mc mb --ignore-existing local/tsos-private;
         mc anonymous set download local/tsos-public;
-        exit 0;
       "
 
+  migrate:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.migrate
+    restart: no
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://tsos:${POSTGRES_PASSWORD}@postgres:5432/tsos
+
   api:
-    image: tsos-api:latest
     build:
       context: ..
       dockerfile: deploy/Dockerfile.api
@@ -56,7 +69,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: 8080
+      PORT: "8080"
       DATABASE_URL: postgresql://tsos:${POSTGRES_PASSWORD}@postgres:5432/tsos
       SESSION_SECRET: ${SESSION_SECRET}
       PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY}
@@ -79,7 +92,6 @@ services:
       - "8080"
 
   web:
-    image: tsos-web:latest
     build:
       context: ..
       dockerfile: deploy/Dockerfile.web
@@ -106,7 +118,7 @@ services:
     volumes:
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
 
 volumes:
   postgres_data:

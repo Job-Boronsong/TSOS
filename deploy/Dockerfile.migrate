@@ -1,0 +1,8 @@
+FROM node:24-alpine
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY lib/db/ lib/db/
+RUN pnpm install --frozen-lockfile --ignore-scripts
+WORKDIR /app/lib/db
+CMD ["pnpm", "run", "push"]

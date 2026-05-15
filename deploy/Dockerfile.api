@@ -2,38 +2,39 @@ FROM node:24-alpine AS base
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
+# ── Stage 1: Install all dependencies ───────────────────────────────────────
 FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY lib/db/package.json ./lib/db/
-COPY lib/api-spec/package.json ./lib/api-spec/
-COPY lib/api-zod/package.json ./lib/api-zod/
-COPY lib/object-storage-web/package.json ./lib/object-storage-web/ 2>/dev/null || true
-COPY artifacts/api-server/package.json ./artifacts/api-server/
+COPY lib/db/package.json             lib/db/
+COPY lib/api-spec/package.json       lib/api-spec/
+COPY lib/api-zod/package.json        lib/api-zod/
+COPY lib/api-client-react/package.json lib/api-client-react/
+COPY lib/object-storage-web/package.json lib/object-storage-web/
+COPY artifacts/api-server/package.json artifacts/api-server/
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
+# ── Stage 2: Build (esbuild bundles everything into dist/index.mjs) ─────────
 FROM deps AS builder
-COPY lib/ ./lib/
-COPY artifacts/api-server/ ./artifacts/api-server/
 COPY tsconfig.base.json tsconfig.json ./
-RUN pnpm --filter @workspace/db run build 2>/dev/null || true
-RUN pnpm --filter @workspace/api-zod run build 2>/dev/null || true
+COPY lib/ lib/
+COPY artifacts/api-server/ artifacts/api-server/
 RUN pnpm --filter @workspace/api-server run build
 
+# ── Stage 3: Lean production runner ─────────────────────────────────────────
+# The esbuild bundle is self-contained, but external packages (nodemailer,
+# @google-cloud/storage) must still exist in node_modules at runtime.
 FROM node:24-alpine AS runner
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
-
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY lib/db/package.json ./lib/db/
-COPY lib/api-spec/package.json ./lib/api-spec/
-COPY lib/api-zod/package.json ./lib/api-zod/
-COPY lib/object-storage-web/package.json ./lib/object-storage-web/ 2>/dev/null || true
-COPY artifacts/api-server/package.json ./artifacts/api-server/
+COPY lib/db/package.json             lib/db/
+COPY lib/api-spec/package.json       lib/api-spec/
+COPY lib/api-zod/package.json        lib/api-zod/
+COPY lib/api-client-react/package.json lib/api-client-react/
+COPY lib/object-storage-web/package.json lib/object-storage-web/
+COPY artifacts/api-server/package.json artifacts/api-server/
 RUN pnpm install --frozen-lockfile --ignore-scripts --prod
-
-COPY --from=builder /app/lib/db/dist ./lib/db/dist
-COPY --from=builder /app/lib/api-zod/dist ./lib/api-zod/dist
-COPY --from=builder /app/artifacts/api-server/dist ./artifacts/api-server/dist
+COPY --from=builder /app/artifacts/api-server/dist artifacts/api-server/dist
 
 EXPOSE 8080
 ENV PORT=8080
