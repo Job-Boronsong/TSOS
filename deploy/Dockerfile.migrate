@@ -5,4 +5,5 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY lib/db/ lib/db/
 RUN pnpm install --frozen-lockfile --ignore-scripts
 WORKDIR /app/lib/db
-CMD ["pnpm", "run", "push"]
+# Push schema first, then seed initial data (superadmin, platform settings)
+CMD ["sh", "-c", "pnpm run push && pnpm run seed"]
