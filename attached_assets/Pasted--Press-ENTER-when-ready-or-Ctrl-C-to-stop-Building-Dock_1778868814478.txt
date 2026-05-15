@@ -1,0 +1,151 @@
+
+  Press ENTER when ready (or Ctrl+C to stop)...
+
+▶ Building Docker images (may take 5-10 min on first run)...
+[+] Building 28.4s (40/42)
+ => [internal] load local bake definitions          0.0s
+ => => reading from stdin 847B                      0.0s
+ => [api internal] load build definition from Dock  0.0s
+ => => transferring dockerfile: 2.11kB              0.0s
+ => [web internal] load build definition from Dock  0.0s
+ => => transferring dockerfile: 1.50kB              0.0s
+ => [web internal] load metadata for docker.io/lib  1.1s
+ => [web internal] load metadata for docker.io/lib  1.1s
+ => [web internal] load .dockerignore               0.0s
+ => => transferring context: 2B                     0.0s
+ => [api internal] load build context               0.1s
+ => => transferring context: 940.12kB               0.0s
+ => [web base 1/3] FROM docker.io/library/node:24-  7.6s
+ => => resolve docker.io/library/node:24-alpine@sh  0.0s
+ => => sha256:1ba15d4bb83a5da0244b0ca0 446B / 446B  0.2s
+ => => sha256:3eebacc30b80dca2db4f 1.26MB / 1.26MB  0.6s
+ => => sha256:d7319775d025f51b0d 51.51MB / 51.51MB  5.3s
+ => => sha256:6a0ac1617861a677b045 3.86MB / 3.86MB  1.1s
+ => => extracting sha256:6a0ac1617861a677b045b7ff8  0.2s
+ => => extracting sha256:d7319775d025f51b0d7ee7f12  2.1s
+ => => extracting sha256:3eebacc30b80dca2db4fba20e  0.1s
+ => => extracting sha256:1ba15d4bb83a5da0244b0ca03  0.0s
+ => [web internal] load build context               0.1s
+ => => transferring context: 2.26MB                 0.1s
+ => [web runner 1/3] FROM docker.io/library/nginx:  4.5s
+ => => resolve docker.io/library/nginx:alpine@sha2  0.0s
+ => => sha256:7f32a4497b311a16de 20.33MB / 20.33MB  3.2s
+ => => sha256:19af4ef65048c9c32172 1.40kB / 1.40kB  0.2s
+ => => sha256:22ed557e90381f9206a0 1.21kB / 1.21kB  0.2s
+ => => sha256:be5351d87f1f6698b5b518ff 404B / 404B  0.2s
+ => => sha256:42f24ddde8a46b34bf2ef16b 955B / 955B  0.2s
+ => => sha256:02eda4087d069b85f6fb7334 628B / 628B  0.2s
+ => => sha256:d0ffc65fde23e8f068ec 1.88MB / 1.88MB  0.6s
+ => => extracting sha256:d0ffc65fde23e8f068ec0f227  0.1s
+ => => extracting sha256:02eda4087d069b85f6fb73347  0.0s
+ => => extracting sha256:42f24ddde8a46b34bf2ef16be  0.0s
+ => => extracting sha256:be5351d87f1f6698b5b518ff5  0.0s
+ => => extracting sha256:22ed557e90381f9206a08d836  0.0s
+ => => extracting sha256:19af4ef65048c9c32172d38f2  0.0s
+ => => extracting sha256:7f32a4497b311a16deccd1d95  1.0s
+ => [web base 2/3] RUN corepack enable && corepack  1.3s
+ => [api base 3/3] WORKDIR /app                     0.0s
+ => [api deps 1/8] COPY package.json pnpm-workspac  0.0s
+ => [api deps 2/8] COPY lib/db/package.json         0.0s
+ => [api deps 3/8] COPY lib/api-spec/package.json   0.0s
+ => [web deps 4/8] COPY lib/api-zod/package.json    0.0s
+ => [api deps 5/8] COPY lib/api-client-react/packa  0.0s
+ => [api deps 6/8] COPY lib/object-storage-web/pac  0.0s
+ => [api deps 7/8] COPY artifacts/api-server/packa  0.0s
+ => CACHED [web deps 1/8] COPY package.json pnpm-w  0.0s
+ => CACHED [web deps 2/8] COPY lib/db/package.json  0.0s
+ => CACHED [web deps 3/8] COPY lib/api-spec/packag  0.0s
+ => CACHED [web deps 4/8] COPY lib/api-zod/package  0.0s
+ => CACHED [web deps 5/8] COPY lib/api-client-reac  0.0s
+ => CACHED [web deps 6/8] COPY lib/object-storage-  0.0s
+ => [web deps 7/8] COPY artifacts/school-saas/pack  0.0s
+ => [api deps 8/8] RUN pnpm install --frozen-lock  10.4s
+ => [api runner 11/13] RUN pnpm install --frozen-l  7.9s
+ => [web deps 8/8] RUN pnpm install --frozen-lock  16.0s
+ => [api builder 1/4] COPY tsconfig.base.json tsco  0.5s
+ => [api builder 2/4] COPY lib/ lib/                0.1s
+ => [api builder 3/4] COPY artifacts/api-server/ a  0.1s
+ => [api builder 4/4] RUN pnpm --filter @workspace  2.7s
+ => [api runner 12/13] COPY --from=builder /app/ar  0.6s
+ => [api runner 13/13] WORKDIR /app/artifacts/api-  0.0s
+ => CANCELED [api] exporting to image               3.4s
+ => => exporting layers                             3.4s
+ => [web builder 1/4] COPY tsconfig.base.json tsco  0.9s
+ => [web builder 2/4] COPY lib/ lib/                0.1s
+ => [web builder 3/4] COPY artifacts/school-saas/   0.1s
+ => ERROR [web builder 4/4] RUN PORT=80 BASE_PATH=  0.9s
+------
+ > [web builder 4/4] RUN PORT=80 BASE_PATH=/ NODE_ENV=production     pnpm --filter @workspace/school-saas run build:
+0.702 $ vite build --config vite.config.ts
+0.856 /app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:115
+0.856           throw new Error(
+0.856                 ^
+0.856
+0.856 Error: Cannot find module @rollup/rollup-linux-x64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+0.856     at requireWithFriendlyError (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:115:9)
+0.856     at Object.<anonymous> (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:124:76)
+0.856     at Module._compile (node:internal/modules/cjs/loader:1830:14)
+0.856     at Object..js (node:internal/modules/cjs/loader:1961:10)
+0.856     at Module.load (node:internal/modules/cjs/loader:1553:32)
+0.856     at Module._load (node:internal/modules/cjs/loader:1355:12)
+0.856     at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+0.856     at loadCJSModuleWithModuleLoad (node:internal/modules/esm/translators:326:3)
+0.856     at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:231:7)
+0.856     at ModuleJob.run (node:internal/modules/esm/module_job:437:25) {
+0.856   [cause]: Error: Cannot find module '@rollup/rollup-linux-x64-musl'
+0.856   Require stack:
+0.856   - /app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js
+0.856       at Module._resolveFilename (node:internal/modules/cjs/loader:1476:15)
+0.856       at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)
+0.856       at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)
+0.856       at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)
+0.856       at Module._load (node:internal/modules/cjs/loader:1262:25)
+0.856       at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+0.856       at Module.require (node:internal/modules/cjs/loader:1576:12)
+0.856       at require (node:internal/modules/helpers:153:16)
+0.856       at requireWithFriendlyError (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:97:10)
+0.856       at Object.<anonymous> (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:124:76) {
+0.856     code: 'MODULE_NOT_FOUND',
+0.856     requireStack: [
+0.856       '/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js'
+0.856     ]
+0.856   }
+0.856 }
+0.856
+0.856 Node.js v24.15.0
+0.886 /app/artifacts/school-saas:
+0.886 [ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @workspace/school-saas@0.0.0 build: `vite build --config vite.config.ts`
+0.886 Exit status 1
+------
+[+] build 0/2
+ ⠙ Image deploy-web Building                        28.5s
+ ⠙ Image deploy-api Building                        28.5s
+Dockerfile.web:21
+
+--------------------
+
+  20 |     COPY artifacts/school-saas/ artifacts/school-saas/
+
+  21 | >>> RUN PORT=80 BASE_PATH=/ NODE_ENV=production \
+
+  22 | >>>     pnpm --filter @workspace/school-saas run build
+
+  23 |
+
+--------------------
+
+target web: failed to solve: process "/bin/sh -c PORT=80 BASE_PATH=/ NODE_ENV=production     pnpm --filter @workspace/school-saas run build" did not complete successfully: exit code: 1
+
+root@server1:/opt/tsos# sudo ufw allow 80/tcp
+Rule added
+Rule added (v6)
+root@server1:/opt/tsos# sudo ufw allow 443/tcp
+Rule added
+Rule added (v6)
+root@server1:/opt/tsos# sudo ufw allow 22/tcp
+Rule added
+Rule added (v6)
+root@server1:/opt/tsos# sudo ufw enable
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+root@server1:/opt/tsos
