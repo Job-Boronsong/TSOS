@@ -35,6 +35,20 @@ async function seed() {
     console.log("  ✓ Superadmin already exists — skipped");
   }
 
+  // Create session table for connect-pg-simple (express-session store)
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS "session" (
+      "sid"    varchar NOT NULL COLLATE "default",
+      "sess"   json    NOT NULL,
+      "expire" timestamp(6) NOT NULL,
+      CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
+    ) WITH (OIDS=FALSE)
+  `);
+  await client.query(
+    `CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")`
+  );
+  console.log("  ✓ Session table ready");
+
   // Create default platform settings row if not exists
   await client.query(
     `INSERT INTO platform_settings (id, monthly_price)

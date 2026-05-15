@@ -1,0 +1,79 @@
+root@server1:/opt/tsos# curl -v -c /tmp/cookies.txt -b /tmp/cookies.txt \
+  -X POST https://torrentialbsms.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"superadmin","password":"superadmin123"}'
+Note: Unnecessary use of -X or --request, POST is already inferred.
+* WARNING: failed to open cookie file "/tmp/cookies.txt"
+* Host torrentialbsms.com:443 was resolved.
+* IPv6: (none)
+* IPv4: 209.74.88.43
+*   Trying 209.74.88.43:443...
+* Connected to torrentialbsms.com (209.74.88.43) port 443
+* ALPN: curl offers h2,http/1.1
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: /etc/ssl/certs
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / X25519 / id-ecPublicKey
+* ALPN: server accepted http/1.1
+* Server certificate:
+*  subject: CN=torrentialbsms.com
+*  start date: May 15 19:06:53 2026 GMT
+*  expire date: Aug 13 19:06:52 2026 GMT
+*  subjectAltName: host "torrentialbsms.com" matched cert's "torrentialbsms.com"
+*  issuer: C=US; O=Let's Encrypt; CN=E7
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA384
+*   Certificate level 1: Public key type EC/secp384r1 (384/192 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha256WithRSAEncryption
+* using HTTP/1.x
+> POST /api/auth/login HTTP/1.1
+> Host: torrentialbsms.com
+> User-Agent: curl/8.5.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 52
+>
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* old SSL session ID is stale, removing
+< HTTP/1.1 500 Internal Server Error
+< Server: nginx/1.24.0 (Ubuntu)
+< Date: Fri, 15 May 2026 21:06:07 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 148
+< Connection: keep-alive
+< X-Powered-By: Express
+< Vary: Origin
+< Access-Control-Allow-Credentials: true
+< RateLimit-Policy: 20;w=900
+< RateLimit-Limit: 20
+< RateLimit-Remaining: 19
+< RateLimit-Reset: 900
+< Content-Security-Policy: default-src 'none'
+< X-Content-Type-Options: nosniff
+* Added cookie connect.sid="s%3ALyVZ5JKwnyrnhAa9xlKKZXld_0aw3Ole.Y8sEtsYijjDHTiXNr16roME0DdEVlZwxNuX5SHAk3gE" for domain torrentialbsms.com, path /, expire 1779483967
+< Set-Cookie: connect.sid=s%3ALyVZ5JKwnyrnhAa9xlKKZXld_0aw3Ole.Y8sEtsYijjDHTiXNr16roME0DdEVlZwxNuX5SHAk3gE; Path=/; Expires=Fri, 22 May 2026 21:06:07 GMT; HttpOnly; Secure; SameSite=Lax
+< Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+< X-Frame-Options: DENY
+< X-Content-Type-Options: nosniff
+< Referrer-Policy: strict-origin-when-cross-origin
+<
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Internal Server Error</pre>
+</body>
+</html>
+* Connection #0 to host torrentialbsms.com left intact
+root@server1:/opt/tsos#
