@@ -1,0 +1,256 @@
+remote: Enumerating objects: 8, done.
+remote: Counting objects: 100% (8/8), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 5 (delta 3), reused 5 (delta 3), pack-reused 0 (from 0)
+Unpacking objects: 100% (5/5), 1.08 KiB | 1.08 MiB/s, done.
+From https://github.com/Job-Boronsong/TSOS
+   c625a39..948b60d  main       -> origin/main
+Updating c625a39..948b60d
+Fast-forward
+ deploy/Dockerfile.minio   | 11 +++++++++++
+ deploy/docker-compose.yml |  4 +++-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+ create mode 100644 deploy/Dockerfile.minio
+╔══════════════════════════════════════════════════════╗
+║     TSOS VPS Deployment — torrentialbsms.com
+╚══════════════════════════════════════════════════════╝
+
+▶ Checking prerequisites...
+  ✓ All prerequisites present
+
+  ⚠  Open deploy/.env and fill in your PAYSTACK keys before continuing.
+     PAYSTACK_SECRET_KEY and PAYSTACK_PUBLIC_KEY (from dashboard.paystack.com)
+
+  Press ENTER when ready (or Ctrl+C to cancel)...
+
+▶ Building Docker images (may take 5-10 min on first run)...
+[+] Building 0.8s (57/57) FINISHED
+ => [internal] load local bake definitions                 0.0s
+ => => reading from stdin 1.62kB                           0.0s
+ => [api internal] load build definition from Dockerfile.  0.0s
+ => => transferring dockerfile: 2.11kB                     0.0s
+ => [migrate internal] load build definition from Dockerf  0.0s
+ => => transferring dockerfile: 320B                       0.0s
+ => [web internal] load build definition from Dockerfile.  0.0s
+ => => transferring dockerfile: 1.59kB                     0.0s
+ => [api internal] load metadata for docker.io/library/no  0.4s
+ => [web internal] load metadata for docker.io/library/ng  0.0s
+ => [web internal] load metadata for docker.io/library/no  0.4s
+ => [web internal] load .dockerignore                      0.0s
+ => => transferring context: 2B                            0.0s
+ => [migrate 1/7] FROM docker.io/library/node:24-alpine@s  0.0s
+ => => resolve docker.io/library/node:24-alpine@sha256:d1  0.0s
+ => [migrate internal] load build context                  0.0s
+ => => transferring context: 676B                          0.0s
+ => [api internal] load build context                      0.0s
+ => => transferring context: 548.58kB                      0.0s
+ => [web base 1/3] FROM docker.io/library/node:24-slim@sh  0.0s
+ => => resolve docker.io/library/node:24-slim@sha256:24dc  0.0s
+ => [web internal] load build context                      0.0s
+ => => transferring context: 16.95kB                       0.0s
+ => [web runner 1/3] FROM docker.io/library/nginx:alpine@  0.0s
+ => => resolve docker.io/library/nginx:alpine@sha256:feb6  0.0s
+ => CACHED [web base 2/3] RUN corepack enable && corepack  0.0s
+ => CACHED [web base 3/3] WORKDIR /app                     0.0s
+ => CACHED [web deps 1/8] COPY package.json pnpm-workspac  0.0s
+ => CACHED [web deps 2/8] COPY lib/db/package.json         0.0s
+ => CACHED [web deps 3/8] COPY lib/api-spec/package.json   0.0s
+ => CACHED [web deps 4/8] COPY lib/api-zod/package.json    0.0s
+ => CACHED [web deps 5/8] COPY lib/api-client-react/packa  0.0s
+ => CACHED [web deps 6/8] COPY lib/object-storage-web/pac  0.0s
+ => CACHED [web deps 7/8] COPY artifacts/school-saas/pack  0.0s
+ => CACHED [web deps 8/8] RUN pnpm install --frozen-lockf  0.0s
+ => CACHED [web builder 1/4] COPY tsconfig.base.json tsco  0.0s
+ => CACHED [web builder 2/4] COPY lib/ lib/                0.0s
+ => CACHED [web builder 3/4] COPY artifacts/school-saas/   0.0s
+ => CACHED [web builder 4/4] RUN PORT=80 BASE_PATH=/ NODE  0.0s
+ => CACHED [web runner 2/3] COPY --from=builder /app/arti  0.0s
+ => CACHED [web runner 3/3] COPY deploy/nginx-static.conf  0.0s
+ => [web] exporting to image                               0.1s
+ => => exporting layers                                    0.0s
+ => => exporting manifest sha256:cf63bffc1f2753156d13b663  0.0s
+ => => exporting config sha256:b58d8af9d08ee1f948d3b5fc62  0.0s
+ => => exporting attestation manifest sha256:fa56490701f1  0.0s
+ => => exporting manifest list sha256:d9c404a75ff86e0c2da  0.0s
+ => => naming to docker.io/library/deploy-web:latest       0.0s
+ => => unpacking to docker.io/library/deploy-web:latest    0.0s
+ => CACHED [api 2/7] RUN corepack enable && corepack prep  0.0s
+ => CACHED [api 3/7] WORKDIR /app                          0.0s
+ => CACHED [migrate 4/7] COPY package.json pnpm-workspace  0.0s
+ => CACHED [migrate 5/7] COPY lib/db/ lib/db/              0.0s
+ => CACHED [migrate 6/7] RUN pnpm install --frozen-lockfi  0.0s
+ => CACHED [migrate 7/7] WORKDIR /app/lib/db               0.0s
+ => [migrate] exporting to image                           0.1s
+ => => exporting layers                                    0.0s
+ => => exporting manifest sha256:8a0d2805f8e3bf741fe3d212  0.0s
+ => => exporting config sha256:7fe4d549e2ad5975b36a332fd0  0.0s
+ => => exporting attestation manifest sha256:8e400030a8fd  0.0s
+ => => exporting manifest list sha256:00ae5c236d6df49bfe5  0.0s
+ => => naming to docker.io/library/deploy-migrate:latest   0.0s
+ => => unpacking to docker.io/library/deploy-migrate:late  0.0s
+ => CACHED [api deps 1/8] COPY package.json pnpm-workspac  0.0s
+ => CACHED [api deps 2/8] COPY lib/db/package.json         0.0s
+ => CACHED [api deps 3/8] COPY lib/api-spec/package.json   0.0s
+ => CACHED [api deps 4/8] COPY lib/api-zod/package.json    0.0s
+ => CACHED [api deps 5/8] COPY lib/api-client-react/packa  0.0s
+ => CACHED [api deps 6/8] COPY lib/object-storage-web/pac  0.0s
+ => CACHED [api deps 7/8] COPY artifacts/api-server/packa  0.0s
+ => CACHED [api runner 11/13] RUN pnpm install --frozen-l  0.0s
+ => CACHED [api deps 8/8] RUN pnpm install --frozen-lockf  0.0s
+ => CACHED [api builder 1/4] COPY tsconfig.base.json tsco  0.0s
+ => CACHED [api builder 2/4] COPY lib/ lib/                0.0s
+ => CACHED [api builder 3/4] COPY artifacts/api-server/ a  0.0s
+ => CACHED [api builder 4/4] RUN pnpm --filter @workspace  0.0s
+ => CACHED [api runner 12/13] COPY --from=builder /app/ar  0.0s
+ => CACHED [api runner 13/13] WORKDIR /app/artifacts/api-  0.0s
+ => [api] exporting to image                               0.1s
+ => => exporting layers                                    0.0s
+ => => exporting manifest sha256:5a3dadf66bf87afd876865ec  0.0s
+ => => exporting config sha256:e4ffa65c5b02a1cfc5cdb5bb60  0.0s
+ => => exporting attestation manifest sha256:93452849f657  0.0s
+ => => exporting manifest list sha256:4e140e9ec44c631f1ff  0.0s
+ => => naming to docker.io/library/deploy-api:latest       0.0s
+ => => unpacking to docker.io/library/deploy-api:latest    0.0s
+ => [web] resolving provenance for metadata file           0.0s
+ => [migrate] resolving provenance for metadata file       0.0s
+ => [api] resolving provenance for metadata file           0.0s
+[+] build 3/4
+ ⠙ Image deploy-minio   Building                            0.9s
+ ✔ Image deploy-migrate Built                               0.9s
+ ✔ Image deploy-api     Built                               0.9s
+ ✔ Image deploy-web     Built                               0.9s
+  ✓ Images built
+
+▶ Starting database and storage services...
+[+] Building 15.5s (8/8) FINISHED
+ => [internal] load local bake definitions                 0.0s
+ => => reading from stdin 477B                             0.0s
+ => [internal] load build definition from Dockerfile.mini  0.0s
+ => => transferring dockerfile: 529B                       0.0s
+ => [internal] load metadata for docker.io/library/alpine  0.0s
+ => [internal] load .dockerignore                          0.0s
+ => => transferring context: 2B                            0.0s
+ => [1/2] FROM docker.io/library/alpine:3.19@sha256:6baf4  0.0s
+ => => resolve docker.io/library/alpine:3.19@sha256:6baf4  0.0s
+ => [2/2] RUN apk add --no-cache ca-certificates curl      8.6s
+ => exporting to image                                     6.7s
+ => => exporting layers                                    5.4s
+ => => exporting manifest sha256:74257721c7c62c860be86ff9  0.0s
+ => => exporting config sha256:9b648226a13422104e4a55e041  0.0s
+ => => exporting attestation manifest sha256:53c3bd453e91  0.0s
+ => => exporting manifest list sha256:b7416e83042c455634f  0.0s
+ => => naming to docker.io/library/deploy-minio:latest     0.0s
+ => => unpacking to docker.io/library/deploy-minio:latest  1.2s
+ => resolving provenance for metadata file                 0.0s
+WARN[0015] Found orphan containers ([deploy-nginx-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+[+] up 3/3
+ ✔ Image deploy-minio          Built                       15.5s
+ ✔ Container deploy-postgres-1 Running                      0.0s
+ ✔ Container deploy-minio-1    Started                      0.6s
+  Waiting for postgres to be healthy...
+WARN[0000] Found orphan containers ([deploy-nginx-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+[+] up 1/1
+ ✔ Container deploy-postgres-1 Healthy                      0.5s
+  Waiting for MinIO to start (15s)...
+WARN[0000] Found orphan containers ([deploy-nginx-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+[+]  1/1t 1/11
+ ✔ Container deploy-minio-1 Running                         0.0s
+Container deploy-minio-init-run-d18847fee7da Creating
+Container deploy-minio-init-run-d18847fee7da Created
+fetch https://dl-cdn.alpinelinux.org/alpine/v3.19/main/x86_64/APKINDEX.tar.gz
+fetch https://dl-cdn.alpinelinux.org/alpine/v3.19/community/x86_64/APKINDEX.tar.gz
+(1/9) Installing ca-certificates (20250911-r0)
+(2/9) Installing brotli-libs (1.1.0-r1)
+(3/9) Installing c-ares (1.27.0-r0)
+(4/9) Installing libunistring (1.1-r2)
+(5/9) Installing libidn2 (2.3.4-r4)
+(6/9) Installing nghttp2-libs (1.58.0-r0)
+(7/9) Installing libpsl (0.21.5-r0)
+(8/9) Installing libcurl (8.14.1-r2)
+(9/9) Installing curl (8.14.1-r2)
+Executing busybox-1.36.1-r20.trigger
+Executing ca-certificates-20250911-r0.trigger
+OK: 12 MiB in 24 packages
+mc: Configuration written to `/root/.mc/config.json`. Please update your access credentials.
+mc: Successfully created `/root/.mc/share`.
+mc: Initialized share uploads `/root/.mc/share/uploads.json` file.
+mc: Initialized share downloads `/root/.mc/share/downloads.json` file.
+Added `local` successfully.
+Bucket created successfully `local/tsos-public`.
+Bucket created successfully `local/tsos-private`.
+Access permission for `local/tsos-public` is set to `download`
+MinIO buckets ready.
+  ✓ Infrastructure ready
+
+▶ Running database migrations...
+WARN[0000] Found orphan containers ([deploy-nginx-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+[+]  1/1t 1/11
+ ✔ Container deploy-postgres-1 Running                      0.0s
+Container deploy-postgres-1 Waiting
+Container deploy-postgres-1 Healthy
+Container deploy-migrate-run-4ab67d470240 Creating
+Container deploy-migrate-run-4ab67d470240 Created
+$ drizzle-kit push --config ./drizzle.config.ts
+Reading config file '/app/lib/db/drizzle.config.ts'
+Using 'pg' driver for database querying
+[✓] Pulling schema from database...
+[i] No changes detected
+  ✓ Migrations applied
+
+▶ Starting API and web services...
+WARN[0000] Found orphan containers ([deploy-nginx-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+[+] up 4/4
+ ✔ Container deploy-minio-1    Running                      0.0s
+ ✔ Container deploy-web-1      Started                     10.3s
+ ✔ Container deploy-postgres-1 Healthy                     10.7s
+ ✔ Container deploy-api-1      Started                     10.8s
+  ✓ App services started (API on 127.0.0.1:8080, web on 127.0.0.1:8082)
+
+▶ Writing nginx site config for torrentialbsms.com...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+  ✓ Nginx configured for torrentialbsms.com
+
+▶ Obtaining SSL certificate from Let's Encrypt...
+  (Port 80 must be reachable from the internet)
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Requesting a certificate for torrentialbsms.com
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/torrentialbsms.com/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/torrentialbsms.com/privkey.pem
+This certificate expires on 2026-08-13.
+These files will be updated when the certificate renews.
+Certbot has set up a scheduled task to automatically renew this certificate in the background.
+
+Deploying certificate
+Successfully deployed certificate for torrentialbsms.com to /etc/nginx/sites-enabled/torrentialbsms.com
+Congratulations! You have successfully enabled HTTPS on https://torrentialbsms.com
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If you like Certbot, please consider supporting our work by:
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+ * Donating to EFF:                    https://eff.org/donate-le
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ✓ SSL certificate obtained and nginx updated to HTTPS
+
+▶ Writing full TSOS reverse proxy config...
+2026/05/15 20:05:27 [emerg] 138931#138931: "limit_req_zone" directive is not allowed here in /etc/nginx/sites-enabled/torrentialbsms.com:27
+nginx: configuration file /etc/nginx/nginx.conf test failed
+  ✓ Full HTTPS proxy config active
+
+╔══════════════════════════════════════════════════════╗
+║  ✅ Deployment complete!
+║
+║  TSOS:      https://torrentialbsms.com
+║  MinIO UI:  ssh tunnel → ssh -L 9001:localhost:9001 root@torrentialbsms.com
+║             then open http://localhost:9001
+║
+║  Login: superadmin / superadmin123
+║  ⚠  Change the superadmin password immediately!
+║
+║  Logs:   docker compose -f /opt/tsos/deploy/docker-compose.yml logs -f
+║  Stop:   docker compose -f /opt/tsos/deploy/docker-compose.yml down
+║  Update: git pull && ./deploy/deploy.sh torrentialbsms.com
+╚══════════════════════════════════════════════════════╝
+root@server1:/opt/tsos#
