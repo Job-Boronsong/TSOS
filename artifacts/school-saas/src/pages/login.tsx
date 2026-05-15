@@ -62,6 +62,14 @@ export default function Login() {
   }, []);
 
   const selectedSchoolId = form.watch("schoolId");
+  const watchedUsername = form.watch("username");
+
+  // Auto-switch to admin mode when "superadmin" is typed
+  useEffect(() => {
+    if (watchedUsername === "superadmin" && !isAdminLogin) {
+      setIsAdminLogin(true);
+    }
+  }, [watchedUsername, isAdminLogin]);
 
   useEffect(() => {
     if (!selectedSchoolId || isAdminLogin) { setUsernameHint(null); return; }
