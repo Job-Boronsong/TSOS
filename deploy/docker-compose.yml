@@ -23,8 +23,9 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - minio_data:/data
-    # MinIO's minimal image has no curl/wget for healthchecks.
-    # The minio-init service retries until MinIO is ready.
+    ports:
+      # MinIO console — bind to localhost only, access via SSH tunnel
+      - "127.0.0.1:9001:9001"
 
   minio-init:
     image: minio/mc:latest
@@ -66,6 +67,9 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+    ports:
+      # Bound to localhost only — system nginx proxies in from outside
+      - "127.0.0.1:8080:8080"
     environment:
       NODE_ENV: production
       PORT: "8080"
@@ -87,40 +91,16 @@ services:
       AT_USERNAME: ${AT_USERNAME:-}
       AT_SENDER_ID: ${AT_SENDER_ID:-}
       LOG_LEVEL: ${LOG_LEVEL:-info}
-    expose:
-      - "8080"
 
   web:
     build:
       context: ..
       dockerfile: deploy/Dockerfile.web
     restart: unless-stopped
-    expose:
-      - "80"
-
-  nginx:
-    image: nginx:alpine
-    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - certbot_www:/var/www/certbot:ro
-      - certbot_certs:/etc/letsencrypt:ro
-    depends_on:
-      - api
-      - web
-
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - certbot_www:/var/www/certbot
-      - certbot_certs:/etc/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
+      # Bound to localhost only — system nginx proxies in from outside
+      - "127.0.0.1:8082:80"
 
 volumes:
   postgres_data:
   minio_data:
-  certbot_www:
-  certbot_certs:
