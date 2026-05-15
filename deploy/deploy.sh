@@ -120,6 +120,10 @@ echo ""
 echo "▶ Writing full TSOS reverse proxy config..."
 # Certbot already added SSL — we just append the proxy locations
 cat > "$NGINX_CONF" <<NGINX
+# limit_req_zone must be at http context (outside server block)
+limit_req_zone \$binary_remote_addr zone=tsos_api:10m rate=30r/s;
+limit_req_zone \$binary_remote_addr zone=tsos_login:10m rate=5r/m;
+
 server {
     listen 80;
     server_name $DOMAIN;
@@ -144,10 +148,6 @@ server {
 
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
-
-    # Rate limiting
-    limit_req_zone \$binary_remote_addr zone=tsos_api:10m rate=30r/s;
-    limit_req_zone \$binary_remote_addr zone=tsos_login:10m rate=5r/m;
 
     location /api/ {
         limit_req zone=tsos_api burst=60 nodelay;

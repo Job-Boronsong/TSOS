@@ -1,0 +1,72 @@
+root@server1:/opt/tsos# docker stop deploy-nginx-1 && docker rm deploy-nginx-1
+deploy-nginx-1
+deploy-nginx-1
+root@server1:/opt/tsos# cat /etc/nginx/sites-available/torrentialbsms.com
+server {
+    listen 80;
+    server_name torrentialbsms.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name torrentialbsms.com;
+
+    ssl_certificate     /etc/letsencrypt/live/torrentialbsms.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/torrentialbsms.com/privkey.pem;
+    include             /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    client_max_body_size 50M;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
+
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=tsos_api:10m rate=30r/s;
+    limit_req_zone $binary_remote_addr zone=tsos_login:10m rate=5r/m;
+
+    location /api/ {
+        limit_req zone=tsos_api burst=60 nodelay;
+        proxy_pass         http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+
+    location ~ ^/api/(auth|teacher-auth)/login {
+        limit_req zone=tsos_login burst=5 nodelay;
+        proxy_pass         http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+
+    location /api/webhooks/ {
+        proxy_pass         http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        proxy_pass         http://127.0.0.1:8082;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+}
+root@server1:/opt/tsos# curl -s http://127.0.0.1:8080/api/healthz
+{"status":"ok"}root@server1:/opt/tsos#
