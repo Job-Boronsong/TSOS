@@ -28,7 +28,10 @@ services:
       - "127.0.0.1:9001:9001"
 
   minio-init:
-    image: minio/mc:latest
+    # Use Alpine + download mc binary directly — avoids glibc x86-64-v2 CPU
+    # requirement that minio/mc:latest has (breaks on older VPS CPUs).
+    # The mc binary is pure Go (statically compiled) and runs on any x86-64.
+    image: alpine:3.19
     restart: no
     depends_on:
       - minio
@@ -37,13 +40,16 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     entrypoint: >
       /bin/sh -c "
-        until mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD; do
+        apk add --no-cache curl &&
+        curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc &&
+        chmod +x /usr/local/bin/mc &&
+        until mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD 2>/dev/null; do
           echo 'Waiting for MinIO...'; sleep 3;
-        done;
-        mc mb --ignore-existing local/tsos-public;
-        mc mb --ignore-existing local/tsos-private;
-        mc anonymous set download local/tsos-public;
-        echo 'MinIO buckets ready.';
+        done &&
+        mc mb --ignore-existing local/tsos-public &&
+        mc mb --ignore-existing local/tsos-private &&
+        mc anonymous set download local/tsos-public &&
+        echo 'MinIO buckets ready.'
       "
 
   migrate:
