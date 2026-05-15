@@ -100,15 +100,26 @@ export default function Login() {
         credentials: "include",
       });
 
-      const data = await res.json();
+      if (res.status === 429 || res.status === 503) {
+        setErrorMsg("Too many login attempts. Please wait a minute and try again.");
+        return;
+      }
+
+      let data: Record<string, unknown> = {};
+      try {
+        data = await res.json();
+      } catch {
+        setErrorMsg(`Server error (${res.status}). Please try again.`);
+        return;
+      }
 
       if (res.status === 423) {
-        setLockMsg(data.error ?? "Account is locked. Please try again later.");
+        setLockMsg((data.error as string) ?? "Account is locked. Please try again later.");
         return;
       }
 
       if (!res.ok) {
-        setErrorMsg(data.error ?? "Invalid credentials");
+        setErrorMsg((data.error as string) ?? "Invalid credentials");
         return;
       }
 

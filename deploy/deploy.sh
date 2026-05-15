@@ -122,7 +122,7 @@ echo "▶ Writing full TSOS reverse proxy config..."
 cat > "$NGINX_CONF" <<NGINX
 # limit_req_zone must be at http context (outside server block)
 limit_req_zone \$binary_remote_addr zone=tsos_api:10m rate=30r/s;
-limit_req_zone \$binary_remote_addr zone=tsos_login:10m rate=5r/m;
+limit_req_zone \$binary_remote_addr zone=tsos_login:10m rate=20r/m;
 
 server {
     listen 80;
@@ -161,7 +161,7 @@ server {
     }
 
     location ~ ^/api/(auth|teacher-auth)/login {
-        limit_req zone=tsos_login burst=5 nodelay;
+        limit_req zone=tsos_login burst=10 nodelay;
         proxy_pass         http://127.0.0.1:8080;
         proxy_http_version 1.1;
         proxy_set_header   Host \$host;
