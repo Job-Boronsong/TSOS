@@ -513,9 +513,8 @@ export default function SuperAdminSchools() {
               </div>
               <div className="border-l pl-4 ml-2 space-y-0.5 text-xs text-muted-foreground">
                 <p className="font-medium text-foreground mb-1">Prepayment Discounts</p>
-                <p>1–2 months: full price</p>
-                <p className="text-amber-700 font-medium">3–6 months: 5% off</p>
-                <p className="text-green-700 font-medium">7+ months: 10% off</p>
+                <p>1–11 months: full price</p>
+                <p className="text-green-700 font-medium">12+ months: 5% off</p>
               </div>
               <div className="border-l pl-4 ml-2 text-xs text-muted-foreground">
                 <p className="font-medium text-foreground mb-1">Grace Policy</p>
@@ -597,7 +596,7 @@ export default function SuperAdminSchools() {
                       {previewDiscount > 0 && (
                         <p className="text-xs text-green-700 font-medium flex items-center gap-1">
                           <Percent className="w-3 h-3" />{previewDiscount}% discount applies
-                          {previewIsCustom ? " (special rate)" : topUpMonthsNum >= 7 ? " (7+ months)" : " (3–6 months)"}
+                          {previewIsCustom ? " (special rate)" : " (12+ months)"}
                         </p>
                       )}
                     </div>
@@ -678,7 +677,7 @@ export default function SuperAdminSchools() {
                     />
                     <span className="text-sm font-medium text-muted-foreground">%</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">When set, this replaces the standard 5%/10% bulk discount for this school on every renewal.</p>
+                  <p className="text-xs text-muted-foreground">When set, this replaces the standard 5% annual discount for this school on every renewal.</p>
                 </div>
                 <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white" onClick={() => handleSetDiscount(false)} disabled={savingDiscount || !discountInput}>
                   {savingDiscount ? "Saving…" : "Save Special Discount"}
