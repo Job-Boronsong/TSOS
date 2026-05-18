@@ -115,7 +115,10 @@ export default function TeacherAnnouncements() {
           ))
         )}
       </main>
-      <footer className="text-center py-3 text-[10px] text-muted-foreground/75">Product of Torrential Technologies</footer>
+      <footer className="flex items-center justify-center gap-2 py-3">
+        <img src={`${import.meta.env.BASE_URL}torrential-tech-logo-light.png`} alt="Torrential Technologies" className="h-4 w-auto object-contain opacity-50" />
+        <span className="text-[10px] text-muted-foreground/75">Product of Torrential Technologies</span>
+      </footer>
     </div>
   );
 }

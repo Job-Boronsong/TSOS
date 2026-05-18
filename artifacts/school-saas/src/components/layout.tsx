@@ -135,7 +135,7 @@ export function SuperAdminLayout({ children }: AdminLayoutProps) {
             Sign out
           </Button>
           <div className="flex items-center justify-center gap-1.5 pt-1">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="TSOS" className="h-4 w-auto object-contain opacity-60" />
+            <img src={`${import.meta.env.BASE_URL}torrential-tech-logo-light.png`} alt="Torrential Technologies" className="h-4 w-auto object-contain opacity-60" />
             <p className="text-[10px] text-muted-foreground/75">Product of Torrential Technologies</p>
           </div>
         </SidebarFooter>
@@ -247,7 +247,7 @@ export function SchoolAdminLayout({ children, schoolSlug }: { children: ReactNod
               Sign out
             </Button>
             <div className="flex items-center justify-center gap-1.5 pt-1">
-              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="TSOS" className="h-4 w-auto object-contain opacity-60" />
+              <img src={`${import.meta.env.BASE_URL}torrential-tech-logo-light.png`} alt="Torrential Technologies" className="h-4 w-auto object-contain opacity-60" />
               <p className="text-[10px] text-muted-foreground/75">Product of Torrential Technologies</p>
             </div>
           </SidebarFooter>

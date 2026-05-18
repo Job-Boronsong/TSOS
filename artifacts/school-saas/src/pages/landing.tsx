@@ -224,8 +224,7 @@ export default function Landing() {
       <footer className="bg-slate-900 text-slate-400 py-10 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="TSOS" className="h-7 w-auto opacity-70" />
-            <span>Torrential Technologies · TSOS</span>
+            <img src={`${import.meta.env.BASE_URL}torrential-tech-logo-dark.png`} alt="Torrential Technologies" className="h-7 w-auto opacity-80" />
           </div>
           <div className="flex gap-6">
             <a href="mailto:info@torrentialtechnologies.com" className="hover:text-white transition-colors">info@torrentialtechnologies.com</a>
