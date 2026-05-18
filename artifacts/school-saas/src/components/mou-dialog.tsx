@@ -97,7 +97,7 @@ export function MouDialog({ open }: MouDialogProps) {
 
             <h3 className="font-bold text-base">PART 2 — SUBSCRIPTION AND PAYMENT</h3>
             <p>
-              Access is provided on a prepaid monthly subscription basis. Discounts apply: 5% for 3–6 months, 10% for 7+ months.
+              Access is provided on a prepaid monthly subscription basis. A 5% discount applies when subscribing for 12 months or more.
               Payments are processed via <strong>Paystack</strong>. A 3-day grace period applies after expiry.
             </p>
             <p>

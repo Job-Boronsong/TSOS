@@ -20,8 +20,7 @@ import { LogoUpload } from "@/components/logo-upload";
 // ─── Helpers ────────────────────────────────────────────────────────
 
 function discountFor(months: number): number {
-  if (months >= 7) return 10;
-  if (months >= 3) return 5;
+  if (months >= 12) return 5;
   return 0;
 }
 
