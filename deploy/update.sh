@@ -13,7 +13,7 @@ echo "╚═══════════════════════�
 echo ""
 echo "▶ Building updated Docker images..."
 cd "$SCRIPT_DIR/.."
-$COMPOSE build api web
+$COMPOSE build api web migrate
 echo "  ✓ Images built"
 
 echo ""
