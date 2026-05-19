@@ -185,24 +185,27 @@ async function pushQueue(schoolId: number): Promise<void> {
       if (result.localId && result.serverId) {
         // NOTE: Dexie does not allow changing the primary key via modify().
         // We must delete the old temp-ID record and put a new one with the real server ID.
+        // IMPORTANT: localId comes from the server as a string (it was the _localId string),
+        // but Dexie stores the primary key as a number. We must cast to Number for the lookup.
+        const numericLocalId = Number(result.localId);
         if (item.entity === "student") {
-          const rec = await localDb.students.get(result.localId);
-          if (rec) { await localDb.students.delete(result.localId); await localDb.students.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
+          const rec = await localDb.students.get(numericLocalId);
+          if (rec) { await localDb.students.delete(numericLocalId); await localDb.students.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
         } else if (item.entity === "class") {
-          const rec = await localDb.classes.get(result.localId);
-          if (rec) { await localDb.classes.delete(result.localId); await localDb.classes.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
+          const rec = await localDb.classes.get(numericLocalId);
+          if (rec) { await localDb.classes.delete(numericLocalId); await localDb.classes.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
         } else if (item.entity === "teacher") {
-          const rec = await localDb.teachers.get(result.localId);
-          if (rec) { await localDb.teachers.delete(result.localId); await localDb.teachers.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
+          const rec = await localDb.teachers.get(numericLocalId);
+          if (rec) { await localDb.teachers.delete(numericLocalId); await localDb.teachers.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
         } else if (item.entity === "payment") {
-          const rec = await localDb.payments.get(result.localId);
-          if (rec) { await localDb.payments.delete(result.localId); await localDb.payments.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
+          const rec = await localDb.payments.get(numericLocalId);
+          if (rec) { await localDb.payments.delete(numericLocalId); await localDb.payments.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
         } else if (item.entity === "sale") {
-          const rec = await localDb.sales.get(result.localId);
-          if (rec) { await localDb.sales.delete(result.localId); await localDb.sales.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
+          const rec = await localDb.sales.get(numericLocalId);
+          if (rec) { await localDb.sales.delete(numericLocalId); await localDb.sales.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
         } else if (item.entity === "expenditure") {
-          const rec = await localDb.expenditures.get(result.localId);
-          if (rec) { await localDb.expenditures.delete(result.localId); await localDb.expenditures.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
+          const rec = await localDb.expenditures.get(numericLocalId);
+          if (rec) { await localDb.expenditures.delete(numericLocalId); await localDb.expenditures.put({ ...rec, id: result.serverId, _localOnly: false, _localId: undefined }); }
         }
       }
     } else {
@@ -274,6 +277,7 @@ export async function pullData(schoolId: number, coreOnly = false, overrideSince
         await cleanStale(localDb.students as any);
         await cleanStale(localDb.teachers as any);
         await cleanStale(localDb.payments as any);
+        await cleanStale(localDb.sales as any);
         await cleanStale(localDb.expenditures as any);
       }
 

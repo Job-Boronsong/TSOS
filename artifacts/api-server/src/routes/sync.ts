@@ -12,7 +12,7 @@ const router: IRouter = Router();
 // Resolve the authenticated school admin from session
 async function resolveSchoolAdmin(req: any): Promise<{ userId: number; role: string; schoolId: number | null } | null> {
   if (!req.session?.userId) return null;
-  const [user] = await db.select({ id: usersTable.id, role: usersTable.role, schoolId: usersTable.schoolId })
+  const [user] = await db.select({ userId: usersTable.id, role: usersTable.role, schoolId: usersTable.schoolId })
     .from(usersTable).where(eq(usersTable.id, req.session.userId));
   return user ?? null;
 }
@@ -116,16 +116,25 @@ router.post("/sync/push", requireSchoolAdmin, async (req: any, res): Promise<voi
   const operations: any[] = req.body.operations ?? [];
   const results: any[] = [];
 
+  // Strip fields that must never be applied via a client sync update.
+  const IMMUTABLE_FIELDS = ["id", "schoolId", "createdAt", "created_at", "_localOnly", "_localId"];
+  const sanitizeUpdate = (data: any) => {
+    const clean = { ...data };
+    for (const f of IMMUTABLE_FIELDS) delete clean[f];
+    return clean;
+  };
+
   for (const op of operations) {
+    const opId: string = op.id;
     try {
-      const { id: opId, entity, action, data, serverId } = op;
+      const { entity, action, data, serverId } = op;
 
       if (entity === "student") {
         if (action === "create") {
           const [s] = await db.insert(studentsTable).values({ ...data, schoolId }).returning();
           results.push({ opId, ok: true, entity, action, serverId: s.id, localId: data._localId });
         } else if (action === "update" && serverId) {
-          await db.update(studentsTable).set(data).where(and(eq(studentsTable.id, serverId), eq(studentsTable.schoolId, schoolId)));
+          await db.update(studentsTable).set(sanitizeUpdate(data)).where(and(eq(studentsTable.id, serverId), eq(studentsTable.schoolId, schoolId)));
           results.push({ opId, ok: true, entity, action, serverId });
         } else if (action === "delete" && serverId) {
           await db.delete(studentsTable).where(and(eq(studentsTable.id, serverId), eq(studentsTable.schoolId, schoolId)));
@@ -144,7 +153,7 @@ router.post("/sync/push", requireSchoolAdmin, async (req: any, res): Promise<voi
           const [t] = await db.insert(teachersTable).values({ ...data, schoolId }).returning();
           results.push({ opId, ok: true, entity, action, serverId: t.id, localId: data._localId });
         } else if (action === "update" && serverId) {
-          await db.update(teachersTable).set(data).where(and(eq(teachersTable.id, serverId), eq(teachersTable.schoolId, schoolId)));
+          await db.update(teachersTable).set(sanitizeUpdate(data)).where(and(eq(teachersTable.id, serverId), eq(teachersTable.schoolId, schoolId)));
           results.push({ opId, ok: true, entity, action, serverId });
         } else if (action === "delete" && serverId) {
           await db.delete(teachersTable).where(and(eq(teachersTable.id, serverId), eq(teachersTable.schoolId, schoolId)));
