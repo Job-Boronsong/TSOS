@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, inArray, sql, desc, gte, lte } from "drizzle-orm";
-import { db, teachersTable, schoolsTable, classesTable, classSubjectsTable, studentsTable, scoresTable, attendanceTable, timetableSlotsTable, teacherAttendanceTable, schoolSettingsTable, announcementsTable, announcementReadsTable, calendarEventsTable } from "@workspace/db";
+import { db, teachersTable, schoolsTable, classesTable, classSubjectsTable, studentsTable, scoresTable, attendanceTable, timetableSlotsTable, teacherAttendanceTable, schoolSettingsTable, announcementsTable, announcementReadsTable, calendarEventsTable, subscriptionsTable } from "@workspace/db";
 import bcrypt from "bcryptjs";
 
 declare module "express-session" {
@@ -65,6 +65,20 @@ router.post("/teacher-auth/login", async (req, res): Promise<void> => {
   }
 
   await db.update(teachersTable).set({ failedLoginAttempts: 0, lockedUntil: null }).where(eq(teachersTable.id, teacher.id));
+
+  // Block login if school subscription has expired (past grace period)
+  const [sub] = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.schoolId, teacher.schoolId));
+  if (sub) {
+    const today = new Date().toISOString().split("T")[0];
+    const graceEnd = new Date(sub.expiryDate);
+    graceEnd.setDate(graceEnd.getDate() + 3);
+    const graceEndStr = graceEnd.toISOString().split("T")[0];
+    if (graceEndStr < today) {
+      res.status(403).json({ error: "subscription_expired", message: "Your school's subscription has expired. Please contact your school administrator to renew." });
+      return;
+    }
+  }
+
   req.session.teacherId = teacher.id;
   req.session.teacherSchoolId = teacher.schoolId;
 

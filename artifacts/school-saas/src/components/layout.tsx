@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { SyncStatus } from "./sync-status";
 import { ChangePasswordDialog } from "./change-password-dialog";
 import { MouDialog } from "./mou-dialog";
+import { SubscriptionExpiredGate } from "./subscription-expired-gate";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -266,6 +267,7 @@ export function SchoolAdminLayout({ children, schoolSlug }: { children: ReactNod
         </SidebarInset>
       </SidebarProvider>
       <MouDialog open={!!showMouDialog} />
+      <SubscriptionExpiredGate schoolId={numericSchoolId} />
     </>
   );
 }

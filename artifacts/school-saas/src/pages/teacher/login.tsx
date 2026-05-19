@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { GraduationCap, Eye, EyeOff, Building2 } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, Building2, AlertCircle } from "lucide-react";
 
 export default function TeacherLogin() {
   const { login } = useTeacherAuth();
@@ -69,9 +69,21 @@ export default function TeacherLogin() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-                  {error}
-                </div>
+                error.toLowerCase().includes("subscription") ? (
+                  <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 space-y-1.5">
+                    <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      School Subscription Expired
+                    </div>
+                    <p className="text-xs text-amber-700">
+                      Your school's subscription has expired. Please contact your school administrator to renew access.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+                    {error}
+                  </div>
+                )
               )}
               <div className="space-y-2">
                 <Label>Username</Label>

@@ -58,7 +58,7 @@ export function TeacherAuthProvider({ children }: { children: ReactNode }) {
     });
     if (!res.ok) {
       const data = await res.json();
-      throw new Error(data.error ?? "Login failed");
+      throw new Error(data.message ?? data.error ?? "Login failed");
     }
     await refresh();
   };
