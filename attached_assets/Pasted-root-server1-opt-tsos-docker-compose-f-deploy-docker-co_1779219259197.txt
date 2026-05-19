@@ -1,0 +1,186 @@
+root@server1:/opt/tsos# docker compose -f deploy/docker-compose.yml --env-file deploy/.env build api
+docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d api
+[+] Building 3.2s (25/25) FINISHED                                                                                                                              
+ => [internal] load local bake definitions                                                                                                                 0.0s
+ => => reading from stdin 840B                                                                                                                             0.0s
+ => [internal] load build definition from Dockerfile.api                                                                                                   0.0s
+ => => transferring dockerfile: 2.11kB                                                                                                                     0.0s
+ => [internal] load metadata for docker.io/library/node:24-alpine                                                                                          0.5s
+ => [internal] load .dockerignore                                                                                                                          0.0s
+ => => transferring context: 2B                                                                                                                            0.0s
+ => [base 1/3] FROM docker.io/library/node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f                               0.0s
+ => => resolve docker.io/library/node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f                                    0.0s
+ => [internal] load build context                                                                                                                          0.0s
+ => => transferring context: 57.14kB                                                                                                                       0.0s
+ => CACHED [base 2/3] RUN corepack enable && corepack prepare pnpm@latest --activate                                                                       0.0s
+ => CACHED [base 3/3] WORKDIR /app                                                                                                                         0.0s
+ => CACHED [deps 1/8] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./                                                                              0.0s
+ => CACHED [deps 2/8] COPY lib/db/package.json             lib/db/                                                                                         0.0s
+ => CACHED [deps 3/8] COPY lib/api-spec/package.json       lib/api-spec/                                                                                   0.0s
+ => CACHED [deps 4/8] COPY lib/api-zod/package.json        lib/api-zod/                                                                                    0.0s
+ => CACHED [deps 5/8] COPY lib/api-client-react/package.json lib/api-client-react/                                                                         0.0s
+ => CACHED [deps 6/8] COPY lib/object-storage-web/package.json lib/object-storage-web/                                                                     0.0s
+ => CACHED [deps 7/8] COPY artifacts/api-server/package.json artifacts/api-server/                                                                         0.0s
+ => CACHED [deps 8/8] RUN pnpm install --frozen-lockfile --ignore-scripts                                                                                  0.0s
+ => CACHED [builder 1/4] COPY tsconfig.base.json tsconfig.json ./                                                                                          0.0s
+ => CACHED [builder 2/4] COPY lib/ lib/                                                                                                                    0.0s
+ => [builder 3/4] COPY artifacts/api-server/ artifacts/api-server/                                                                                         0.0s
+ => [builder 4/4] RUN pnpm --filter @workspace/api-server run build                                                                                        1.3s
+ => CACHED [runner 11/13] RUN pnpm install --frozen-lockfile --ignore-scripts --prod                                                                       0.0s
+ => [runner 12/13] COPY --from=builder /app/artifacts/api-server/dist artifacts/api-server/dist                                                            0.1s
+ => [runner 13/13] WORKDIR /app/artifacts/api-server                                                                                                       0.0s 
+ => exporting to image                                                                                                                                     1.0s 
+ => => exporting layers                                                                                                                                    0.7s 
+ => => exporting manifest sha256:38c43882a5c7ca5e3a76a540a0f63e457daeef4df8d64becc370d87a70081237                                                          0.0s
+ => => exporting config sha256:780fb44924c342d8db45c53d37459fb2a16ca76d22f289de8cf731e667324d73                                                            0.0s
+ => => exporting attestation manifest sha256:05e0138700f064c70e98ce29770b09f57f1039c2f4150e19588f22e28e1116d4                                              0.0s
+ => => exporting manifest list sha256:89bb2b223bc440b03e913555e316e982cc7d4a8f7029b86b8152391eb0872bde                                                     0.0s
+ => => naming to docker.io/library/deploy-api:latest                                                                                                       0.0s
+ => => unpacking to docker.io/library/deploy-api:latest                                                                                                    0.2s
+ => resolving provenance for metadata file                                                                                                                 0.0s
+[+] build 1/2
+ ⠙ Image deploy-minio Building                                                                                                                              3.2s
+ ✔ Image deploy-api   Built                                                                                                                                 3.2s
+[+] up 3/3
+ ✔ Container deploy-postgres-1 Healthy                                                                                                                     10.8s
+ ✔ Container deploy-minio-1    Running                                                                                                                      0.0s
+ ✔ Container deploy-api-1      Started                                                                                                                     10.9s
+root@server1:/opt/tsos# cd /opt/tsos && git pull && ./deploy/update.sh
+Already up to date.
+-bash: ./deploy/update.sh: Permission denied
+root@server1:/opt/tsos# cd /opt/tsos && git pull && bash deploy/update.sh
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 3 (delta 2), reused 3 (delta 2), pack-reused 0 (from 0)
+Unpacking objects: 100% (3/3), 565 bytes | 565.00 KiB/s, done.
+From https://github.com/Job-Boronsong/TSOS
+   27e87c7..8a8c9a3  main       -> origin/main
+Updating 27e87c7..8a8c9a3
+Fast-forward
+ deploy/update.sh | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 deploy/update.sh
+╔══════════════════════════════════════════════════════╗
+║           TSOS Update                               ║
+╚══════════════════════════════════════════════════════╝
+
+▶ Building updated Docker images...
+[+] Building 12.2s (49/49) FINISHED          
+ => [internal] load local bake definit  0.0s
+ => => reading from stdin 1.22kB        0.0s
+ => [api internal] load build definiti  0.0s
+ => => transferring dockerfile: 2.11kB  0.0s
+ => [web internal] load build definiti  0.0s
+ => => transferring dockerfile: 1.59kB  0.0s
+ => [web internal] load metadata for d  0.0s
+ => [web internal] load metadata for d  0.3s
+ => [api internal] load metadata for d  0.3s
+ => [api internal] load .dockerignore   0.0s
+ => => transferring context: 2B         0.0s
+ => [web base 1/3] FROM docker.io/libr  0.1s
+ => => resolve docker.io/library/node:  0.1s
+ => [web internal] load build context   0.1s
+ => => transferring context: 2.17MB     0.1s
+ => CACHED [web runner 1/3] FROM docke  0.1s
+ => => resolve docker.io/library/nginx  0.1s
+ => [api base 1/3] FROM docker.io/libr  0.0s
+ => => resolve docker.io/library/node:  0.0s
+ => [api internal] load build context   0.0s
+ => => transferring context: 60.63kB    0.0s
+ => CACHED [web base 2/3] RUN corepack  0.0s
+ => CACHED [web base 3/3] WORKDIR /app  0.0s
+ => CACHED [web deps 1/8] COPY package  0.0s
+ => CACHED [web deps 2/8] COPY lib/db/  0.0s
+ => CACHED [web deps 3/8] COPY lib/api  0.0s
+ => CACHED [web deps 4/8] COPY lib/api  0.0s
+ => CACHED [web deps 5/8] COPY lib/api  0.0s
+ => CACHED [web deps 6/8] COPY lib/obj  0.0s
+ => CACHED [web deps 7/8] COPY artifac  0.0s
+ => CACHED [web deps 8/8] RUN pnpm ins  0.0s
+ => CACHED [web builder 1/4] COPY tsco  0.0s
+ => CACHED [web builder 2/4] COPY lib/  0.0s
+ => [web builder 3/4] COPY artifacts/s  0.0s
+ => CACHED [api base 2/3] RUN corepack  0.0s
+ => CACHED [api base 3/3] WORKDIR /app  0.0s
+ => CACHED [api deps 1/8] COPY package  0.0s
+ => CACHED [api deps 2/8] COPY lib/db/  0.0s
+ => CACHED [api deps 3/8] COPY lib/api  0.0s
+ => CACHED [api deps 4/8] COPY lib/api  0.0s
+ => CACHED [api deps 5/8] COPY lib/api  0.0s
+ => CACHED [api deps 6/8] COPY lib/obj  0.0s
+ => CACHED [api deps 7/8] COPY artifac  0.0s
+ => CACHED [api runner 11/13] RUN pnpm  0.0s
+ => CACHED [api deps 8/8] RUN pnpm ins  0.0s
+ => CACHED [api builder 1/4] COPY tsco  0.0s
+ => CACHED [api builder 2/4] COPY lib/  0.0s
+ => CACHED [api builder 3/4] COPY arti  0.0s
+ => CACHED [api builder 4/4] RUN pnpm   0.0s
+ => CACHED [api runner 12/13] COPY --f  0.0s
+ => CACHED [api runner 13/13] WORKDIR   0.0s
+ => [api] exporting to image            0.1s
+ => => exporting layers                 0.0s
+ => => exporting manifest sha256:38c43  0.0s
+ => => exporting config sha256:780fb44  0.0s
+ => => exporting attestation manifest   0.0s
+ => => exporting manifest list sha256:  0.0s
+ => => naming to docker.io/library/dep  0.0s
+ => => unpacking to docker.io/library/  0.0s
+ => [web builder 4/4] RUN PORT=80 BAS  11.3s
+ => [api] resolving provenance for met  0.0s
+ => [web runner 2/3] COPY --from=build  0.0s
+ => [web runner 3/3] COPY deploy/nginx  0.0s
+ => [web] exporting to image            0.3s
+ => => exporting layers                 0.2s
+ => => exporting manifest sha256:fb13e  0.0s
+ => => exporting config sha256:663802d  0.0s
+ => => exporting attestation manifest   0.0s
+ => => exporting manifest list sha256:  0.0s
+ => => naming to docker.io/library/dep  0.0s
+ => => unpacking to docker.io/library/  0.1s
+ => [web] resolving provenance for met  0.0s
+[+] build 2/3
+ ⠙ Image deploy-minio Building          12.3s
+ ✔ Image deploy-api   Built             12.3s
+ ✔ Image deploy-web   Built             12.3s
+  ✓ Images built
+
+▶ Running database migrations...
+[+]  1/1t 1/11
+ ✔ Container deploy-postgres-1 Running   0.0s
+Container deploy-postgres-1 Waiting 
+Container deploy-postgres-1 Healthy 
+Container deploy-migrate-run-f1d15f7a0d79 Creating 
+Container deploy-migrate-run-f1d15f7a0d79 Created 
+$ drizzle-kit push --config ./drizzle.config.ts
+Reading config file '/app/lib/db/drizzle.config.ts'
+Using 'pg' driver for database querying
+[✓] Pulling schema from database...
+ Warning  Found data-loss statements:
+· You're about to delete session table with 1 items
+
+THIS ACTION WILL CAUSE DATA LOSS AND CANNOT BE REVERTED
+
+Do you still want to push changes?
+[✓] Changes applied
+  ✓ Migrations applied
+
+▶ Restarting app services...
+[+] up 4/4
+ ✔ Container deploy-minio-1    Running   0.0s
+ ✔ Container deploy-postgres-1 Healthy  10.7s
+ ✔ Container deploy-web-1      Started  10.4s
+ ✔ Container deploy-api-1      Started  10.9s
+  ✓ API and web restarted
+
+▶ Checking service health...
+NAME           IMAGE        COMMAND                  SERVICE   CREATED          STATUS         PORTS
+deploy-api-1   deploy-api   "docker-entrypoint.s…"   api       14 seconds ago   Up 3 seconds   127.0.0.1:8080->8080/tcp
+deploy-web-1   deploy-web   "/docker-entrypoint.…"   web       14 seconds ago   Up 3 seconds   127.0.0.1:8082->80/tcp
+
+╔══════════════════════════════════════════════════════╗
+║  ✅ Update complete!                                ║
+║                                                      ║
+║  Logs:  docker compose -f /opt/tsos/deploy/docker-compose.yml logs -f api
+╚══════════════════════════════════════════════════════╝
+root@server1:/opt/tsos# 
