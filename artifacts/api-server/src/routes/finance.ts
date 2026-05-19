@@ -183,11 +183,12 @@ router.get("/schools/:schoolId/payments", async (req, res): Promise<void> => {
 
 router.post("/schools/:schoolId/payments", async (req, res): Promise<void> => {
   const schoolId = parseInt(Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId, 10);
-  const { studentId, amount, paymentDate, paymentType, markAttendance, notes } = req.body;
+  const { studentId, amount, paymentDate, paymentType, markAttendance, notes, term, academicYear } = req.body;
   if (!studentId || !amount || !paymentDate) { res.status(400).json({ error: "studentId, amount, paymentDate required" }); return; }
 
   const [payment] = await db.insert(paymentsTable).values({
     schoolId, studentId, amount: String(amount), paymentDate, paymentType: paymentType ?? "school_fee", notes,
+    term: term || null, academicYear: academicYear || null,
   }).returning();
 
   if (markAttendance) {

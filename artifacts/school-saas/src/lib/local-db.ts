@@ -107,6 +107,14 @@ export interface LocalFeeSettings {
   scholarshipDiscount: string;
   staffChildDiscount: string;
   termBillingEnabled: string;
+  feedingFeePerDay?: string;
+  feedingEnabled?: string;
+  busFeePerDay?: string;
+  scholarshipWaivedFees?: string;
+  staffChildWaivedFees?: string;
+  term1SchoolFee?: string | null;
+  term2SchoolFee?: string | null;
+  term3SchoolFee?: string | null;
   updatedAt: string;
 }
 
