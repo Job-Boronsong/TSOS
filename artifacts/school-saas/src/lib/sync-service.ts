@@ -129,6 +129,14 @@ export async function runSync(
   // Universal rate-limit: block ALL calls (including onCoreReady) once a sync has completed recently.
   // This is the hard backstop against runaway loops — covers every possible call path.
   if (lastSyncCompletedAt > 0 && Date.now() - lastSyncCompletedAt < MIN_SYNC_GAP_MS) {
+    // Rate-limited: if there are pending items, reschedule after the gap so they
+    // don't sit in the queue for the full 5-minute background interval.
+    localDb.syncQueue.count().then(count => {
+      if (count > 0) {
+        const remaining = MIN_SYNC_GAP_MS - (Date.now() - lastSyncCompletedAt) + 200;
+        scheduleSyncDebounced(Math.max(remaining, 500));
+      }
+    });
     return { ok: true };
   }
   if (!isOnline()) { notifyListeners("offline"); return { ok: false, error: "offline" }; }

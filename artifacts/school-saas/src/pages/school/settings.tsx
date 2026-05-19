@@ -216,6 +216,27 @@ export default function SchoolSettings({ params }: Props) {
     setList(list.includes(key) ? list.filter(k => k !== key) : [...list, key]);
   };
 
+  const reloadFeeSettings = (sid: number) => {
+    fetch(`/api/schools/${sid}/fee-settings`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        setFeedingFeePerDay(d.feedingFeePerDay != null ? String(d.feedingFeePerDay) : "");
+        setFeedingEnabled(!!d.feedingEnabled);
+        setBusFeePerDay(d.busFeePerDay != null ? String(d.busFeePerDay) : "");
+        setScholarshipWaivedFees(d.scholarshipWaivedFees ? d.scholarshipWaivedFees.split(",").filter(Boolean) : []);
+        setStaffChildWaivedFees(d.staffChildWaivedFees ? d.staffChildWaivedFees.split(",").filter(Boolean) : []);
+        setSchoolFee(d.schoolFee != null ? String(d.schoolFee) : "");
+        setBusFee(d.busFee != null ? String(d.busFee) : "");
+        setScholarshipDiscount(d.scholarshipDiscount != null ? String(d.scholarshipDiscount) : "");
+        setStaffChildDiscount(d.staffChildDiscount != null ? String(d.staffChildDiscount) : "");
+        setTerm1SchoolFee(d.term1SchoolFee != null ? String(d.term1SchoolFee) : "");
+        setTerm2SchoolFee(d.term2SchoolFee != null ? String(d.term2SchoolFee) : "");
+        setTerm3SchoolFee(d.term3SchoolFee != null ? String(d.term3SchoolFee) : "");
+      })
+      .catch(() => {});
+  };
+
   const handleSaveWaivers = async () => {
     if (!schoolId) return;
     setSavingWaivers(true);
@@ -231,6 +252,7 @@ export default function SchoolSettings({ params }: Props) {
       });
       if (!res.ok) throw new Error();
       toast({ title: "Fee waivers saved" });
+      reloadFeeSettings(schoolId);
     } catch {
       toast({ variant: "destructive", title: "Error saving fee waivers" });
     } finally {
@@ -259,6 +281,7 @@ export default function SchoolSettings({ params }: Props) {
       });
       if (!res.ok) throw new Error();
       toast({ title: "Fee structure saved" });
+      reloadFeeSettings(schoolId);
     } catch {
       toast({ variant: "destructive", title: "Error saving fee structure" });
     } finally {
@@ -278,6 +301,7 @@ export default function SchoolSettings({ params }: Props) {
       });
       if (!res.ok) throw new Error();
       toast({ title: "Daily bus rate saved" });
+      reloadFeeSettings(schoolId);
     } catch {
       toast({ variant: "destructive", title: "Error saving bus rate" });
     } finally {
@@ -297,6 +321,7 @@ export default function SchoolSettings({ params }: Props) {
       });
       if (!res.ok) throw new Error();
       toast({ title: "Feeding fee settings saved" });
+      reloadFeeSettings(schoolId);
     } catch {
       toast({ variant: "destructive", title: "Error saving feeding fee settings" });
     } finally {

@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, and, sql, ilike, isNull, inArray } from "drizzle-orm";
 import { parse as parseCsv } from "csv-parse/sync";
-import { db, studentsTable, classesTable, paymentsTable, feeSettingsTable, teachersTable, schoolsTable, classSubjectsTable, studentClassHistoryTable } from "@workspace/db";
+import { db, studentsTable, classesTable, paymentsTable, feeSettingsTable, teachersTable, schoolsTable, classSubjectsTable, studentClassHistoryTable, scoresTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -475,6 +475,28 @@ router.delete("/schools/:schoolId/classes/:classId/subjects/:subjectId", async (
   const [cs] = await db.delete(classSubjectsTable).where(eq(classSubjectsTable.id, subjectId)).returning();
   if (!cs) { res.status(404).json({ error: "Subject not found" }); return; }
   res.sendStatus(204);
+});
+
+// ─────────────────────────────────────────────
+// Scores (school admin view)
+// ─────────────────────────────────────────────
+
+router.get("/schools/:schoolId/scores", async (req, res): Promise<void> => {
+  const schoolId = parseInt(Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId, 10);
+  const studentIdParam = req.query.studentId ? parseInt(String(req.query.studentId), 10) : null;
+  const term = req.query.term ? String(req.query.term) : null;
+  const academicYear = req.query.academicYear ? String(req.query.academicYear) : null;
+
+  const rows = await db.select().from(scoresTable)
+    .where(and(
+      eq(scoresTable.schoolId, schoolId),
+      studentIdParam ? eq(scoresTable.studentId, studentIdParam) : undefined,
+      term ? eq(scoresTable.term, term) : undefined,
+      academicYear ? eq(scoresTable.academicYear, academicYear) : undefined,
+    ))
+    .orderBy(scoresTable.academicYear, scoresTable.term, scoresTable.subject);
+
+  res.json(rows);
 });
 
 export default router;

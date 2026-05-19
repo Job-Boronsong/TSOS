@@ -8,6 +8,7 @@ router.get("/schools/:schoolId/attendance", async (req, res): Promise<void> => {
   const schoolId = parseInt(Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId, 10);
   const date = req.query.date ? String(req.query.date) : null;
   const classIdParam = req.query.classId ? parseInt(String(req.query.classId), 10) : null;
+  const studentIdParam = req.query.studentId ? parseInt(String(req.query.studentId), 10) : null;
 
   let query = db.select({
     attendance: attendanceTable,
@@ -20,6 +21,7 @@ router.get("/schools/:schoolId/attendance", async (req, res): Promise<void> => {
         eq(attendanceTable.schoolId, schoolId),
         date ? eq(attendanceTable.date, date) : undefined,
         classIdParam ? eq(studentsTable.classId, classIdParam) : undefined,
+        studentIdParam ? eq(attendanceTable.studentId, studentIdParam) : undefined,
       )
     );
 
