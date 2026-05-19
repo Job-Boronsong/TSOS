@@ -14,15 +14,35 @@ async function apiFetch(path: string, init?: RequestInit) {
 
 export type SyncStatus = "idle" | "syncing" | "online" | "offline" | "error";
 
+// Categorised error codes surfaced to the UI for actionable messaging.
+export type SyncErrorCode = "auth" | "network" | "server" | "unknown";
+
 type Listener = (status: SyncStatus, queueSize: number) => void;
 const listeners = new Set<Listener>();
 let currentStatus: SyncStatus = "idle";
 let currentQueueSize = 0;
+let lastErrorCode: SyncErrorCode | null = null;
+let lastErrorMessage: string | null = null;
 
 function notifyListeners(status: SyncStatus, queueSize?: number) {
   currentStatus = status;
   if (queueSize !== undefined) currentQueueSize = queueSize;
+  if (status !== "error") { lastErrorCode = null; lastErrorMessage = null; }
   listeners.forEach(fn => fn(currentStatus, currentQueueSize));
+}
+
+function notifyError(err: Error) {
+  const msg = err.message ?? "";
+  if (msg.includes("401")) { lastErrorCode = "auth"; }
+  else if (msg.includes("Failed to fetch") || msg.includes("NetworkError") || msg.includes("Load failed")) { lastErrorCode = "network"; }
+  else if (msg.includes("5")) { lastErrorCode = "server"; }
+  else { lastErrorCode = "unknown"; }
+  lastErrorMessage = msg;
+  notifyListeners("error");
+}
+
+export function getLastSyncError(): { code: SyncErrorCode | null; message: string | null } {
+  return { code: lastErrorCode, message: lastErrorMessage };
 }
 
 export function onSyncStatusChange(fn: Listener): () => void {
@@ -140,7 +160,7 @@ export async function runSync(
     syncRunning = false;
     return { ok: true };
   } catch (err: any) {
-    notifyListeners("error");
+    notifyError(err instanceof Error ? err : new Error(String(err)));
     syncRunning = false;
     return { ok: false, error: String(err.message) };
   }

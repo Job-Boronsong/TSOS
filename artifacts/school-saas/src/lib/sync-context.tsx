@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback, type ReactNode } from "react";
-import { initSyncService, onSyncStatusChange, onProgressChange, runSync, type SyncStatus, type SyncProgress } from "./sync-service";
+import { initSyncService, onSyncStatusChange, onProgressChange, runSync, getLastSyncError, type SyncStatus, type SyncProgress, type SyncErrorCode } from "./sync-service";
 import { localDb, hasLocalData } from "./local-db";
 
 interface SyncContextValue {
@@ -11,6 +11,7 @@ interface SyncContextValue {
   initialSyncDone: boolean;
   triggerSync: () => void;
   syncProgress: SyncProgress;
+  syncErrorCode: SyncErrorCode | null;
 }
 
 const SyncCtx = createContext<SyncContextValue>({
@@ -22,6 +23,7 @@ const SyncCtx = createContext<SyncContextValue>({
   initialSyncDone: false,
   triggerSync: () => {},
   syncProgress: { pct: 0, label: "" },
+  syncErrorCode: null,
 });
 
 let syncInitialized = false;
@@ -35,6 +37,8 @@ const SYNC_TIMEOUT_MS = 15_000;
 export function SyncProvider({ children, schoolId }: { children: ReactNode; schoolId: number | null }) {
   const [status, setStatus] = useState<SyncStatus>("idle");
   const [queueSize, setQueueSize] = useState(0);
+  const [syncErrorCode, setSyncErrorCode] = useState<SyncErrorCode | null>(null);
+  const errorRetryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Immediately true if this school's initial sync already completed in this page session
   const [initialSyncDone, setInitialSyncDone] = useState(
     () => schoolId != null && completedSchools.has(schoolId)
@@ -65,6 +69,12 @@ export function SyncProvider({ children, schoolId }: { children: ReactNode; scho
     const unsub = onSyncStatusChange((s, q) => {
       setStatus(s);
       setQueueSize(q);
+      if (s === "error") {
+        const { code } = getLastSyncError();
+        setSyncErrorCode(code);
+      } else {
+        setSyncErrorCode(null);
+      }
     });
 
     const unsubProgress = onProgressChange(p => setSyncProgress(p));
@@ -117,6 +127,21 @@ export function SyncProvider({ children, schoolId }: { children: ReactNode; scho
     }
   }, [status, markDone]);
 
+  // Auto-retry after an error: wait 30s then try again (non-auth errors only).
+  // Auth errors (401) mean the session is gone — retrying immediately won't help.
+  useEffect(() => {
+    if (errorRetryRef.current) clearTimeout(errorRetryRef.current);
+    if (status === "error" && syncErrorCode !== "auth" && schoolId) {
+      errorRetryRef.current = setTimeout(() => {
+        errorRetryRef.current = null;
+        runSync(schoolId);
+      }, 30_000);
+    }
+    return () => {
+      if (errorRetryRef.current) { clearTimeout(errorRetryRef.current); errorRetryRef.current = null; }
+    };
+  }, [status, syncErrorCode, schoolId]);
+
   const triggerSync = useCallback(() => runSync(schoolId ?? undefined), [schoolId]);
 
   return (
@@ -129,6 +154,7 @@ export function SyncProvider({ children, schoolId }: { children: ReactNode; scho
       initialSyncDone,
       triggerSync,
       syncProgress,
+      syncErrorCode,
     }}>
       {children}
     </SyncCtx.Provider>

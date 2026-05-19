@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { onSyncStatusChange, type SyncStatus, runSync, clearSyncQueue } from "@/lib/sync-service";
+import { onSyncStatusChange, getLastSyncError, type SyncStatus, type SyncErrorCode, runSync, clearSyncQueue } from "@/lib/sync-service";
 import { localDb } from "@/lib/local-db";
-import { RefreshCw, CheckCircle, AlertCircle, WifiOff, Trash2 } from "lucide-react";
+import { RefreshCw, CheckCircle, AlertCircle, WifiOff, Trash2, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -13,6 +13,7 @@ interface Props {
 export function SyncStatus({ schoolId }: Props) {
   const [status, setStatus] = useState<SyncStatus>("idle");
   const [queueSize, setQueueSize] = useState(0);
+  const [errorCode, setErrorCode] = useState<SyncErrorCode | null>(null);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -21,6 +22,8 @@ export function SyncStatus({ schoolId }: Props) {
     const unsub = onSyncStatusChange((s, q) => {
       setStatus(s);
       setQueueSize(q);
+      if (s === "error") setErrorCode(getLastSyncError().code);
+      else setErrorCode(null);
     });
     return unsub;
   }, []);
@@ -81,8 +84,21 @@ export function SyncStatus({ schoolId }: Props) {
         {status === "syncing" && (
           <p className="text-blue-500">Syncing data with server…</p>
         )}
-        {status === "error" && (
-          <p className="text-red-500">Last sync failed. Try again or check your connection.</p>
+        {status === "error" && errorCode === "auth" && (
+          <div className="space-y-1.5">
+            <p className="text-red-500 font-medium">Session expired</p>
+            <p className="text-muted-foreground">Your login session has ended. Please log in again to resume syncing.</p>
+            <a
+              href="/"
+              className="flex items-center gap-1 text-xs text-primary underline underline-offset-2 pt-0.5"
+              onClick={() => setOpen(false)}
+            >
+              <LogIn className="w-3 h-3" /> Go to login
+            </a>
+          </div>
+        )}
+        {status === "error" && errorCode !== "auth" && (
+          <p className="text-red-500">Last sync failed. Retrying in 30 seconds — or tap "Sync now" to retry immediately.</p>
         )}
         {(status === "online" || status === "idle") && queueSize === 0 && (
           <p className="text-muted-foreground">{lastSynced ? `Last synced ${lastSynced}.` : "Everything is up to date."}</p>
