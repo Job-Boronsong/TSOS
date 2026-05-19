@@ -1,0 +1,100 @@
+root@server1:~# systemctl list-units --type=service --state=running | grep -v systemd
+ls /etc/systemd/system/ | grep -E "tsos|school|node|torchbear"
+ls /opt/tsos/
+cat /proc/237998/environ | tr '\0' '\n' | grep -E "NODE|PORT|BASE"
+  UNIT                        LOAD   ACTIVE SUB     DESCRIPTION
+  containerd.service          loaded active running containerd container runtime
+  cron.service                loaded active running Regular background program processing daemon
+  dbus.service                loaded active running D-Bus System Message Bus
+  docker.service              loaded active running Docker Application Container Engine
+  fail2ban.service            loaded active running Fail2Ban Service
+  fwupd.service               loaded active running Firmware update daemon
+  getty@tty1.service          loaded active running Getty on tty1
+  multipathd.service          loaded active running Device-Mapper Multipath Device Controller
+  nginx.service               loaded active running A high performance web server and a reverse proxy server
+  polkit.service              loaded active running Authorization Manager
+  postfix@-.service           loaded active running Postfix Mail Transport Agent (instance -)
+  postgresql@16-main.service  loaded active running PostgreSQL Cluster 16-main
+  qemu-guest-agent.service    loaded active running QEMU Guest Agent
+  redis-server.service        loaded active running Advanced key-value store
+  rsyslog.service             loaded active running System Logging Service
+  serial-getty@ttyS0.service  loaded active running Serial Getty on ttyS0
+  ssh.service                 loaded active running OpenBSD Secure Shell server
+  torchbearers.service        loaded active running Torchbearers Mission Gunicorn Daemon
+  udisks2.service             loaded active running Disk Manager
+  unattended-upgrades.service loaded active running Unattended Upgrades Shutdown
+  upower.service              loaded active running Daemon for power management
+  user@0.service              loaded active running User Manager for UID 0
+  vnstat.service              loaded active running vnStat network traffic monitor
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+28 loaded units listed.
+torchbearers.service
+artifacts
+attached_assets
+deploy
+lib
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+replit.md
+scripts
+TERMS_OF_SERVICE_MOU.md
+tsconfig.base.json
+tsconfig.json
+TSOS_part_aa
+TSOS_part_ab
+TSOS_part_ac
+TSOS_Project_Documentation.md
+TSOS_project.tar.gz
+TSOS_User_Guide.md
+DATABASE_URL=postgresql://tsos:SfMJdogL3acmrGtGfEI7BwtUtMoyTKnl0wcv9nhg@postgres:5432/tsos
+NODE_VERSION=24.15.0
+SMTP_PORT=587
+PORT=8080
+NODE_ENV=production
+root@server1:~# cat /etc/systemd/system/torchbearers.service
+ls /opt/tsos/deploy/
+[Unit]
+Description=Torchbearers Mission Gunicorn Daemon
+After=network.target
+
+[Service]
+User=torchbearers
+Group=torchbearers
+WorkingDirectory=/var/www/torchbearers/app
+ExecStart=/var/www/torchbearers/app/venv/bin/gunicorn \
+          --workers 3 \
+          --bind 127.0.0.1:8000 \
+          --timeout 120 \
+          torchbearers_site.wsgi:application
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+DEPLOY_GUIDE.md     Dockerfile.minio
+deploy.sh           Dockerfile.web
+docker-compose.yml  nginx.conf
+Dockerfile.api      nginx-static.conf
+Dockerfile.migrate
+root@server1:~# cd /opt/tsos && git pull && pnpm install && <build> && systemctl restart torchbearers
+-bash: syntax error near unexpected token `&&'
+root@server1:~# cd /opt/tsos
+root@server1:/opt/tsos# git pull && pnpm inst
+all && <build> && systemctl restart torchbear
+ers
+-bash: syntax error near unexpected token `&&'
+root@server1:/opt/tsos# 
+
+
+
+
+
+
+
+
+
