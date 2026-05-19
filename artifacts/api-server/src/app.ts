@@ -77,4 +77,19 @@ app.use("/api/teacher-auth/login", loginLimiter);
 
 app.use("/api", router);
 
+// Global error handler — must be 4-argument to be recognised by Express as an error handler.
+// Without this, Express sends its default HTML error page which:
+//   1. Returns text/html instead of JSON (breaks client error parsing)
+//   2. Swallows the error — nothing gets logged to pino
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: any, req: any, res: any, _next: any) => {
+  const status = err?.status ?? err?.statusCode ?? 500;
+  const message = err?.message ?? "Internal server error";
+  // Log with full stack so production pino logs capture the crash details.
+  req.log?.error({ err, status }, `Unhandled error: ${message}`);
+  if (!res.headersSent) {
+    res.status(status).json({ error: message });
+  }
+});
+
 export default app;

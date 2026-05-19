@@ -103,6 +103,7 @@ router.get("/schools/:schoolId/fee-settings", async (req, res): Promise<void> =>
 
 router.put("/schools/:schoolId/fee-settings", async (req, res): Promise<void> => {
   const schoolId = parseInt(Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId, 10);
+  if (isNaN(schoolId)) { res.status(400).json({ error: "Invalid schoolId" }); return; }
   const { schoolFee, busFee, scholarshipDiscount, staffChildDiscount, termBillingEnabled, feedingFeePerDay, feedingEnabled, scholarshipWaivedFees, staffChildWaivedFees, busFeePerDay, term1SchoolFee, term2SchoolFee, term3SchoolFee } = req.body;
 
   const existing = await db.select().from(feeSettingsTable).where(eq(feeSettingsTable.schoolId, schoolId));
