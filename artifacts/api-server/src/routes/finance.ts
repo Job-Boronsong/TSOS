@@ -95,12 +95,15 @@ router.get("/schools/:schoolId/fee-settings", async (req, res): Promise<void> =>
     feedingFeePerDay: Number((settings as any).feedingFeePerDay ?? 0),
     feedingEnabled: (settings as any).feedingEnabled === "true",
     busFeePerDay: Number((settings as any).busFeePerDay ?? 0),
+    term1SchoolFee: settings.term1SchoolFee != null ? Number(settings.term1SchoolFee) : null,
+    term2SchoolFee: settings.term2SchoolFee != null ? Number(settings.term2SchoolFee) : null,
+    term3SchoolFee: settings.term3SchoolFee != null ? Number(settings.term3SchoolFee) : null,
   });
 });
 
 router.put("/schools/:schoolId/fee-settings", async (req, res): Promise<void> => {
   const schoolId = parseInt(Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId, 10);
-  const { schoolFee, busFee, scholarshipDiscount, staffChildDiscount, termBillingEnabled, feedingFeePerDay, feedingEnabled, scholarshipWaivedFees, staffChildWaivedFees, busFeePerDay } = req.body;
+  const { schoolFee, busFee, scholarshipDiscount, staffChildDiscount, termBillingEnabled, feedingFeePerDay, feedingEnabled, scholarshipWaivedFees, staffChildWaivedFees, busFeePerDay, term1SchoolFee, term2SchoolFee, term3SchoolFee } = req.body;
 
   const existing = await db.select().from(feeSettingsTable).where(eq(feeSettingsTable.schoolId, schoolId));
   let settings: any;
@@ -116,6 +119,9 @@ router.put("/schools/:schoolId/fee-settings", async (req, res): Promise<void> =>
       ...(scholarshipWaivedFees != null ? { scholarshipWaivedFees: String(scholarshipWaivedFees) } : {}),
       ...(staffChildWaivedFees != null ? { staffChildWaivedFees: String(staffChildWaivedFees) } : {}),
       ...(busFeePerDay != null ? { busFeePerDay: String(busFeePerDay) } : {}),
+      ...(term1SchoolFee !== undefined ? { term1SchoolFee: term1SchoolFee != null ? String(term1SchoolFee) : null } : {}),
+      ...(term2SchoolFee !== undefined ? { term2SchoolFee: term2SchoolFee != null ? String(term2SchoolFee) : null } : {}),
+      ...(term3SchoolFee !== undefined ? { term3SchoolFee: term3SchoolFee != null ? String(term3SchoolFee) : null } : {}),
     } as any).where(eq(feeSettingsTable.schoolId, schoolId)).returning();
   } else {
     [settings] = await db.insert(feeSettingsTable).values({
@@ -145,6 +151,9 @@ router.put("/schools/:schoolId/fee-settings", async (req, res): Promise<void> =>
     busFeePerDay: Number(settings.busFeePerDay ?? 0),
     scholarshipWaivedFees: settings.scholarshipWaivedFees ?? "",
     staffChildWaivedFees: settings.staffChildWaivedFees ?? "",
+    term1SchoolFee: settings.term1SchoolFee != null ? Number(settings.term1SchoolFee) : null,
+    term2SchoolFee: settings.term2SchoolFee != null ? Number(settings.term2SchoolFee) : null,
+    term3SchoolFee: settings.term3SchoolFee != null ? Number(settings.term3SchoolFee) : null,
   });
 });
 

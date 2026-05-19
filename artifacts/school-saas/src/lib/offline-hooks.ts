@@ -177,11 +177,11 @@ export function useMarkAttendanceOffline(schoolId: number) {
 }
 
 export function useCreatePaymentOffline(schoolId: number) {
-  return useCallback(async (data: { studentId: number; amount: number; paymentDate: string; paymentType: string; notes?: string }) => {
+  return useCallback(async (data: { studentId: number; amount: number; paymentDate: string; paymentType: string; notes?: string; term?: string | null; academicYear?: string | null }) => {
     const _localId = String(tempId());
     const id = Number(_localId);
     const now = nowIso();
-    const payment: LocalPayment = { id, schoolId, createdAt: now, _localOnly: true, _localId, notes: data.notes ?? null, ...data };
+    const payment: LocalPayment = { id, schoolId, createdAt: now, _localOnly: true, _localId, notes: data.notes ?? null, term: data.term ?? null, academicYear: data.academicYear ?? null, ...data };
     await localDb.payments.put(payment);
     await enqueueOperation({ opId: _localId, entity: "payment", action: "create", data: { ...data, schoolId, _localId } });
     return payment;

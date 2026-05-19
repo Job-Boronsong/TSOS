@@ -41,6 +41,7 @@ export default function StudentProfile({ params }: Props) {
   const [payments, setPayments] = useState<any[]>([]);
   const [scores, setScores] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any[]>([]);
+  const [feeSettings, setFeeSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,11 +54,13 @@ export default function StudentProfile({ params }: Props) {
       fetch(`/api/schools/${schoolId}/payments?studentId=${studentId}`, { credentials: "include" }).then(r => r.ok ? r.json() : []),
       fetch(`/api/schools/${schoolId}/scores?studentId=${studentId}`, { credentials: "include" }).then(r => r.ok ? r.json() : []),
       fetch(`/api/schools/${schoolId}/attendance?studentId=${studentId}`, { credentials: "include" }).then(r => r.ok ? r.json() : []),
-    ]).then(([s, p, sc, a]) => {
+      fetch(`/api/schools/${schoolId}/fee-settings`, { credentials: "include" }).then(r => r.ok ? r.json() : null),
+    ]).then(([s, p, sc, a, fs]) => {
       setStudent(s);
       setPayments(Array.isArray(p) ? p : []);
       setScores(Array.isArray(sc) ? sc : []);
       setAttendance(Array.isArray(a) ? a : []);
+      setFeeSettings(fs);
     }).catch(e => setError(String(e))).finally(() => setLoading(false));
   }, [schoolId, studentId]);
 
@@ -84,7 +87,46 @@ export default function StudentProfile({ params }: Props) {
 
   const totalFeesPaid = payments.filter(p => p.paymentType !== "feeding_fee").reduce((s, p) => s + Number(p.amount), 0);
   const totalFeedingPaid = payments.filter(p => p.paymentType === "feeding_fee").reduce((s, p) => s + Number(p.amount), 0);
-  const arrears = Math.max(0, Number(student.totalFeeExpected ?? 0) - totalFeesPaid);
+
+  // Per-term fee breakdown with carry-forward arrears
+  const t1Fee = feeSettings?.term1SchoolFee != null ? Number(feeSettings.term1SchoolFee) : null;
+  const t2Fee = feeSettings?.term2SchoolFee != null ? Number(feeSettings.term2SchoolFee) : null;
+  const t3Fee = feeSettings?.term3SchoolFee != null ? Number(feeSettings.term3SchoolFee) : null;
+  const hasTermFees = t1Fee !== null || t2Fee !== null || t3Fee !== null;
+
+  const applyCategory = (base: number) => {
+    if (student?.feeWaiver) return 0;
+    const busFeeAddon = student?.category === "bus" ? Number(feeSettings?.busFee ?? 0) : 0;
+    const discountPct = student?.category === "scholarship" ? Number(feeSettings?.scholarshipDiscount ?? 0)
+      : student?.category === "staff_child" ? Number(feeSettings?.staffChildDiscount ?? 0) : 0;
+    let fee = base + busFeeAddon;
+    if (discountPct > 0) fee = base * (1 - discountPct / 100);
+    return fee;
+  };
+
+  const nonFeedingPayments = payments.filter(p => p.paymentType !== "feeding_fee");
+  interface TermRow { label: string; termNum: string; expected: number; baseFee: number; paid: number; carriedForward: number; arrears: number; }
+  let termBreakdown: TermRow[] = [];
+  if (hasTermFees) {
+    const termDefs = [
+      { label: "Term 1", termNum: "1", baseFee: t1Fee ?? 0 },
+      { label: "Term 2", termNum: "2", baseFee: t2Fee ?? 0 },
+      { label: "Term 3", termNum: "3", baseFee: t3Fee ?? 0 },
+    ];
+    let carryForward = 0;
+    for (const td of termDefs) {
+      const thisFee = applyCategory(td.baseFee);
+      const expected = thisFee + carryForward;
+      const paid = nonFeedingPayments.filter(p => p.term === td.termNum).reduce((s, p) => s + Number(p.amount), 0);
+      const arrears = Math.max(0, expected - paid);
+      termBreakdown.push({ label: td.label, termNum: td.termNum, baseFee: td.baseFee, expected, paid, carriedForward: carryForward, arrears });
+      carryForward = arrears;
+    }
+  }
+
+  const arrears = hasTermFees
+    ? (termBreakdown.length > 0 ? termBreakdown[termBreakdown.length - 1].arrears : 0)
+    : Math.max(0, Number(student.totalFeeExpected ?? 0) - totalFeesPaid);
   const feeStatusOk = arrears === 0;
 
   // Group scores by term/year
@@ -114,6 +156,13 @@ export default function StudentProfile({ params }: Props) {
           <Button variant="ghost" size="sm" onClick={() => navigate(`/school/${schoolSlug}/students`)}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
+          {student.photoUrl && (
+            <img
+              src={student.photoUrl}
+              alt={student.name}
+              className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+            />
+          )}
           <div className="flex-1">
             <h1 className="text-2xl font-bold">{student.name}</h1>
             <p className="text-muted-foreground text-sm">{student.className ?? "No class"} · ID: {student.studentNumber}</p>
@@ -274,20 +323,62 @@ export default function StudentProfile({ params }: Props) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  <div className="text-center py-3 rounded-lg bg-slate-50 border">
-                    <p className="text-xs text-muted-foreground mb-1">Expected Fees</p>
-                    <p className="text-lg font-bold">₵{Number(student.totalFeeExpected ?? 0).toLocaleString()}</p>
+                {hasTermFees ? (
+                  <div className="mb-4">
+                    <div className="rounded-lg border overflow-hidden mb-3">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-muted/50 text-xs text-muted-foreground">
+                            <th className="text-left px-3 py-2 font-medium">Term</th>
+                            <th className="text-right px-3 py-2 font-medium">Expected</th>
+                            <th className="text-right px-3 py-2 font-medium">Paid</th>
+                            <th className="text-right px-3 py-2 font-medium">Arrears</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {termBreakdown.map(row => (
+                            <tr key={row.termNum} className="hover:bg-muted/30">
+                              <td className="px-3 py-2 font-medium">
+                                {row.label}
+                                {row.carriedForward > 0 && (
+                                  <span className="ml-1.5 text-xs text-amber-600 font-normal">+₵{row.carriedForward.toLocaleString()} c/f</span>
+                                )}
+                              </td>
+                              <td className="px-3 py-2 text-right">₵{row.expected.toLocaleString()}</td>
+                              <td className="px-3 py-2 text-right text-green-700">₵{row.paid.toLocaleString()}</td>
+                              <td className={`px-3 py-2 text-right font-semibold ${row.arrears > 0 ? "text-red-600" : "text-green-600"}`}>
+                                ₵{row.arrears.toLocaleString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="bg-muted/50 font-semibold text-sm border-t-2">
+                            <td className="px-3 py-2">Total</td>
+                            <td className="px-3 py-2 text-right">₵{termBreakdown.reduce((s, r) => s + r.baseFee, 0).toLocaleString()}</td>
+                            <td className="px-3 py-2 text-right text-green-700">₵{totalFeesPaid.toLocaleString()}</td>
+                            <td className={`px-3 py-2 text-right ${arrears > 0 ? "text-red-600" : "text-green-600"}`}>₵{arrears.toLocaleString()}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
                   </div>
-                  <div className="text-center py-3 rounded-lg bg-green-50 border border-green-200">
-                    <p className="text-xs text-muted-foreground mb-1">Total Paid</p>
-                    <p className="text-lg font-bold text-green-700">₵{totalFeesPaid.toLocaleString()}</p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="text-center py-3 rounded-lg bg-slate-50 border">
+                      <p className="text-xs text-muted-foreground mb-1">Expected Fees</p>
+                      <p className="text-lg font-bold">₵{Number(student.totalFeeExpected ?? 0).toLocaleString()}</p>
+                    </div>
+                    <div className="text-center py-3 rounded-lg bg-green-50 border border-green-200">
+                      <p className="text-xs text-muted-foreground mb-1">Total Paid</p>
+                      <p className="text-lg font-bold text-green-700">₵{totalFeesPaid.toLocaleString()}</p>
+                    </div>
+                    <div className={`text-center py-3 rounded-lg border ${arrears > 0 ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"}`}>
+                      <p className="text-xs text-muted-foreground mb-1">Arrears</p>
+                      <p className={`text-lg font-bold ${arrears > 0 ? "text-red-700" : "text-green-700"}`}>₵{arrears.toLocaleString()}</p>
+                    </div>
                   </div>
-                  <div className={`text-center py-3 rounded-lg border ${arrears > 0 ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"}`}>
-                    <p className="text-xs text-muted-foreground mb-1">Arrears</p>
-                    <p className={`text-lg font-bold ${arrears > 0 ? "text-red-700" : "text-green-700"}`}>₵{arrears.toLocaleString()}</p>
-                  </div>
-                </div>
+                )}
 
                 {totalFeedingPaid > 0 && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-orange-50 border border-orange-200 text-sm mb-4">
@@ -305,6 +396,11 @@ export default function StudentProfile({ params }: Props) {
                         <div key={p.id} className="flex items-center justify-between px-3 py-2 text-sm hover:bg-muted/40">
                           <div>
                             <span className="font-medium">{PAYMENT_TYPE_LABELS[p.paymentType] ?? p.paymentType}</span>
+                            {p.term && (
+                              <span className="ml-1.5 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5">
+                                Term {p.term}{p.academicYear ? ` · ${p.academicYear}` : ""}
+                              </span>
+                            )}
                             {p.notes && <span className="text-muted-foreground ml-1.5 text-xs">— {p.notes}</span>}
                           </div>
                           <div className="text-right">

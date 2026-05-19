@@ -175,5 +175,8 @@ export const feeSettingsTable = pgTable("fee_settings", {
   busFeePerDay: numeric("bus_fee_per_day", { precision: 10, scale: 2 }).notNull().default("0"),
   scholarshipWaivedFees: text("scholarship_waived_fees").notNull().default(""),
   staffChildWaivedFees: text("staff_child_waived_fees").notNull().default(""),
+  term1SchoolFee: numeric("term1_school_fee", { precision: 10, scale: 2 }),
+  term2SchoolFee: numeric("term2_school_fee", { precision: 10, scale: 2 }),
+  term3SchoolFee: numeric("term3_school_fee", { precision: 10, scale: 2 }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Save, Plus, Pencil, Trash2, CalendarDays, Star, UtensilsCrossed, Bus, MapPin, Loader2, Navigation } from "lucide-react";
+import { Settings, Save, Plus, Pencil, Trash2, CalendarDays, Star, UtensilsCrossed, Bus, MapPin, Loader2, Navigation, DollarSign } from "lucide-react";
 import { ChangePasswordDialog } from "@/components/change-password-dialog";
 import { LogoUpload } from "@/components/logo-upload";
 
@@ -94,6 +94,16 @@ export default function SchoolSettings({ params }: Props) {
   // Bus fee per day settings
   const [busFeePerDay, setBusFeePerDay] = useState("");
   const [savingBusFee, setSavingBusFee] = useState(false);
+
+  // Fee structure (base school fees + per-term fees)
+  const [schoolFee, setSchoolFee] = useState("");
+  const [busFee, setBusFee] = useState("");
+  const [scholarshipDiscount, setScholarshipDiscount] = useState("");
+  const [staffChildDiscount, setStaffChildDiscount] = useState("");
+  const [term1SchoolFee, setTerm1SchoolFee] = useState("");
+  const [term2SchoolFee, setTerm2SchoolFee] = useState("");
+  const [term3SchoolFee, setTerm3SchoolFee] = useState("");
+  const [savingFeeStructure, setSavingFeeStructure] = useState(false);
 
   // Scholarship / staff-child fee waivers
   const FEE_TYPES = [
@@ -190,6 +200,13 @@ export default function SchoolSettings({ params }: Props) {
           setBusFeePerDay(d.busFeePerDay != null ? String(d.busFeePerDay) : "");
           setScholarshipWaivedFees(d.scholarshipWaivedFees ? d.scholarshipWaivedFees.split(",").filter(Boolean) : []);
           setStaffChildWaivedFees(d.staffChildWaivedFees ? d.staffChildWaivedFees.split(",").filter(Boolean) : []);
+          setSchoolFee(d.schoolFee != null ? String(d.schoolFee) : "");
+          setBusFee(d.busFee != null ? String(d.busFee) : "");
+          setScholarshipDiscount(d.scholarshipDiscount != null ? String(d.scholarshipDiscount) : "");
+          setStaffChildDiscount(d.staffChildDiscount != null ? String(d.staffChildDiscount) : "");
+          setTerm1SchoolFee(d.term1SchoolFee != null ? String(d.term1SchoolFee) : "");
+          setTerm2SchoolFee(d.term2SchoolFee != null ? String(d.term2SchoolFee) : "");
+          setTerm3SchoolFee(d.term3SchoolFee != null ? String(d.term3SchoolFee) : "");
         }
       })
       .catch(() => {});
@@ -218,6 +235,34 @@ export default function SchoolSettings({ params }: Props) {
       toast({ variant: "destructive", title: "Error saving fee waivers" });
     } finally {
       setSavingWaivers(false);
+    }
+  };
+
+  const handleSaveFeeStructure = async () => {
+    if (!schoolId) return;
+    setSavingFeeStructure(true);
+    try {
+      const body: Record<string, number | null> = {
+        schoolFee: parseFloat(schoolFee) || 0,
+        busFee: parseFloat(busFee) || 0,
+        scholarshipDiscount: parseFloat(scholarshipDiscount) || 0,
+        staffChildDiscount: parseFloat(staffChildDiscount) || 0,
+        term1SchoolFee: term1SchoolFee !== "" ? parseFloat(term1SchoolFee) || 0 : null,
+        term2SchoolFee: term2SchoolFee !== "" ? parseFloat(term2SchoolFee) || 0 : null,
+        term3SchoolFee: term3SchoolFee !== "" ? parseFloat(term3SchoolFee) || 0 : null,
+      };
+      const res = await fetch(`/api/schools/${schoolId}/fee-settings`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error();
+      toast({ title: "Fee structure saved" });
+    } catch {
+      toast({ variant: "destructive", title: "Error saving fee structure" });
+    } finally {
+      setSavingFeeStructure(false);
     }
   };
 
@@ -402,6 +447,72 @@ export default function SchoolSettings({ params }: Props) {
               Keep your account secure by using a strong, unique password.
             </p>
             <ChangePasswordDialog />
+          </CardContent>
+        </Card>
+
+        {/* Fee Structure */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-green-600" />
+              School Fee Structure
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <p className="text-sm text-muted-foreground">
+              Set the base school fee, category discounts, and optional per-term amounts.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Base School Fee (GHS)</Label>
+                <Input type="number" step="0.01" min="0" placeholder="e.g. 800.00"
+                  value={schoolFee} onChange={e => setSchoolFee(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Bus Fee Add-on (GHS)</Label>
+                <Input type="number" step="0.01" min="0" placeholder="e.g. 200.00"
+                  value={busFee} onChange={e => setBusFee(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Scholarship Discount (%)</Label>
+                <Input type="number" step="1" min="0" max="100" placeholder="e.g. 50"
+                  value={scholarshipDiscount} onChange={e => setScholarshipDiscount(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Staff Child Discount (%)</Label>
+                <Input type="number" step="1" min="0" max="100" placeholder="e.g. 30"
+                  value={staffChildDiscount} onChange={e => setStaffChildDiscount(e.target.value)} />
+              </div>
+            </div>
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium mb-1">Per-term Fees (optional)</p>
+              <p className="text-xs text-muted-foreground mb-3">
+                When set, each term is tracked separately with carry-forward arrears on the student profile. Leave blank to use the base fee.
+              </p>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Term 1 Fee (GHS)</Label>
+                  <Input type="number" step="0.01" min="0" placeholder="e.g. 800.00"
+                    value={term1SchoolFee} onChange={e => setTerm1SchoolFee(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Term 2 Fee (GHS)</Label>
+                  <Input type="number" step="0.01" min="0" placeholder="e.g. 800.00"
+                    value={term2SchoolFee} onChange={e => setTerm2SchoolFee(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Term 3 Fee (GHS)</Label>
+                  <Input type="number" step="0.01" min="0" placeholder="e.g. 800.00"
+                    value={term3SchoolFee} onChange={e => setTerm3SchoolFee(e.target.value)} />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button type="button" onClick={handleSaveFeeStructure} disabled={savingFeeStructure} size="sm" className="gap-2">
+                <Save className="w-4 h-4" />
+                {savingFeeStructure ? "Saving..." : "Save Fee Structure"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

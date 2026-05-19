@@ -40,7 +40,7 @@ export default function Finance({ params }: Props) {
   const [feedOpen, setFeedOpen] = useState(false);
   const [expOpen, setExpOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [payForm, setPayForm] = useState({ studentId: "", amount: "", description: "", paymentType: "school_fee", paymentDate: format(new Date(), "yyyy-MM-dd") });
+  const [payForm, setPayForm] = useState({ studentId: "", amount: "", description: "", paymentType: "school_fee", paymentDate: format(new Date(), "yyyy-MM-dd"), term: "", academicYear: "" });
   const [feedForm, setFeedForm] = useState({ studentId: "", amount: "", notes: "", paymentDate: format(new Date(), "yyyy-MM-dd") });
   const [expForm, setExpForm] = useState({ amount: "", description: "", category: "salaries", expenditureDate: format(new Date(), "yyyy-MM-dd") });
   const [studentSearch, setStudentSearch] = useState("");
@@ -141,10 +141,12 @@ export default function Finance({ params }: Props) {
         notes: payForm.description || undefined,
         paymentType: payForm.paymentType,
         paymentDate: payForm.paymentDate,
+        term: payForm.term || null,
+        academicYear: payForm.academicYear || null,
       });
       toast({ title: "Payment recorded", description: "Saved locally, will sync when online." });
       setPayOpen(false);
-      setPayForm({ studentId: "", amount: "", description: "", paymentType: "school_fee", paymentDate: format(new Date(), "yyyy-MM-dd") });
+      setPayForm({ studentId: "", amount: "", description: "", paymentType: "school_fee", paymentDate: format(new Date(), "yyyy-MM-dd"), term: "", academicYear: "" });
       setStudentSearch("");
     } catch {
       toast({ variant: "destructive", title: "Error recording payment" });
@@ -402,6 +404,24 @@ export default function Finance({ params }: Props) {
                       <div className="space-y-2">
                         <Label>Date</Label>
                         <Input type="date" value={payForm.paymentDate} onChange={e => setPayForm(f => ({ ...f, paymentDate: e.target.value }))} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-1">Term <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                        <Select value={payForm.term || "none"} onValueChange={v => setPayForm(f => ({ ...f, term: v === "none" ? "" : v }))}>
+                          <SelectTrigger><SelectValue placeholder="— Any —" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">— Any term —</SelectItem>
+                            <SelectItem value="1">Term 1</SelectItem>
+                            <SelectItem value="2">Term 2</SelectItem>
+                            <SelectItem value="3">Term 3</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-1">Academic Year <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                        <Input placeholder="e.g. 2025/2026" value={payForm.academicYear} onChange={e => setPayForm(f => ({ ...f, academicYear: e.target.value }))} />
                       </div>
                     </div>
                     <Button type="submit" className="w-full" disabled={saving || !payForm.studentId}>Record Payment</Button>

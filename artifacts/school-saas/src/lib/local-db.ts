@@ -68,6 +68,8 @@ export interface LocalPayment {
   paymentDate: string;
   paymentType: string;
   notes: string | null;
+  term?: string | null;
+  academicYear?: string | null;
   createdAt: string;
   _localOnly?: boolean;
   _localId?: string;

@@ -41,17 +41,24 @@ async function enrichStudent(student: typeof studentsTable.$inferSelect, feeSett
   const scholarshipDiscount = Number(feeSetting?.scholarshipDiscount ?? 0);
   const staffChildDiscount = Number(feeSetting?.staffChildDiscount ?? 0);
 
-  // Category-based base fee
-  let expectedFee = schoolFee;
-  if (student.category === "bus") expectedFee = schoolFee + busFee;
-  else if (student.category === "scholarship") expectedFee = schoolFee * (1 - scholarshipDiscount / 100);
-  else if (student.category === "staff_child") expectedFee = schoolFee * (1 - staffChildDiscount / 100);
+  // Per-term fees (nullable — if any term fee is set, use sum; else fall back to flat schoolFee)
+  const t1 = (feeSetting as any)?.term1SchoolFee != null ? Number((feeSetting as any).term1SchoolFee) : null;
+  const t2 = (feeSetting as any)?.term2SchoolFee != null ? Number((feeSetting as any).term2SchoolFee) : null;
+  const t3 = (feeSetting as any)?.term3SchoolFee != null ? Number((feeSetting as any).term3SchoolFee) : null;
+  const hasTermFees = t1 !== null || t2 !== null || t3 !== null;
+  const baseSchoolFee = hasTermFees ? ((t1 ?? 0) + (t2 ?? 0) + (t3 ?? 0)) : schoolFee;
 
-  // Per-student waiver overrides (on top of category discount)
+  // Category-based expected fee
+  let expectedFee = baseSchoolFee;
+  if (student.category === "bus") expectedFee = baseSchoolFee + busFee;
+  else if (student.category === "scholarship") expectedFee = baseSchoolFee * (1 - scholarshipDiscount / 100);
+  else if (student.category === "staff_child") expectedFee = baseSchoolFee * (1 - staffChildDiscount / 100);
+
+  // Per-student waiver overrides
   if (student.feeWaiver) expectedFee = 0;
 
   const payments = await db.select().from(paymentsTable).where(eq(paymentsTable.studentId, student.id));
-  const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalPaid = payments.filter(p => p.paymentType !== "feeding_fee").reduce((sum, p) => sum + Number(p.amount), 0);
 
   return {
     ...student,

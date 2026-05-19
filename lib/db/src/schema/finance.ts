@@ -30,6 +30,8 @@ export const paymentsTable = pgTable("payments", {
   paymentDate: date("payment_date").notNull(),
   paymentType: text("payment_type").notNull().default("school_fee"),
   notes: text("notes"),
+  term: text("term"),
+  academicYear: text("academic_year"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
