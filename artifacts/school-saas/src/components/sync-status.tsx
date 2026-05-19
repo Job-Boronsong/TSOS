@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { onSyncStatusChange, getLastSyncError, type SyncStatus, type SyncErrorCode, runSync, clearSyncQueue } from "@/lib/sync-service";
-import { localDb } from "@/lib/local-db";
-import { RefreshCw, CheckCircle, AlertCircle, WifiOff, Trash2, LogIn } from "lucide-react";
+import { localDb, resetLocalDb } from "@/lib/local-db";
+import { RefreshCw, CheckCircle, AlertCircle, WifiOff, Trash2, LogIn, DatabaseZap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -14,16 +14,24 @@ export function SyncStatus({ schoolId }: Props) {
   const [status, setStatus] = useState<SyncStatus>("idle");
   const [queueSize, setQueueSize] = useState(0);
   const [errorCode, setErrorCode] = useState<SyncErrorCode | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     const unsub = onSyncStatusChange((s, q) => {
       setStatus(s);
       setQueueSize(q);
-      if (s === "error") setErrorCode(getLastSyncError().code);
-      else setErrorCode(null);
+      if (s === "error") {
+        const { code, message } = getLastSyncError();
+        setErrorCode(code);
+        setErrorMessage(message);
+      } else {
+        setErrorCode(null);
+        setErrorMessage(null);
+      }
     });
     return unsub;
   }, []);
@@ -54,6 +62,17 @@ export function SyncStatus({ schoolId }: Props) {
       setOpen(false);
     } finally {
       setClearing(false);
+    }
+  };
+
+  const handleResetLocalDb = async () => {
+    if (!confirm("This will delete all locally cached data and re-download everything from the server. Any unsynced changes will be lost. Continue?")) return;
+    setResetting(true);
+    try {
+      await resetLocalDb();
+      window.location.reload();
+    } catch {
+      setResetting(false);
     }
   };
 
@@ -98,7 +117,30 @@ export function SyncStatus({ schoolId }: Props) {
           </div>
         )}
         {status === "error" && errorCode !== "auth" && (
-          <p className="text-red-500">Last sync failed. Retrying in 30 seconds — or tap "Sync now" to retry immediately.</p>
+          <div className="space-y-1.5">
+            {errorCode === "local" ? (
+              <p className="text-red-500">Local database error. Try resetting the local data to recover.</p>
+            ) : (
+              <p className="text-red-500">Last sync failed. Retrying in 30 seconds — or tap "Sync now" to retry immediately.</p>
+            )}
+            {errorMessage && (
+              <p className="text-[10px] font-mono bg-red-50 border border-red-200 rounded px-1.5 py-1 text-red-700 break-all select-all">
+                {errorMessage.length > 200 ? errorMessage.slice(0, 200) + "…" : errorMessage}
+              </p>
+            )}
+            {errorCode === "local" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={handleResetLocalDb}
+                disabled={resetting}
+              >
+                <DatabaseZap className="w-3 h-3 mr-1" />
+                {resetting ? "Resetting…" : "Reset local data"}
+              </Button>
+            )}
+          </div>
         )}
         {(status === "online" || status === "idle") && queueSize === 0 && (
           <p className="text-muted-foreground">{lastSynced ? `Last synced ${lastSynced}.` : "Everything is up to date."}</p>

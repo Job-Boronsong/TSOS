@@ -9,13 +9,19 @@ async function apiFetch(path: string, init?: RequestInit) {
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
   if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`);
-  return res.json();
+  // Wrap JSON parsing so a truncated response (connection dropped mid-transfer)
+  // is reported clearly instead of as an opaque SyntaxError.
+  try {
+    return await res.json();
+  } catch {
+    throw new Error("Failed to fetch: response was truncated (connection dropped mid-transfer)");
+  }
 }
 
 export type SyncStatus = "idle" | "syncing" | "online" | "offline" | "error";
 
 // Categorised error codes surfaced to the UI for actionable messaging.
-export type SyncErrorCode = "auth" | "network" | "server" | "unknown";
+export type SyncErrorCode = "auth" | "network" | "server" | "local" | "unknown";
 
 type Listener = (status: SyncStatus, queueSize: number) => void;
 const listeners = new Set<Listener>();
@@ -33,11 +39,19 @@ function notifyListeners(status: SyncStatus, queueSize?: number) {
 
 function notifyError(err: Error) {
   const msg = err.message ?? "";
+  const name = (err as any).name ?? "";
   if (msg.includes("401")) { lastErrorCode = "auth"; }
   else if (msg.includes("Failed to fetch") || msg.includes("NetworkError") || msg.includes("Load failed")) { lastErrorCode = "network"; }
-  else if (msg.includes("5")) { lastErrorCode = "server"; }
+  else if (msg.includes("API error 5") || msg.includes("API error 50") || msg.includes("503") || msg.includes("504")) { lastErrorCode = "server"; }
+  // IndexedDB / Dexie errors: VersionError, InvalidStateError, TransactionInactiveError, AbortError, UnknownError, QuotaExceededError
+  else if (
+    name === "VersionError" || name === "InvalidStateError" || name === "TransactionInactiveError" ||
+    name === "AbortError" || name === "UnknownError" || name === "QuotaExceededError" ||
+    msg.includes("IDBObjectStore") || msg.includes("IDBTransaction") || msg.includes("IndexedDB") ||
+    msg.includes("Dexie") || msg.includes("database") || msg.includes("transaction") || msg.includes("upgrade")
+  ) { lastErrorCode = "local"; }
   else { lastErrorCode = "unknown"; }
-  lastErrorMessage = msg;
+  lastErrorMessage = `[${name || "Error"}] ${msg}`;
   notifyListeners("error");
 }
 
@@ -160,7 +174,9 @@ export async function runSync(
     syncRunning = false;
     return { ok: true };
   } catch (err: any) {
-    notifyError(err instanceof Error ? err : new Error(String(err)));
+    const error = err instanceof Error ? err : new Error(String(err));
+    console.error("[Sync] runSync failed:", error.message, error.stack);
+    notifyError(error);
     syncRunning = false;
     return { ok: false, error: String(err.message) };
   }
@@ -182,15 +198,25 @@ async function pushQueue(schoolId: number): Promise<void> {
   const staleIds = await localDb.syncQueue
     .filter(i => i.createdAt < cutoff || (i.retries ?? 0) >= MAX_QUEUE_RETRIES)
     .primaryKeys();
-  if (staleIds.length) await localDb.syncQueue.bulkDelete(staleIds as number[]);
+  if (staleIds.length) {
+    console.warn("[Sync] Dropping", staleIds.length, "stale/over-retry queue items");
+    await localDb.syncQueue.bulkDelete(staleIds as number[]);
+  }
 
   const items = await localDb.syncQueue.orderBy("createdAt").toArray();
   if (items.length === 0) return;
 
-  const data = await apiFetch("/api/sync/push", {
-    method: "POST",
-    body: JSON.stringify({ operations: items.map(i => ({ id: i.opId, entity: i.entity, action: i.action, data: i.data, serverId: i.serverId })) }),
-  });
+  console.log("[Sync] Pushing", items.length, "queued operations:", items.map(i => `${i.entity}:${i.action}`));
+  let data: any;
+  try {
+    data = await apiFetch("/api/sync/push", {
+      method: "POST",
+      body: JSON.stringify({ operations: items.map(i => ({ id: i.opId, entity: i.entity, action: i.action, data: i.data, serverId: i.serverId })) }),
+    });
+  } catch (pushErr: any) {
+    console.error("[Sync] Push HTTP failed:", pushErr.message);
+    throw pushErr;
+  }
 
   // Build a set of opIds the server acknowledged so we can detect un-acknowledged ones.
   const acknowledgedOpIds = new Set<string>((data.results ?? []).map((r: any) => r.opId));
@@ -262,66 +288,97 @@ export async function pullData(schoolId: number, coreOnly = false, overrideSince
   const coreParam = coreOnly ? "&coreOnly=true" : "";
   const data = await apiFetch(`/api/sync/pull?schoolId=${schoolId}${since}${coreParam}`);
 
-  // Collect pending local IDs still in the sync queue so we don't delete truly pending records
+  // Collect pending _localId values from the sync queue so we don't wipe truly pending records.
+  // IMPORTANT: use q.data?._localId (the temp record ID), NOT q.opId (the operation UUID).
   const queueItems = await localDb.syncQueue.toArray();
-  const pendingLocalIds = new Set(queueItems.map(q => q.opId));
+  const pendingLocalIds = new Set(queueItems.map(q => q.data?._localId).filter(Boolean));
+
+  console.log("[Sync] pullData — schoolId:", schoolId, "coreOnly:", coreOnly,
+    "firstSync:", !lastSynced, "classes:", data.classes?.length,
+    "students:", data.students?.length, "teachers:", data.teachers?.length,
+    "attendance:", data.attendance?.length, "payments:", data.payments?.length,
+    "sales:", data.sales?.length, "expenditures:", data.expenditures?.length,
+    "pendingLocalIds:", pendingLocalIds.size);
 
   if (coreOnly) emitProgress(55, "Saving classes & students…");
 
-  await localDb.transaction("rw",
-    [localDb.classes, localDb.students, localDb.teachers, localDb.feeSettings,
-     localDb.featureToggles, localDb.schoolSettings, localDb.attendance,
-     localDb.payments, localDb.sales, localDb.expenditures],
-    async () => {
-      if (!lastSynced) {
-        // First-time pull: wipe core tables; wipe history tables too unless coreOnly
-        await localDb.classes.where("schoolId").equals(schoolId).delete();
-        await localDb.students.where("schoolId").equals(schoolId).delete();
-        await localDb.teachers.where("schoolId").equals(schoolId).delete();
-        await localDb.feeSettings.where("schoolId").equals(schoolId).delete();
-        await localDb.featureToggles.where("schoolId").equals(schoolId).delete();
-        await localDb.schoolSettings.where("schoolId").equals(schoolId).delete();
-        if (!coreOnly) {
-          await localDb.attendance.where("schoolId").equals(schoolId).delete();
-          await localDb.payments.where("schoolId").equals(schoolId).delete();
-          await localDb.sales.where("schoolId").equals(schoolId).delete();
-          await localDb.expenditures.where("schoolId").equals(schoolId).delete();
+  try {
+    await localDb.transaction("rw",
+      [localDb.classes, localDb.students, localDb.teachers, localDb.feeSettings,
+       localDb.featureToggles, localDb.schoolSettings, localDb.attendance,
+       localDb.payments, localDb.sales, localDb.expenditures],
+      async () => {
+        if (!lastSynced) {
+          // First-time pull: wipe core tables; wipe history tables too unless coreOnly
+          await localDb.classes.where("schoolId").equals(schoolId).delete();
+          await localDb.students.where("schoolId").equals(schoolId).delete();
+          await localDb.teachers.where("schoolId").equals(schoolId).delete();
+          await localDb.feeSettings.where("schoolId").equals(schoolId).delete();
+          await localDb.featureToggles.where("schoolId").equals(schoolId).delete();
+          await localDb.schoolSettings.where("schoolId").equals(schoolId).delete();
+          if (!coreOnly) {
+            await localDb.attendance.where("schoolId").equals(schoolId).delete();
+            await localDb.payments.where("schoolId").equals(schoolId).delete();
+            await localDb.sales.where("schoolId").equals(schoolId).delete();
+            await localDb.expenditures.where("schoolId").equals(schoolId).delete();
+          }
+        } else if (!coreOnly) {
+          // Incremental pull: clean up stale _localOnly records whose sync op already completed.
+          const cleanStale = async (table: typeof localDb.classes) => {
+            const stale = await (table as any).where("schoolId").equals(schoolId).filter((r: any) => r._localOnly && r._localId && !pendingLocalIds.has(r._localId)).primaryKeys();
+            if (stale.length) {
+              console.log("[Sync] Cleaning", stale.length, "stale _localOnly records from", (table as any).name);
+              await (table as any).bulkDelete(stale);
+            }
+          };
+          await cleanStale(localDb.classes as any);
+          await cleanStale(localDb.students as any);
+          await cleanStale(localDb.teachers as any);
+          await cleanStale(localDb.payments as any);
+          await cleanStale(localDb.sales as any);
+          await cleanStale(localDb.expenditures as any);
         }
-      } else if (!coreOnly) {
-        // Incremental pull: clean up stale _localOnly records whose sync op already completed.
-        const cleanStale = async (table: typeof localDb.classes) => {
-          const stale = await (table as any).where("schoolId").equals(schoolId).filter((r: any) => r._localOnly && r._localId && !pendingLocalIds.has(r._localId)).primaryKeys();
-          if (stale.length) await (table as any).bulkDelete(stale);
-        };
-        await cleanStale(localDb.classes as any);
-        await cleanStale(localDb.students as any);
-        await cleanStale(localDb.teachers as any);
-        await cleanStale(localDb.payments as any);
-        await cleanStale(localDb.sales as any);
-        await cleanStale(localDb.expenditures as any);
-      }
 
-      if (data.classes?.length) await localDb.classes.bulkPut(data.classes);
-      if (data.students?.length) await localDb.students.bulkPut(data.students);
-      if (coreOnly) emitProgress(75, "Saving teachers & settings…");
-      if (data.teachers?.length) await localDb.teachers.bulkPut(data.teachers);
-      if (data.feeSettings) await localDb.feeSettings.put(data.feeSettings);
-      if (data.featureToggles) await localDb.featureToggles.put(data.featureToggles);
-      if (data.schoolSettings) await localDb.schoolSettings.put(data.schoolSettings);
-      if (coreOnly) emitProgress(90, "Almost ready…");
-      if (!coreOnly) {
-        if (data.attendance?.length) await localDb.attendance.bulkPut(data.attendance);
-        if (data.payments?.length) await localDb.payments.bulkPut(data.payments);
-        if (data.sales?.length) await localDb.sales.bulkPut(data.sales);
-        if (data.expenditures?.length) await localDb.expenditures.bulkPut(data.expenditures);
+        console.log("[Sync] Transaction: writing classes…");
+        if (data.classes?.length) await localDb.classes.bulkPut(data.classes);
+        console.log("[Sync] Transaction: writing students…");
+        if (data.students?.length) await localDb.students.bulkPut(data.students);
+        if (coreOnly) emitProgress(75, "Saving teachers & settings…");
+        console.log("[Sync] Transaction: writing teachers…");
+        if (data.teachers?.length) await localDb.teachers.bulkPut(data.teachers);
+        console.log("[Sync] Transaction: writing feeSettings…");
+        if (data.feeSettings) await localDb.feeSettings.put(data.feeSettings);
+        console.log("[Sync] Transaction: writing featureToggles…");
+        if (data.featureToggles) await localDb.featureToggles.put(data.featureToggles);
+        console.log("[Sync] Transaction: writing schoolSettings…");
+        if (data.schoolSettings) await localDb.schoolSettings.put(data.schoolSettings);
+        if (coreOnly) emitProgress(90, "Almost ready…");
+        if (!coreOnly) {
+          console.log("[Sync] Transaction: writing attendance…");
+          if (data.attendance?.length) await localDb.attendance.bulkPut(data.attendance);
+          console.log("[Sync] Transaction: writing payments…");
+          if (data.payments?.length) await localDb.payments.bulkPut(data.payments);
+          console.log("[Sync] Transaction: writing sales…");
+          if (data.sales?.length) await localDb.sales.bulkPut(data.sales);
+          console.log("[Sync] Transaction: writing expenditures…");
+          if (data.expenditures?.length) await localDb.expenditures.bulkPut(data.expenditures);
+        }
+        console.log("[Sync] Transaction: complete.");
       }
-    }
-  );
+    );
+  } catch (txErr: any) {
+    console.error("[Sync] Dexie transaction failed:", txErr?.name, txErr?.message, txErr?.stack);
+    // Wrap with a clear prefix so notifyError can identify IndexedDB errors
+    const wrapped = new Error(`IndexedDB error (${txErr?.name}): ${txErr?.message}`);
+    wrapped.name = txErr?.name ?? "IndexedDBError";
+    throw wrapped;
+  }
 
   // Only persist the sync timestamp after a full pull (not core-only)
   if (!coreOnly) {
     await setLastSyncedAt(schoolId, new Date(data.syncedAt));
   }
+  console.log("[Sync] pullData complete. coreOnly:", coreOnly);
 }
 
 export function initSyncService() {

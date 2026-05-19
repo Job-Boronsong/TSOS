@@ -202,6 +202,18 @@ class EduManageDB extends Dexie {
 
 export const localDb = new EduManageDB();
 
+/**
+ * Nuclear reset: deletes the entire IndexedDB and reloads the page.
+ * Use this to recover from database corruption or schema conflicts.
+ * ALL unsynced local changes will be lost.
+ */
+export async function resetLocalDb(): Promise<void> {
+  try {
+    await localDb.close();
+  } catch { /* ignore */ }
+  await Dexie.delete("edumanage");
+}
+
 export async function getLastSyncedAt(schoolId: number): Promise<Date | null> {
   const meta = await localDb.syncMeta.get(`lastSyncedAt_${schoolId}`);
   return meta ? new Date(meta.value) : null;
