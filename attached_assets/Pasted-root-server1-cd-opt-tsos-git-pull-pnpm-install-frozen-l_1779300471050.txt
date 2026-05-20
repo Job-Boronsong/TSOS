@@ -1,0 +1,220 @@
+root@server1:~# cd /opt/tsos && \
+git pull && \
+pnpm install --frozen-lockfile && \
+pnpm --filter @workspace/api-server run build && \
+pnpm --filter @workspace/school-saas run build && \
+pm2 restart all
+remote: Enumerating objects: 142, done.
+remote: Counting objects: 100% (142/142), done.
+remote: Compressing objects: 100% (43/43), done.
+Receiving objects:  63% (79/124), 764.00 KiB Receiving objects:  63% (79/124), 1.68 MiB | Receiving objects:  64% (80/124), 1.68 MiB | Receiving objects:  65% (81/124), 2.69 MiB | Receiving objects:  66% (82/124), 2.69 MiB | Receiving objects:  67% (84/124), 2.69 MiB | Receiving objects:  68% (85/124), 2.69 MiB | Receiving objects:  69% (86/124), 2.69 MiB | Receiving objects:  70% (87/124), 2.69 MiB | Receiving objects:  71% (89/124), 2.69 MiB | Receiving objects:  72% (90/124), 2.69 MiB | Receiving objects:  73% (91/124), 2.69 MiB | Receiving objects:  74% (92/124), 2.69 MiB | Receiving objects:  75% (93/124), 2.69 MiB | Receiving objects:  76% (95/124), 2.69 MiB | Receiving objects:  77% (96/124), 2.69 MiB | Receiving objects:  78% (97/124), 2.69 MiB | Receiving objects:  79% (98/124), 2.69 MiB | remote: Total 124 (delta 73), reused 123 (delta 72), pack-reused 0 (from 0)
+Receiving objects:  80% (100/124), 2.69 MiB |Receiving objects:  81% (101/124), 2.69 MiB |Receiving objects:  82% (102/124), 2.69 MiB |Receiving objects:  83% (103/124), 2.69 MiB |Receiving objects:  84% (105/124), 2.69 MiB |Receiving objects:  85% (106/124), 2.69 MiB |Receiving objects:  86% (107/124), 2.69 MiB |Receiving objects:  87% (108/124), 2.69 MiB |Receiving objects:  88% (110/124), 2.69 MiB |Receiving objects:  89% (111/124), 2.69 MiB |Receiving objects:  90% (112/124), 2.69 MiB |Receiving objects:  91% (113/124), 2.69 MiB |Receiving objects:  92% (115/124), 2.69 MiB |Receiving objects:  93% (116/124), 2.69 MiB |Receiving objects:  94% (117/124), 2.69 MiB |Receiving objects:  95% (118/124), 2.69 MiB |Receiving objects:  96% (120/124), 2.69 MiB |Receiving objects:  97% (121/124), 2.69 MiB |Receiving objects:  98% (122/124), 2.69 MiB |Receiving objects:  99% (123/124), 2.69 MiB |Receiving objects: 100% (124/124), 2.69 MiB |Receiving objects: 100% (124/124), 3.43 MiB | 1.86 MiB/s, done.
+Resolving deltas: 100% (73/73), completed with 14 local objects.
+From https://github.com/Job-Boronsong/TSOS
+   5e80bdf..bf50843  main       -> origin/main
+Updating 5e80bdf..bf50843
+Fast-forward
+ ...agent_assets_metadata.toml |  31 +-
+ .replit                       |  10 +-
+ .../src/routes/index.ts       |   2 +
+ .../src/routes/staff-users.ts | 168 ++
+ .../school-saas/src/App.tsx   |  32 +-
+ .../src/components/layout.tsx |  43 +-
+ .../school/staff-access.tsx   | 608 +++++++
+ .../artifact.toml             |  31 +
+ .../tsos-guide/index.html     |  19 +
+ .../tsos-guide/package.json   |  30 +
+ .../public/favicon.svg        |   3 +
+ .../validate-slides.ts        | 193 ++
+ .../tsos-guide/src/App.tsx    | 251 +++
+ .../src/data/.gitignore       |   1 +
+ .../data/slides-manifest.json | 130 ++
+ .../slidesManifestSchema.ts   |  33 +
+ .../tsos-guide/src/index.css  |  48 +
+ .../tsos-guide/src/main.tsx   |  14 +
+ .../slides/Slide01Title.tsx   |  62 +
+ .../Slide02Overview.tsx       |  70 +
+ .../Slide03Dashboard.tsx      |  84 +
+ .../Slide04Students.tsx       |  86 +
+ .../slides/Slide05Classes.tsx |  99 +
+ .../Slide06Attendance.tsx     |  93 +
+ .../slides/Slide07Finance.tsx | 101 +
+ .../slides/Slide08Feeding.tsx |  84 +
+ .../Slide09ReportCards.tsx    |  88 +
+ .../Slide10ScoreEntry.tsx     |  94 +
+ .../Slide11TeacherPortal.tsx  |  81 +
+ .../Slide12GPSCheckin.tsx     |  70 +
+ .../slides/Slide13Payroll.tsx |  73 +
+ .../Slide14Discipline.tsx     |  80 +
+ .../slides/Slide15Comms.tsx   |  79 +
+ .../Slide16SuperAdmin.tsx     |  89 +
+ .../src/slideLoader.ts        |  51 +
+ .../tsos-guide/tsconfig.json  |  17 +
+ .../tsos-guide/vite.config.ts |  74 +
+ .../artifact.toml             |  31 +
+ .../tsos-pitch/index.html     |  19 +
+ .../tsos-pitch/package.json   |  30 +
+ .../public/africa-map.png     | Bin 0 -> 835175 bytes
+ .../public/favicon.svg        |   3 +
+ .../public/hero-school.png    | Bin 0 -> 1831113 bytes
+ .../public/sync-diagram.png   | Bin 0 -> 864898 bytes
+ .../validate-slides.ts        | 193 ++
+ .../tsos-pitch/src/App.tsx    | 251 +++
+ .../src/data/.gitignore       |   1 +
+ .../data/slides-manifest.json | 130 ++
+ .../slidesManifestSchema.ts   |  33 +
+ .../tsos-pitch/src/index.css  |  46 +
+ .../tsos-pitch/src/main.tsx   |  14 +
+ .../slides/Slide01Title.tsx   | 234 +++
+ .../slides/Slide02Problem.tsx | 120 ++
+ .../Slide03Opportunity.tsx    |  93 +
+ .../Slide04Solution.tsx       |  92 +
+ .../slides/Slide05Modules.tsx |  78 +
+ .../slides/Slide06Offline.tsx |  97 +
+ .../Slide07Students.tsx       |  86 +
+ .../slides/Slide08Finance.tsx |  99 +
+ .../slides/Slide09Teacher.tsx |  96 +
+ .../Slide10ReportCards.tsx    | 131 ++
+ .../Slide11MultiSchool.tsx    | 121 ++
+ .../Slide12BusinessModel.tsx  | 111 ++
+ .../Slide13GoToMarket.tsx     | 107 ++
+ .../Slide14TechStack.tsx      | 129 ++
+ .../Slide15Traction.tsx       |  99 +
+ .../slides/Slide16Vision.tsx  |  89 +
+ .../src/slideLoader.ts        |  51 +
+ .../tsos-pitch/tsconfig.json  |  17 +
+ .../tsos-pitch/vite.config.ts |  74 +
+ pnpm-lock.yaml                |  99 +
+ pnpm-workspace.yaml           |   1 +
+ 72 files changed, 5867 insertions(+), 30 deletions(-)
+ create mode 100644 artifacts/api-server/src/routes/staff-users.ts
+ create mode 100644 artifacts/school-saas/src/pages/school/staff-access.tsx
+ create mode 100644 artifacts/tsos-guide/.replit-artifact/artifact.toml
+ create mode 100644 artifacts/tsos-guide/index.html
+ create mode 100644 artifacts/tsos-guide/package.json
+ create mode 100644 artifacts/tsos-guide/public/favicon.svg
+ create mode 100644 artifacts/tsos-guide/scripts/validate-slides.ts
+ create mode 100644 artifacts/tsos-guide/src/App.tsx
+ create mode 100644 artifacts/tsos-guide/src/data/.gitignore
+ create mode 100644 artifacts/tsos-guide/src/data/slides-manifest.json
+ create mode 100644 artifacts/tsos-guide/src/data/slidesManifestSchema.ts
+ create mode 100644 artifacts/tsos-guide/src/index.css
+ create mode 100644 artifacts/tsos-guide/src/main.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide01Title.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide02Overview.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide03Dashboard.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide04Students.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide05Classes.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide06Attendance.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide07Finance.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide08Feeding.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide09ReportCards.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide10ScoreEntry.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide11TeacherPortal.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide12GPSCheckin.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide13Payroll.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide14Discipline.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide15Comms.tsx
+ create mode 100644 artifacts/tsos-guide/src/pages/slides/Slide16SuperAdmin.tsx
+ create mode 100644 artifacts/tsos-guide/src/slideLoader.ts
+ create mode 100644 artifacts/tsos-guide/tsconfig.json
+ create mode 100644 artifacts/tsos-guide/vite.config.ts
+ create mode 100644 artifacts/tsos-pitch/.replit-artifact/artifact.toml
+ create mode 100644 artifacts/tsos-pitch/index.html
+ create mode 100644 artifacts/tsos-pitch/package.json
+ create mode 100644 artifacts/tsos-pitch/public/africa-map.png
+ create mode 100644 artifacts/tsos-pitch/public/favicon.svg
+ create mode 100644 artifacts/tsos-pitch/public/hero-school.png
+ create mode 100644 artifacts/tsos-pitch/public/sync-diagram.png
+ create mode 100644 artifacts/tsos-pitch/scripts/validate-slides.ts
+ create mode 100644 artifacts/tsos-pitch/src/App.tsx
+ create mode 100644 artifacts/tsos-pitch/src/data/.gitignore
+ create mode 100644 artifacts/tsos-pitch/src/data/slides-manifest.json
+ create mode 100644 artifacts/tsos-pitch/src/data/slidesManifestSchema.ts
+ create mode 100644 artifacts/tsos-pitch/src/index.css
+ create mode 100644 artifacts/tsos-pitch/src/main.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide01Title.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide02Problem.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide03Opportunity.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide04Solution.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide05Modules.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide06Offline.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide07Students.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide08Finance.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide09Teacher.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide10ReportCards.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide11MultiSchool.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide12BusinessModel.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide13GoToMarket.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide14TechStack.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide15Traction.tsx
+ create mode 100644 artifacts/tsos-pitch/src/pages/slides/Slide16Vision.tsx
+ create mode 100644 artifacts/tsos-pitch/src/slideLoader.ts
+ create mode 100644 artifacts/tsos-pitch/tsconfig.json
+ create mode 100644 artifacts/tsos-pitch/vite.config.ts
+Scope: all 12 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0,Packages: +872
++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1, reused 0, downloaded 0,Progress: resolved 872, reused 17, downloadedProgress: resolved 872, reused 97, downloadedProgress: resolved 872, reused 186, downloadeProgress: resolved 872, reused 389, downloadeProgress: resolved 872, reused 443, downloade
+
+ ╭─────────────────────────────────────────╮
+ │                                         │
+ │   Update available! 10.33.4 → 11.1.3.   │
+ │   Changelog: https://pnpm.io/v/11.1.3   │
+ │    To update, run: pnpm add -g pnpm     │
+ │                                         │
+ ╰─────────────────────────────────────────╯
+
+Progress: resolved 872, reused 443, downloadeProgress: resolved 872, reused 491, downloadeProgress: resolved 872, reused 764, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloadeProgress: resolved 872, reused 872, downloaded 0, added 872, done
+
+devDependencies:
++ prettier 3.8.1
++ typescript 5.9.3
+
+. preinstall$ sh -c 'rm -f package-lock.js…
+└─ Done in 12ms
+Done in 5.3s using pnpm v10.33.4
+
+> @workspace/api-server@0.0.0 build /opt/tsos/artifacts/api-server
+> node ./build.mjs
+
+
+  dist/index.mjs                   4.9mb ⚠️
+  dist/pino-worker.mjs           153.4kb
+  dist/pino-file.mjs             142.0kb
+  dist/pino-pretty.mjs           114.6kb
+  dist/thread-stream-worker.mjs    7.3kb
+  dist/index.mjs.map               8.5mb
+  ...and 4 more output files...
+
+⚡ Done in 675ms
+
+> @workspace/school-saas@0.0.0 build /opt/tsos/artifacts/school-saas
+> vite build --config vite.config.ts
+
+failed to load config from /opt/tsos/artifacts/school-saas/vite.config.ts
+error during build:
+Error: PORT environment variable is required but was not provided.
+    at file:///opt/tsos/artifacts/school-saas/node_modules/.vite-temp/vite.config.ts.timestamp-1779300410425-9074b0f11f33f.mjs:11:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async loadConfigFromBundledFile (file:///opt/tsos/node_modules/.pnpm/vite@7.3.2_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_terser@5.46.1_tsx@4.21.0_yaml@2.8.4/node_modules/vite/dist/node/chunks/config.js:35920:12)
+    at async bundleAndLoadConfigFile (file:///opt/tsos/node_modules/.pnpm/vite@7.3.2_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_terser@5.46.1_tsx@4.21.0_yaml@2.8.4/node_modules/vite/dist/node/chunks/config.js:35808:17)
+    at async loadConfigFromFile (file:///opt/tsos/node_modules/.pnpm/vite@7.3.2_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_terser@5.46.1_tsx@4.21.0_yaml@2.8.4/node_modules/vite/dist/node/chunks/config.js:35775:42)
+    at async resolveConfig (file:///opt/tsos/node_modules/.pnpm/vite@7.3.2_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_terser@5.46.1_tsx@4.21.0_yaml@2.8.4/node_modules/vite/dist/node/chunks/config.js:35424:22)
+    at async createBuilder (file:///opt/tsos/node_modules/.pnpm/vite@7.3.2_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_terser@5.46.1_tsx@4.21.0_yaml@2.8.4/node_modules/vite/dist/node/chunks/config.js:33879:19)
+    at async CAC.<anonymous> (file:///opt/tsos/node_modules/.pnpm/vite@7.3.2_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_terser@5.46.1_tsx@4.21.0_yaml@2.8.4/node_modules/vite/dist/node/cli.js:629:10)
+/opt/tsos/artifacts/school-saas:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/school-saas@0.0.0 build: `vite build --config vite.config.ts`
+Exit status 1
+root@server1:/opt/tsos# 
+
+
+
+
+
+
+
+
+
