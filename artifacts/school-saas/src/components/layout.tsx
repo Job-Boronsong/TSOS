@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LogOut, LayoutDashboard, Building2, Users, BookOpen, CheckSquare, DollarSign, FileText, Settings, BarChart2, Clock, CalendarDays, UserCheck, Megaphone, TrendingUp, UtensilsCrossed, Banknote, ShieldAlert, GraduationCap } from "lucide-react";
+import { LogOut, LayoutDashboard, Building2, Users, BookOpen, CheckSquare, DollarSign, FileText, Settings, BarChart2, Clock, CalendarDays, UserCheck, Megaphone, TrendingUp, UtensilsCrossed, Banknote, ShieldAlert, GraduationCap, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SyncStatus } from "./sync-status";
@@ -181,25 +181,30 @@ export function SchoolAdminLayout({ children, schoolSlug }: { children: ReactNod
     return () => applyThemeColor(null);
   }, [themeColor]);
 
-  const navItems = [
-    { name: "Dashboard", href: `/school/${slug}/dashboard`, icon: LayoutDashboard },
-    { name: "Announcements", href: `/school/${slug}/announcements`, icon: Megaphone },
-    { name: "Students", href: `/school/${slug}/students`, icon: Users },
-    { name: "Classes", href: `/school/${slug}/classes`, icon: BookOpen },
-    { name: "Attendance", href: `/school/${slug}/attendance`, icon: CheckSquare },
-    { name: "Teacher Attendance", href: `/school/${slug}/teacher-attendance`, icon: UserCheck },
-    { name: "Finance", href: `/school/${slug}/finance`, icon: DollarSign },
-    { name: "Timetable", href: `/school/${slug}/timetable`, icon: Clock },
-    { name: "Calendar", href: `/school/${slug}/calendar`, icon: CalendarDays },
-    { name: "Teachers", href: `/school/${slug}/teachers`, icon: Users },
-    { name: "Reports", href: `/school/${slug}/reports`, icon: FileText },
-    { name: "Insights", href: `/school/${slug}/insights`, icon: TrendingUp },
-    { name: "Feeding", href: `/school/${slug}/feeding`, icon: UtensilsCrossed },
-    { name: "Discipline", href: `/school/${slug}/discipline`, icon: ShieldAlert },
-    { name: "Payroll", href: `/school/${slug}/payroll`, icon: Banknote },
-    { name: "Promotion", href: `/school/${slug}/promotion`, icon: GraduationCap },
-    { name: "Settings", href: `/school/${slug}/settings`, icon: Settings },
+  const role: string = (session?.user as any)?.role ?? "school_admin";
+
+  const allNavItems = [
+    { name: "Dashboard", href: `/school/${slug}/dashboard`, icon: LayoutDashboard, roles: ["school_admin", "head_teacher", "finance_officer"] },
+    { name: "Announcements", href: `/school/${slug}/announcements`, icon: Megaphone, roles: ["school_admin", "head_teacher", "finance_officer"] },
+    { name: "Students", href: `/school/${slug}/students`, icon: Users, roles: ["school_admin", "head_teacher"] },
+    { name: "Classes", href: `/school/${slug}/classes`, icon: BookOpen, roles: ["school_admin", "head_teacher"] },
+    { name: "Attendance", href: `/school/${slug}/attendance`, icon: CheckSquare, roles: ["school_admin", "head_teacher"] },
+    { name: "Teacher Attendance", href: `/school/${slug}/teacher-attendance`, icon: UserCheck, roles: ["school_admin", "head_teacher"] },
+    { name: "Finance", href: `/school/${slug}/finance`, icon: DollarSign, roles: ["school_admin", "head_teacher", "finance_officer"] },
+    { name: "Timetable", href: `/school/${slug}/timetable`, icon: Clock, roles: ["school_admin", "head_teacher"] },
+    { name: "Calendar", href: `/school/${slug}/calendar`, icon: CalendarDays, roles: ["school_admin", "head_teacher"] },
+    { name: "Teachers", href: `/school/${slug}/teachers`, icon: Users, roles: ["school_admin", "head_teacher"] },
+    { name: "Reports", href: `/school/${slug}/reports`, icon: FileText, roles: ["school_admin", "head_teacher"] },
+    { name: "Insights", href: `/school/${slug}/insights`, icon: TrendingUp, roles: ["school_admin", "head_teacher"] },
+    { name: "Feeding", href: `/school/${slug}/feeding`, icon: UtensilsCrossed, roles: ["school_admin", "head_teacher", "finance_officer"] },
+    { name: "Discipline", href: `/school/${slug}/discipline`, icon: ShieldAlert, roles: ["school_admin", "head_teacher"] },
+    { name: "Payroll", href: `/school/${slug}/payroll`, icon: Banknote, roles: ["school_admin", "head_teacher", "finance_officer"] },
+    { name: "Promotion", href: `/school/${slug}/promotion`, icon: GraduationCap, roles: ["school_admin", "head_teacher"] },
+    { name: "Settings", href: `/school/${slug}/settings`, icon: Settings, roles: ["school_admin"] },
+    { name: "Staff Access", href: `/school/${slug}/staff-access`, icon: UserCog, roles: ["school_admin"] },
   ];
+
+  const navItems = allNavItems.filter(item => item.roles.includes(role));
 
   const schoolName = (session as any)?.school?.name ?? "School";
   const schoolLogoUrl = (session as any)?.school?.logoUrl as string | null | undefined;

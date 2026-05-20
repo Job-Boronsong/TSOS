@@ -16,6 +16,7 @@ import disciplineRouter from "./discipline";
 import payrollRouter from "./payroll";
 import promotionRouter from "./promotion";
 import emailRouter from "./email";
+import staffUsersRouter from "./staff-users";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use(disciplineRouter);
 router.use(payrollRouter);
 router.use(promotionRouter);
 router.use(emailRouter);
+router.use(staffUsersRouter);
 
 export default router;

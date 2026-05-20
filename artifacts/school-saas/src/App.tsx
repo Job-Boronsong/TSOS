@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -47,6 +47,7 @@ import PayrollPage from "@/pages/school/payroll";
 import PromotionPage from "@/pages/school/promotion";
 import TeacherAnnouncements from "@/pages/teacher/announcements";
 import TeacherCalendar from "@/pages/teacher/calendar";
+import StaffAccessPage from "@/pages/school/staff-access";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,6 +79,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 // SyncProvider MUST be above page components so useSyncContext() reads real values (not defaults).
 function SchoolAdminGuard({ children }: { children: React.ReactNode }) {
   const { session, isLoading } = useAuth();
+  const [location] = useLocation();
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -90,6 +92,26 @@ function SchoolAdminGuard({ children }: { children: React.ReactNode }) {
   }
   if (!session) return <Redirect to="/login" />;
   if ((session.user as any)?.mustChangePassword) return <Redirect to="/change-password" />;
+
+  const role: string = (session?.user as any)?.role ?? "school_admin";
+  const slug: string = (session as any)?.school?.slug ?? "";
+
+  // Head teacher: cannot access settings or staff-access
+  if (role === "head_teacher") {
+    const restricted = ["/settings", "/staff-access"];
+    if (slug && restricted.some(p => location.includes(p))) {
+      return <Redirect to={`/school/${slug}/dashboard`} />;
+    }
+  }
+
+  // Finance officer: restricted to finance-related pages only
+  if (role === "finance_officer") {
+    const allowed = ["/dashboard", "/finance", "/payroll", "/feeding", "/announcements"];
+    if (slug && !allowed.some(p => location.includes(p))) {
+      return <Redirect to={`/school/${slug}/finance`} />;
+    }
+  }
+
   const schoolId: number | null = (session?.user as any)?.schoolId ?? null;
   return <SyncProvider schoolId={schoolId}>{children}</SyncProvider>;
 }
@@ -373,6 +395,14 @@ function Router() {
         {(params) => (
           <SchoolAdminGuard>
             <SchoolAdminStudentReport params={params} />
+          </SchoolAdminGuard>
+        )}
+      </Route>
+
+      <Route path="/school/:schoolSlug/staff-access">
+        {(params) => (
+          <SchoolAdminGuard>
+            <StaffAccessPage params={params} />
           </SchoolAdminGuard>
         )}
       </Route>
