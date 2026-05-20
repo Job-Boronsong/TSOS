@@ -58,6 +58,20 @@ const queryClient = new QueryClient({
   },
 });
 
+function ChangePasswordRoute() {
+  const { session, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (!session) return <Redirect to="/login" />;
+  return <ChangePasswordPage forced={(session.user as any)?.mustChangePassword ?? false} />;
+}
+
+function TeacherChangePasswordRoute() {
+  const { session, isLoading } = useTeacherAuth();
+  if (isLoading) return null;
+  if (!session) return <Redirect to="/teacher-login" />;
+  return <TeacherChangePassword />;
+}
+
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { session, isLoading } = useAuth();
   if (isLoading) {
@@ -136,26 +150,12 @@ function Router() {
       {/* ── School admin auth ── */}
       <Route path="/login" component={Login} />
 
-      <Route path="/change-password">
-        {() => {
-          const { session, isLoading } = useAuth();
-          if (isLoading) return null;
-          if (!session) return <Redirect to="/login" />;
-          return <ChangePasswordPage forced={(session.user as any)?.mustChangePassword ?? false} />;
-        }}
-      </Route>
+      <Route path="/change-password" component={ChangePasswordRoute} />
 
       {/* ── Teacher portal ── */}
       <Route path="/teacher-login" component={TeacherLogin} />
 
-      <Route path="/teacher/change-password">
-        {() => {
-          const { session, isLoading } = useTeacherAuth();
-          if (isLoading) return null;
-          if (!session) return <Redirect to="/teacher-login" />;
-          return <TeacherChangePassword />;
-        }}
-      </Route>
+      <Route path="/teacher/change-password" component={TeacherChangePasswordRoute} />
 
       <Route path="/teacher/dashboard">
         {() => (
