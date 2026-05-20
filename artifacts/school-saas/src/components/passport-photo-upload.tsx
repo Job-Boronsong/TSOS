@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useUpload } from "@workspace/object-storage-web";
-import { Camera, X, Loader2, User } from "lucide-react";
+import { Camera, X, Loader2, User, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PassportPhotoUploadProps {
@@ -12,23 +12,33 @@ interface PassportPhotoUploadProps {
 export function PassportPhotoUpload({ currentUrl, onUploaded, onClear }: PassportPhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const { uploadFile, isUploading } = useUpload({
     onSuccess: (res) => {
+      setUploadError(null);
       const url = `/api/storage${res.objectPath}`;
       onUploaded(url);
     },
     onError: (err) => {
       console.error("Photo upload failed:", err);
+      // Revert the optimistic preview so the user knows the upload didn't work.
+      setPreview(null);
+      setUploadError("Upload failed — please try again.");
     },
   });
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Reset error from any previous attempt.
+    setUploadError(null);
+    // Show local preview optimistically while the upload runs.
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
     await uploadFile(file);
+    // Reset the input so the same file can be selected again if needed.
+    e.target.value = "";
   }
 
   const displayUrl = preview || currentUrl;
@@ -46,11 +56,16 @@ export function PassportPhotoUpload({ currentUrl, onUploaded, onClear }: Passpor
               src={displayUrl}
               alt="Passport photo"
               className="w-full h-full object-cover"
+              onError={() => {
+                // The stored URL is broken (e.g. file missing from storage).
+                // Clear the preview so we fall back to the placeholder icon.
+                setPreview(null);
+              }}
             />
             {onClear && !isUploading && (
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); setPreview(null); onClear(); }}
+                onClick={(e) => { e.stopPropagation(); setPreview(null); setUploadError(null); onClear(); }}
                 className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center shadow"
               >
                 <X className="h-3 w-3" />
@@ -81,9 +96,19 @@ export function PassportPhotoUpload({ currentUrl, onUploaded, onClear }: Passpor
         <Camera className="h-3 w-3" />
         {isUploading ? "Uploading…" : displayUrl ? "Change" : "Upload"}
       </Button>
-      <p className="text-[10px] text-muted-foreground text-center leading-tight">
-        Passport size<br />JPG or PNG
-      </p>
+
+      {uploadError && (
+        <p className="text-[10px] text-destructive flex items-center gap-1">
+          <AlertCircle className="h-3 w-3 flex-shrink-0" />
+          {uploadError}
+        </p>
+      )}
+
+      {!uploadError && (
+        <p className="text-[10px] text-muted-foreground text-center leading-tight">
+          Passport size<br />JPG or PNG
+        </p>
+      )}
 
       <input
         ref={inputRef}

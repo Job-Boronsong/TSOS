@@ -35,25 +35,71 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
  * PUT /storage/upload-proxy/*path
  *
  * VPS-only: Receives the file body from the browser and writes it directly
- * to MinIO. This is needed because MinIO is on an internal Docker network
- * (minio:9000) the browser cannot reach — so uploads must be proxied through
- * the API server instead of going directly to a MinIO presigned URL.
+ * to MinIO. MinIO runs on an internal Docker network (minio:9000) the
+ * browser cannot reach, so uploads are proxied through the API server.
+ *
+ * The raw body is pre-parsed by app.ts (express.raw before express.json).
+ * We also fall back to manual stream reading in case that middleware didn't
+ * fire (e.g. during development or middleware ordering edge-cases).
  */
-router.put("/storage/upload-proxy/*path", express.raw({ type: "*/*", limit: "20mb" }), async (req: Request, res: Response): Promise<void> => {
+router.put("/storage/upload-proxy/*path", async (req: Request, res: Response): Promise<void> => {
   try {
     if (!(objectStorageService instanceof ObjectStorageVpsService)) {
+      req.log.warn("Upload proxy called but VPS storage not active");
       res.status(404).json({ error: "Upload proxy not available" });
       return;
     }
-    const raw = req.params.path;
-    const bucketAndObject = Array.isArray(raw) ? raw.join("/") : String(raw);
-    const contentType = String(req.headers["content-type"] ?? "application/octet-stream");
-    const body = req.body as Buffer;
-    if (!Buffer.isBuffer(body) || body.length === 0) {
-      res.status(400).json({ error: "Empty or missing file body" });
+
+    // Normalize wildcard param — Express 5 / path-to-regexp may return a
+    // string, an array of segments, or include a leading slash.
+    const rawParam = req.params.path;
+    const rawStr = Array.isArray(rawParam)
+      ? rawParam.join("/")
+      : String(rawParam ?? "");
+    // Strip any leading slash that some path-to-regexp versions prepend.
+    const bucketAndObject = rawStr.startsWith("/") ? rawStr.slice(1) : rawStr;
+
+    if (!bucketAndObject || !bucketAndObject.includes("/")) {
+      req.log.warn({ param: rawStr }, "Upload proxy: bad path param");
+      res.status(400).json({ error: "Invalid upload path" });
       return;
     }
+
+    const contentType = String(
+      req.headers["content-type"] ?? "application/octet-stream"
+    );
+
+    // --- Capture binary body ---
+    // Preferred: express.raw() in app.ts already parsed it into req.body.
+    // Fallback: read the request stream manually (works even if the
+    // middleware didn't fire, e.g. in development where MINIO_ENDPOINT is
+    // absent and the instanceof check above would have already returned).
+    let body: Buffer;
+    if (Buffer.isBuffer(req.body) && (req.body as Buffer).length > 0) {
+      body = req.body as Buffer;
+      req.log.info({ bytes: body.length, bucketAndObject }, "Upload proxy: body from express.raw");
+    } else {
+      req.log.info({ bodyType: typeof req.body }, "Upload proxy: falling back to stream read");
+      const chunks: Buffer[] = [];
+      await new Promise<void>((resolve, reject) => {
+        req.on("data", (chunk: unknown) =>
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as ArrayBuffer))
+        );
+        req.on("end", resolve);
+        req.on("error", reject);
+      });
+      body = Buffer.concat(chunks);
+      req.log.info({ bytes: body.length, bucketAndObject }, "Upload proxy: stream read complete");
+    }
+
+    if (body.length === 0) {
+      req.log.warn({ bucketAndObject }, "Upload proxy: received empty body");
+      res.status(400).json({ error: "Empty file body — no bytes received" });
+      return;
+    }
+
     await objectStorageService.uploadObject(bucketAndObject, body, contentType);
+    req.log.info({ bytes: body.length, bucketAndObject, contentType }, "Upload proxy: stored in MinIO");
     res.status(200).end();
   } catch (error) {
     req.log.error({ err: error }, "Upload proxy error");

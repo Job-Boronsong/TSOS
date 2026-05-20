@@ -33,6 +33,11 @@ app.use(
   }),
 );
 app.use(cors({ origin: true, credentials: true }));
+// Raw body parser for the VPS upload proxy — must be registered BEFORE
+// express.json() so the binary stream is captured before any other body
+// parser listens to it. express.json() only fires for application/json
+// so this doesn't affect normal API requests.
+app.use("/api/storage/upload-proxy", express.raw({ type: "*/*", limit: "20mb" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
