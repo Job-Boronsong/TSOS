@@ -73,11 +73,15 @@ export default function Slide16Vision() {
         {/* Contact */}
         <div style={{ display: "flex", gap: "3vw", marginTop: "1vh" }}>
           <div style={{ fontSize: "1.1vw", color: "rgba(255,255,255,0.4)", fontWeight: 300 }}>
-            <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Web:</span> tsos.app
+            <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Email:</span> info@torrentialtechnologies.com
           </div>
           <div style={{ width: "1px", backgroundColor: "rgba(255,255,255,0.1)" }} />
           <div style={{ fontSize: "1.1vw", color: "rgba(255,255,255,0.4)", fontWeight: 300 }}>
-            <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>GitHub:</span> Job-Boronsong/TSOS
+            <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Web:</span> www.torrentialbsms.com
+          </div>
+          <div style={{ width: "1px", backgroundColor: "rgba(255,255,255,0.1)" }} />
+          <div style={{ fontSize: "1.1vw", color: "rgba(255,255,255,0.4)", fontWeight: 300 }}>
+            <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Phone:</span> +233 (0) 20 349 8298
           </div>
         </div>
       </div>

@@ -124,7 +124,15 @@
     "position": 16,
     "filepath": "src/pages/slides/Slide16Vision.tsx",
     "title": "The Vision",
-    "description": "Closing slide — 100,000 schools, infrastructure layer for African school management, contact info",
+    "description": "Closing slide — 100,000 schools, infrastructure layer for African school management",
     "speakerNotes": "Close with the big picture.\n\n- TSOS is not just a school management tool — it is the infrastructure layer for African education admin\n- The way schools track students, pay teachers, collect fees, and report results\n- We are building for the next 100,000 schools across West Africa\n- The platform is live, the architecture is proven, and the market is wide open\n- End with your contact details and invite questions"
+  },
+  {
+    "id": "a1b2c3d4-0017-4000-8000-000000000017",
+    "position": 17,
+    "filepath": "src/pages/slides/Slide17Contact.tsx",
+    "title": "Contact",
+    "description": "Torrential Technologies contact details — email, phone, company website, app website",
+    "speakerNotes": "Leave this slide up during Q&A.\n\n- Email: info@torrentialtechnologies.com\n- Phone: +233 (0) 20 349 8298\n- Company: www.torrentialtechnologies.com\n- App: www.torrentialbsms.com"
   }
 ]

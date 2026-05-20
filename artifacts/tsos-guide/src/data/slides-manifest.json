@@ -134,5 +134,13 @@
     "title": "Staff Access & Role Switch",
     "description": "Linking a teacher to an admin role (head_teacher / finance_officer), seamless one-click switch from teacher portal to admin view and back",
     "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0018-4000-8000-100000000018",
+    "position": 18,
+    "filepath": "src/pages/slides/Slide18Contact.tsx",
+    "title": "Contact",
+    "description": "Torrential Technologies — email, phone, company website, app website",
+    "speakerNotes": ""
   }
 ]
