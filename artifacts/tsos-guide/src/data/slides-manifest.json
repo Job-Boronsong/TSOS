@@ -1,1 +1,130 @@
-[]
+[
+  {
+    "id": "b2c3d4e5-0001-4000-8000-100000000001",
+    "position": 1,
+    "filepath": "src/pages/slides/Slide01Title.tsx",
+    "title": "TSOS App Guide",
+    "description": "Title slide — what this guide covers, three key facts about the platform",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0002-4000-8000-100000000002",
+    "position": 2,
+    "filepath": "src/pages/slides/Slide02Overview.tsx",
+    "title": "Module Overview",
+    "description": "Six module cards at a glance — Students, Attendance, Finance, Academic, Staff, Admin",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0003-4000-8000-100000000003",
+    "position": 3,
+    "filepath": "src/pages/slides/Slide03Dashboard.tsx",
+    "title": "The Dashboard",
+    "description": "Dashboard layout — stats row, sync status, subscription banner, login credentials",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0004-4000-8000-100000000004",
+    "position": 4,
+    "filepath": "src/pages/slides/Slide04Students.tsx",
+    "title": "Students",
+    "description": "Enrollment, student number format, waivers, ID cards, CSV import, promotion wizard",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0005-4000-8000-100000000005",
+    "position": 5,
+    "filepath": "src/pages/slides/Slide05Classes.tsx",
+    "title": "Classes",
+    "description": "Four levels (Nursery/KG/Primary/JHS), homeroom vs subject teacher assignment, class list table",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0006-4000-8000-100000000006",
+    "position": 6,
+    "filepath": "src/pages/slides/Slide06Attendance.tsx",
+    "title": "Attendance",
+    "description": "How to take the daily register — 3-step flow, status types, offline support",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0007-4000-8000-100000000007",
+    "position": 7,
+    "filepath": "src/pages/slides/Slide07Finance.tsx",
+    "title": "Finance",
+    "description": "Fee collection payment types, expenditure categories with bar chart, key dashboard metrics",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0008-4000-8000-100000000008",
+    "position": 8,
+    "filepath": "src/pages/slides/Slide08Feeding.tsx",
+    "title": "Feeding / Canteen",
+    "description": "Daily feeding register tab and fund ledger tab — status types and balance tracking",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0009-4000-8000-100000000009",
+    "position": 9,
+    "filepath": "src/pages/slides/Slide09ReportCards.tsx",
+    "title": "Report Cards",
+    "description": "Ghana BECE grading scale (A1–F9), 3-step view/print flow, auto-calculated class position",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0010-4000-8000-100000000010",
+    "position": 10,
+    "filepath": "src/pages/slides/Slide10ScoreEntry.tsx",
+    "title": "Score Entry",
+    "description": "Five assessment components, max marks per component, sample score record with auto-grade",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0011-4000-8000-100000000011",
+    "position": 11,
+    "filepath": "src/pages/slides/Slide11TeacherPortal.tsx",
+    "title": "Teacher Portal",
+    "description": "Separate teacher login, credential generation flow, five things teachers can do",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0012-4000-8000-100000000012",
+    "position": 12,
+    "filepath": "src/pages/slides/Slide12GPSCheckin.tsx",
+    "title": "GPS Teacher Check-in",
+    "description": "Admin setup of school coordinates, teacher check-in 3-step flow, radius rejection",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0013-4000-8000-100000000013",
+    "position": 13,
+    "filepath": "src/pages/slides/Slide13Payroll.tsx",
+    "title": "Staff Payroll",
+    "description": "Salary Setup tab with DM Mono code block, Process Payroll tab with net pay breakdown",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0014-4000-8000-100000000014",
+    "position": 14,
+    "filepath": "src/pages/slides/Slide14Discipline.tsx",
+    "title": "Discipline Log",
+    "description": "Four incident types, three statuses, sample log entry, admin override description",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0015-4000-8000-100000000015",
+    "position": 15,
+    "filepath": "src/pages/slides/Slide15Comms.tsx",
+    "title": "Announcements & Calendar",
+    "description": "Announcement card with social share buttons, operational calendar event categories and targets",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0016-4000-8000-100000000016",
+    "position": 16,
+    "filepath": "src/pages/slides/Slide16SuperAdmin.tsx",
+    "title": "Super Admin",
+    "description": "Super admin capabilities, default login credentials, subscription lifecycle states",
+    "speakerNotes": ""
+  }
+]

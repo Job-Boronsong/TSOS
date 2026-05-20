@@ -12,7 +12,7 @@ version = "1.0.0"
 [[services]]
 name = "web"
 paths = [ "/tsos-guide/" ]
-localPort = 22046
+localPort = 3001
 
 [services.development]
 run = "pnpm --filter @workspace/tsos-guide run dev"
@@ -27,5 +27,5 @@ from = "/*"
 to = "/index.html"
 
 [services.env]
-PORT = "22046"
+PORT = "3001"
 BASE_PATH = "/tsos-guide/"
