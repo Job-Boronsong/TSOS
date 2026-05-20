@@ -1,1 +1,130 @@
-[]
+[
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000001",
+    "position": 1,
+    "filepath": "src/pages/slides/Slide01Title.tsx",
+    "title": "Torrential School Operations Suite",
+    "description": "Hero title slide with school image and product tagline",
+    "speakerNotes": "Open with the name and tagline. TSOS is an offline-first, browser-based SaaS platform built specifically for African schools.\n\n- Emphasise: works on any device, no app install, built for Ghana\n- Set the tone: this is not a generic school system — it is purpose-built for this market\n- TSOS v1.0 is live and deployed in production"
+  },
+  {
+    "id": "a1b2c3d4-0002-4000-8000-000000000002",
+    "position": 2,
+    "filepath": "src/pages/slides/Slide02Problem.tsx",
+    "title": "The Problem",
+    "description": "Four core pain points: manual registers, no audit trail, zero visibility, connectivity gap",
+    "speakerNotes": "The status quo in African schools is paper-first.\n\n- Attendance registers are physical books — lost, forged, and transcribed by hand daily\n- Fee collection happens in exercise books with no receipt trail or reconciliation\n- Principals have no dashboard — they cannot see what is happening across their school\n- Most cloud-only systems simply do not work when the internet goes down — which is often\n- This is a structural problem, not a temporary one"
+  },
+  {
+    "id": "a1b2c3d4-0003-4000-8000-000000000003",
+    "position": 3,
+    "filepath": "src/pages/slides/Slide03Opportunity.tsx",
+    "title": "The Scale of the Opportunity",
+    "description": "Market size: 300,000+ schools Sub-Saharan Africa, 35,000+ Ghana, under 5% digitized",
+    "speakerNotes": "The market is enormous and almost entirely untouched.\n\n- Over 300,000 primary and secondary schools across Sub-Saharan Africa\n- Ghana alone has more than 35,000 basic schools — our beachhead market\n- Less than 5% of these schools use any digital management system\n- Each school wastes 30+ hours per week on manual admin that software would eliminate\n- At 500 GHS/month per school, even 1% of Ghana's market is 1,750 schools = GHS 875,000/month"
+  },
+  {
+    "id": "a1b2c3d4-0004-4000-8000-000000000004",
+    "position": 4,
+    "filepath": "src/pages/slides/Slide04Solution.tsx",
+    "title": "Our Solution",
+    "description": "TSOS offline-first SaaS — works offline, any device, no install, built for Ghana",
+    "speakerNotes": "TSOS solves the connectivity problem at the architecture level — not as an afterthought.\n\n- IndexedDB stores all data locally — the app works whether or not the internet is on\n- When connectivity returns, data syncs automatically in the background\n- Runs entirely in the browser — no app store, no installation, no IT department needed\n- Built specifically for the Ghanaian curriculum, grading system, and billing (GHS + Paystack)\n- Contrast with competitors: most are either cloud-only or require Windows installs"
+  },
+  {
+    "id": "a1b2c3d4-0005-4000-8000-000000000005",
+    "position": 5,
+    "filepath": "src/pages/slides/Slide05Modules.tsx",
+    "title": "Core Modules",
+    "description": "Six integrated modules: Students, Attendance, Finance, Academics, Staff, Admin",
+    "speakerNotes": "Six modules, one platform — no integrations, no data silos.\n\n- Students: full lifecycle from enrollment through graduation\n- Attendance: daily student register and GPS-verified teacher check-in\n- Finance: fee collection, expenditure tracking, and Paystack subscription billing\n- Academics: score entry with 5 components, automated report cards, class timetable\n- Staff: payroll with Ghana PAYE, discipline log, and announcements\n- Admin: school settings, operational calendar, multi-school management"
+  },
+  {
+    "id": "a1b2c3d4-0006-4000-8000-000000000006",
+    "position": 6,
+    "filepath": "src/pages/slides/Slide06Offline.tsx",
+    "title": "Offline-First Architecture",
+    "description": "How the sync engine works: IndexedDB, pull/push queue, sync status indicator",
+    "speakerNotes": "This is our technical moat — the offline-first architecture is not trivial to build.\n\n- Step 1: On first load (online), all school data pulls from server into IndexedDB\n- Step 2: All reads come from IndexedDB via useLiveQuery — instant, zero latency\n- Step 3: All writes go to IndexedDB first, then queue a sync operation\n- Step 4: When online, the sync engine pushes the queue and pulls fresh data\n- The sync status is shown live in the sidebar: Online / Offline / Syncing / Pending\n- A 20-second safety timeout ensures the dashboard always loads even if sync fails"
+  },
+  {
+    "id": "a1b2c3d4-0007-4000-8000-000000000007",
+    "position": 7,
+    "filepath": "src/pages/slides/Slide07Students.tsx",
+    "title": "Student Management",
+    "description": "Enrollment, auto-IDs, passport photos, ID cards, fee waivers, promotion wizard, CSV import",
+    "speakerNotes": "The student module covers the full academic lifecycle.\n\n- Student numbers auto-generated: school code + year + sequence (e.g. GA260001)\n- Passport photos upload via secure presigned URL to MinIO object storage\n- ID cards print in a 3-column credit-card-size grid — no external tool needed\n- Fee waivers (school, feeding, bus) shown as coloured badges in the student list\n- Promotion wizard: 3-step dialog for single class or bulk end-of-year promotion\n- CSV bulk import with fuzzy class name matching — handles 500+ students at once"
+  },
+  {
+    "id": "a1b2c3d4-0008-4000-8000-000000000008",
+    "position": 8,
+    "filepath": "src/pages/slides/Slide08Finance.tsx",
+    "title": "Finance & Billing",
+    "description": "Fee collection, expenditure, Paystack billing, real-time dashboard metrics, payroll",
+    "speakerNotes": "Finance is the most critical module for school owners — and the one that drives adoption.\n\n- Three fee types tracked per student: school fees, bus fees, canteen/feeding\n- Expenditure by category: salaries, utilities, supplies, maintenance, other\n- Real-time dashboard shows: collected vs expected, arrears, net cash, collection rate\n- Paystack popup handles subscription renewal — no card storage, HMAC webhook verification\n- Staff payroll: Ghana PAYE (GRA 2024 tax bands) + SSNIT employee and employer contributions\n- Cancellation, grace periods, and auto-deactivation all built in"
+  },
+  {
+    "id": "a1b2c3d4-0009-4000-8000-000000000009",
+    "position": 9,
+    "filepath": "src/pages/slides/Slide09Teacher.tsx",
+    "title": "Teacher Portal",
+    "description": "Separate teacher login, score entry, GPS check-in, timetable, announcements",
+    "speakerNotes": "Teachers have a completely separate experience from the school admin.\n\n- Credentials generated by the school admin — password shown once, then bcrypt-hashed\n- Score entry covers all 5 components: classwork, class test, homework, project, exam\n- Total and grade (Ghana A1–F9 scale) computed automatically, remarks overridable\n- GPS check-in uses haversine validation against the school's configured coordinates\n- Timetable: homeroom teachers see all their class slots; subject teachers see only their subjects\n- Announcement inbox with unread count badge and social share buttons"
+  },
+  {
+    "id": "a1b2c3d4-0010-4000-8000-000000000010",
+    "position": 10,
+    "filepath": "src/pages/slides/Slide10ReportCards.tsx",
+    "title": "Report Cards",
+    "description": "Ghana BECE grading (A1–F9), 5-component scores, class position, printable per-student",
+    "speakerNotes": "Report cards are automated — no manual calculation or formatting needed.\n\n- 5 assessment components: classwork (10), class test (20), homework (5), project (5), exam (60)\n- Grades computed automatically using Ghana's A1–F9 BECE scale\n- Class position calculated by comparing each student's total against all classmates — one batch query\n- School admin selects term and academic year — instantly generates the full report\n- Admin can view and print any student's report from the students page\n- Teacher portal shows the same data from the teacher's perspective"
+  },
+  {
+    "id": "a1b2c3d4-0011-4000-8000-000000000011",
+    "position": 11,
+    "filepath": "src/pages/slides/Slide11MultiSchool.tsx",
+    "title": "Multi-School Architecture",
+    "description": "Super admin dashboard, per-school isolation, slug-based routing, role-based access",
+    "speakerNotes": "TSOS is designed to operate as a multi-tenant platform from day one.\n\n- A super admin account manages all schools: activation, pricing, subscription status\n- Each school is fully isolated — data never leaks between schools\n- URLs use school slug (not numeric IDs) for clean, secure routing\n- Three roles: super admin (platform), school admin (one school), teacher (classroom only)\n- This architecture enables district-level or national contracts — one platform, thousands of schools"
+  },
+  {
+    "id": "a1b2c3d4-0012-4000-8000-000000000012",
+    "position": 12,
+    "filepath": "src/pages/slides/Slide12BusinessModel.tsx",
+    "title": "Business Model",
+    "description": "500 GHS/month flat SaaS fee, volume discounts, grace period, zero transaction fees",
+    "speakerNotes": "Simple, predictable, scalable pricing.\n\n- Base price: 500 GHS per school per month — set by super admin, adjustable per market\n- Volume discounts encourage annual commitments: 5% for 3–6 months, 10% for 7+ months\n- 3-day grace period after expiry before auto-deactivation — fair to schools, automatic for us\n- No per-transaction fees on student payments — schools keep 100% of what they collect\n- Revenue model: every new school adds a clean 500 GHS/month to MRR\n- 1,000 schools = GHS 500,000/month (~USD 33,000/month at current rates)"
+  },
+  {
+    "id": "a1b2c3d4-0013-4000-8000-000000000013",
+    "position": 13,
+    "filepath": "src/pages/slides/Slide13GoToMarket.tsx",
+    "title": "Go-to-Market",
+    "description": "Three channels: direct sales, education office partnerships, word of mouth. Three expansion stages.",
+    "speakerNotes": "We have three parallel acquisition channels and a clear geographic expansion roadmap.\n\n- Direct sales: school proprietors and owners — highest intent, direct relationship, fastest close\n- Education office partnerships: District Education Offices handle procurement for clusters of schools\n- Word of mouth: teachers talk to teachers — low CAC, high trust, organic referrals\n- Beachhead: private schools in Greater Accra — highest digital readiness, English instruction, fastest adopters\n- Stage 2: expand to public schools via GES partnership and rural districts\n- Stage 3: West Africa — Nigeria, Côte d'Ivoire, Senegal — same architecture, localised billing"
+  },
+  {
+    "id": "a1b2c3d4-0014-4000-8000-000000000014",
+    "position": 14,
+    "filepath": "src/pages/slides/Slide14TechStack.tsx",
+    "title": "Technology Stack",
+    "description": "React/Vite/Dexie frontend, Express/PostgreSQL backend, MinIO storage, Docker Compose VPS",
+    "speakerNotes": "The stack is modern, open-source, and deployable on a single VPS for low infrastructure cost.\n\n- Frontend: React + Vite + Tailwind CSS + Dexie.js for IndexedDB, shadcn/ui components\n- Backend: Node.js 24, Express 5, PostgreSQL with Drizzle ORM, Zod validation\n- Offline layer: IndexedDB write queue, pull/push sync engine, online/offline detection\n- Storage: MinIO on VPS with AWS SigV4 signing and an upload proxy route\n- Deployment: Docker Compose on a single Ubuntu VPS — low infra cost, easy to scale out\n- Full TypeScript coverage across all packages via pnpm monorepo + OpenAPI spec-first codegen"
+  },
+  {
+    "id": "a1b2c3d4-0015-4000-8000-000000000015",
+    "position": 15,
+    "filepath": "src/pages/slides/Slide15Traction.tsx",
+    "title": "Traction",
+    "description": "Live on production VPS — multi-school, offline sync, Paystack, photos, report cards, payroll all verified",
+    "speakerNotes": "This is not a prototype. TSOS is live and running in production today.\n\n- Two schools fully operational: Greenfield Academy and Sunridge Primary\n- Offline sync confirmed end-to-end: pull on first load, queue writes, push on reconnect\n- Paystack subscription renewal, cancellation, and HMAC webhook verification all tested live\n- Photo upload to MinIO with SigV4 signing — passport photos visible and printable on ID cards\n- Teacher score entry flows through to printable report cards with correct BECE grades\n- Ghana PAYE payroll with SSNIT deductions processed in confirmed payroll runs"
+  },
+  {
+    "id": "a1b2c3d4-0016-4000-8000-000000000016",
+    "position": 16,
+    "filepath": "src/pages/slides/Slide16Vision.tsx",
+    "title": "The Vision",
+    "description": "Closing slide — 100,000 schools, infrastructure layer for African school management, contact info",
+    "speakerNotes": "Close with the big picture.\n\n- TSOS is not just a school management tool — it is the infrastructure layer for African education admin\n- The way schools track students, pay teachers, collect fees, and report results\n- We are building for the next 100,000 schools across West Africa\n- The platform is live, the architecture is proven, and the market is wide open\n- End with your contact details and invite questions"
+  }
+]
