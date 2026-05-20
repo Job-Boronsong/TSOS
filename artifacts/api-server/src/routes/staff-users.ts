@@ -68,7 +68,7 @@ router.post("/schools/:schoolId/staff-users", async (req, res): Promise<void> =>
   const schoolId = parseInt(req.params.schoolId, 10);
   if (!(await requireSchoolAdminForSchool(req, res, schoolId))) return;
 
-  const { name, role } = req.body as { name?: string; role?: string };
+  const { name, role, teacherId } = req.body as { name?: string; role?: string; teacherId?: number };
   if (!name?.trim()) { res.status(400).json({ error: "Name is required" }); return; }
   if (role !== "head_teacher" && role !== "finance_officer") {
     res.status(400).json({ error: "Role must be head_teacher or finance_officer" }); return;
@@ -86,6 +86,7 @@ router.post("/schools/:schoolId/staff-users", async (req, res): Promise<void> =>
     name: name.trim(),
     role,
     schoolId,
+    linkedTeacherId: teacherId ?? null,
     mustChangePassword: true,
   }).returning({
     id: usersTable.id,

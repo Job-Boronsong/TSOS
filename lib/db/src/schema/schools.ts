@@ -72,6 +72,7 @@ export const usersTable = pgTable("users", {
   name: text("name").notNull(),
   role: text("role").notNull().default("school_admin"),
   schoolId: integer("school_id").references(() => schoolsTable.id),
+  linkedTeacherId: integer("linked_teacher_id"),
   mustChangePassword: boolean("must_change_password").notNull().default(false),
   failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),

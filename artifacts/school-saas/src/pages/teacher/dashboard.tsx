@@ -542,7 +542,15 @@ export default function TeacherDashboard() {
               <GraduationCap className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-semibold text-sm leading-tight">{session?.teacher.name}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-sm leading-tight">{session?.teacher.name}</p>
+                {session?.teacher.adminRole === "head_teacher" && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 border border-violet-200 leading-none">Head Teacher</span>
+                )}
+                {session?.teacher.adminRole === "finance_officer" && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 leading-none">Finance Officer</span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">{session?.school?.name}</p>
             </div>
           </div>

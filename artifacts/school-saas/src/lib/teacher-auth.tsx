@@ -8,6 +8,7 @@ interface TeacherSession {
     schoolId: number;
     mustChangePassword: boolean;
     subject: string | null;
+    adminRole: "head_teacher" | "finance_officer" | null;
   };
   school: {
     id: number;

@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, inArray, sql, desc, gte, lte } from "drizzle-orm";
-import { db, teachersTable, schoolsTable, classesTable, classSubjectsTable, studentsTable, scoresTable, attendanceTable, timetableSlotsTable, teacherAttendanceTable, schoolSettingsTable, announcementsTable, announcementReadsTable, calendarEventsTable, subscriptionsTable } from "@workspace/db";
+import { db, teachersTable, schoolsTable, classesTable, classSubjectsTable, studentsTable, scoresTable, attendanceTable, timetableSlotsTable, teacherAttendanceTable, schoolSettingsTable, announcementsTable, announcementReadsTable, calendarEventsTable, subscriptionsTable, usersTable } from "@workspace/db";
 import bcrypt from "bcryptjs";
 
 declare module "express-session" {
@@ -112,6 +112,12 @@ router.get("/teacher-auth/me", async (req, res): Promise<void> => {
   if (!teacher) { res.status(401).json({ error: "Not authenticated" }); return; }
 
   const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.id, teacher.schoolId));
+
+  const [linkedUser] = await db.select({ role: usersTable.role })
+    .from(usersTable)
+    .where(eq(usersTable.linkedTeacherId, teacher.id));
+  const adminRole = linkedUser?.role ?? null;
+
   res.json({
     teacher: {
       id: teacher.id,
@@ -120,6 +126,7 @@ router.get("/teacher-auth/me", async (req, res): Promise<void> => {
       schoolId: teacher.schoolId,
       mustChangePassword: teacher.mustChangePassword,
       subject: teacher.subject,
+      adminRole,
     },
     school: school ?? null,
   });

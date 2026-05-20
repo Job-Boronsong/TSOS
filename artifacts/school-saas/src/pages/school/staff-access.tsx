@@ -118,7 +118,13 @@ export default function StaffAccessPage({ params }: Props) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, role: createRole }),
+        body: JSON.stringify({
+        name,
+        role: createRole,
+        ...(createMode === "teacher" && selectedTeacherId !== "none"
+          ? { teacherId: parseInt(selectedTeacherId, 10) }
+          : {}),
+      }),
       });
       if (!res.ok) {
         const err = await res.json();
