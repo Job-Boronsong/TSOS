@@ -58,7 +58,7 @@ export default function Slide15Traction() {
           </h2>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5vw", width: "84vw" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.2vw", width: "90vw" }}>
           {[
             { title: "Multi-school live", desc: "Greenfield Academy and Sunridge Primary operational on production VPS at 209.74.88.43", color: "#4F7FFF" },
             { title: "Offline sync verified", desc: "Full IndexedDB sync confirmed in production — pull, push, queue, and reconnect all tested", color: "#7C6BF0" },
@@ -66,6 +66,7 @@ export default function Slide15Traction() {
             { title: "Photos and ID cards", desc: "MinIO-backed object storage with SigV4 upload proxy — passport photos and printable ID cards", color: "#FACC15" },
             { title: "Report cards live", desc: "Teacher score entry → automated BECE grading → printable report cards working in production", color: "#F87171" },
             { title: "Payroll deployed", desc: "Ghana PAYE (GRA 2024 bands), SSNIT deductions, draft/confirm payroll runs functional", color: "#FB923C" },
+            { title: "Role-based access live", desc: "Head teachers and finance officers switch between teacher and admin portals in one click — no re-login", color: "#9ECE6A" },
           ].map((item) => (
             <div
               key={item.title}

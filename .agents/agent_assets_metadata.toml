@@ -53,3 +53,9 @@ id = "qMW0vVa-df8pkHKWbhq5J"
 uri = "file://.local/outputs/TSOS-App-Guide.pptx"
 type = "slides"
 title = "TSOS App Guide (PPTX)"
+
+[[outputs]]
+id = "Igbk5fXk79I2Rw1JRYwfg"
+uri = "file://.local/outputs/TSOS.pptx"
+type = "slides"
+title = "TSOS.pptx"

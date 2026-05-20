@@ -100,14 +100,17 @@ export default function Slide11MultiSchool() {
             </div>
           </div>
           {/* Roles */}
-          <div style={{ flex: "0 0 18vw", display: "flex", flexDirection: "column", gap: "1.2vh" }}>
+          <div style={{ flex: "0 0 20vw", display: "flex", flexDirection: "column", gap: "0.9vh" }}>
             {[
-              { role: "School Admin", color: "#7C6BF0" },
-              { role: "Teacher", color: "#4F7FFF" },
-              { role: "Super Admin", color: "#34D399" },
+              { role: "Super Admin", desc: "Platform-wide", color: "#34D399" },
+              { role: "School Admin", desc: "Full school access", color: "#7C6BF0" },
+              { role: "Head Teacher", desc: "All admin modules", color: "#BB9AF7" },
+              { role: "Finance Officer", desc: "Finance & payroll", color: "#9ECE6A" },
+              { role: "Teacher", desc: "Classroom only", color: "#4F7FFF" },
             ].map((r) => (
-              <div key={r.role} style={{ padding: "1.2vh 1.5vw", backgroundColor: "rgba(255,255,255,0.025)", border: `1px solid ${r.color}40`, borderRadius: "0.6vw" }}>
-                <div style={{ fontSize: "1vw", fontWeight: 600, color: r.color }}>{r.role}</div>
+              <div key={r.role} style={{ padding: "0.9vh 1.2vw", backgroundColor: "rgba(255,255,255,0.025)", border: `1px solid ${r.color}40`, borderRadius: "0.6vw", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ fontSize: "0.95vw", fontWeight: 600, color: r.color }}>{r.role}</div>
+                <div style={{ fontSize: "0.8vw", color: "rgba(255,255,255,0.35)" }}>{r.desc}</div>
               </div>
             ))}
           </div>
