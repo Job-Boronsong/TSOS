@@ -198,7 +198,8 @@ export default function StaffAccessPage({ params }: Props) {
   }
 
   function copyCredentials(username: string, password: string) {
-    navigator.clipboard.writeText(`Username: ${username}\nPassword: ${password}`).then(() => {
+    const loginUrl = `${window.location.origin}/login`;
+    navigator.clipboard.writeText(`Login URL: ${loginUrl}\nUsername: ${username}\nPassword: ${password}`).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -473,6 +474,10 @@ export default function StaffAccessPage({ params }: Props) {
               </p>
               <div className="rounded-lg border bg-slate-50 p-4 space-y-3">
                 <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Login URL</p>
+                  <p className="font-mono text-sm font-bold break-all">{window.location.origin}/login</p>
+                </div>
+                <div>
                   <p className="text-xs font-medium text-muted-foreground mb-1">Username</p>
                   <p className="font-mono text-sm font-bold">{newCredentials.username}</p>
                 </div>
@@ -545,6 +550,10 @@ export default function StaffAccessPage({ params }: Props) {
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">New temporary password (shown once):</p>
               <div className="rounded-lg border bg-slate-50 p-4 space-y-3">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Login URL</p>
+                  <p className="font-mono text-sm font-bold break-all">{window.location.origin}/login</p>
+                </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-1">Username</p>
                   <p className="font-mono text-sm font-bold">{resetCredentials.username}</p>
