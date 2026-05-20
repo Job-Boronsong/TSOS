@@ -484,9 +484,35 @@ export default function TeacherDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
+  const { toast } = useToast();
+  const [switching, setSwitching] = useState(false);
+
   const handleLogout = async () => {
     await logout();
     navigate("/teacher-login");
+  };
+
+  const handleSwitchToAdmin = async () => {
+    setSwitching(true);
+    try {
+      const res = await fetch("/api/teacher-auth/switch-to-admin", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        toast({ title: "Could not switch to admin view", variant: "destructive" });
+        return;
+      }
+      const { slug, role } = await res.json();
+      const dest = role === "finance_officer"
+        ? `/school/${slug}/finance`
+        : `/school/${slug}/dashboard`;
+      navigate(dest);
+    } catch {
+      toast({ title: "Something went wrong", variant: "destructive" });
+    } finally {
+      setSwitching(false);
+    }
   };
 
   // Derive all unique subjects across all JHS classes this teacher teaches
@@ -591,6 +617,34 @@ export default function TeacherDashboard() {
             </div>
           )}
         </div>
+
+        {/* ── Admin Access Card (shown when teacher has an admin role) ── */}
+        {session?.teacher.adminRole && (
+          <div className={`rounded-xl border p-4 flex items-center justify-between gap-4 ${
+            session.teacher.adminRole === "head_teacher"
+              ? "bg-violet-50 border-violet-200"
+              : "bg-emerald-50 border-emerald-200"
+          }`}>
+            <div>
+              <p className={`font-semibold text-sm ${session.teacher.adminRole === "head_teacher" ? "text-violet-800" : "text-emerald-800"}`}>
+                {session.teacher.adminRole === "head_teacher" ? "Head Teacher" : "Finance Officer"} — Admin Access
+              </p>
+              <p className={`text-xs mt-0.5 ${session.teacher.adminRole === "head_teacher" ? "text-violet-600" : "text-emerald-600"}`}>
+                {session.teacher.adminRole === "head_teacher"
+                  ? "You have access to all school management modules."
+                  : "You have access to Finance, Payroll, Feeding and Announcements."}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              className={session.teacher.adminRole === "head_teacher" ? "bg-violet-600 hover:bg-violet-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+              onClick={handleSwitchToAdmin}
+              disabled={switching}
+            >
+              {switching ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Switching…</> : "Go to Admin View"}
+            </Button>
+          </div>
+        )}
 
         {/* ── Upcoming Events ── */}
         <UpcomingEventsWidget />

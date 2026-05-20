@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LogOut, LayoutDashboard, Building2, Users, BookOpen, CheckSquare, DollarSign, FileText, Settings, BarChart2, Clock, CalendarDays, UserCheck, Megaphone, TrendingUp, UtensilsCrossed, Banknote, ShieldAlert, GraduationCap, UserCog } from "lucide-react";
+import { LogOut, LayoutDashboard, Building2, Users, BookOpen, CheckSquare, DollarSign, FileText, Settings, BarChart2, Clock, CalendarDays, UserCheck, Megaphone, TrendingUp, UtensilsCrossed, Banknote, ShieldAlert, GraduationCap, UserCog, GraduationCap as TeacherIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SyncStatus } from "./sync-status";
@@ -248,6 +248,16 @@ export function SchoolAdminLayout({ children, schoolSlug }: { children: ReactNod
           </SidebarContent>
           <SidebarFooter className="border-t border-sidebar-border p-3 space-y-2">
             <SyncStatus schoolId={numericSchoolId} />
+            {(role === "head_teacher" || role === "finance_officer") && (
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground bg-transparent"
+                onClick={() => window.location.href = "/teacher/dashboard"}
+              >
+                <TeacherIcon className="w-4 h-4" />
+                Back to Teacher Portal
+              </Button>
+            )}
             <Button variant="outline" className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground bg-transparent" onClick={() => logout()}>
               <LogOut className="w-4 h-4" />
               Sign out

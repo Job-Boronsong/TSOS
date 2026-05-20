@@ -103,6 +103,29 @@ router.post("/teacher-auth/logout", async (req, res): Promise<void> => {
   res.json({ ok: true });
 });
 
+router.post("/teacher-auth/switch-to-admin", async (req, res): Promise<void> => {
+  if (!req.session.teacherId) { res.status(401).json({ error: "Not authenticated" }); return; }
+
+  const [linkedUser] = await db
+    .select({ id: usersTable.id, schoolId: usersTable.schoolId, role: usersTable.role })
+    .from(usersTable)
+    .where(eq(usersTable.linkedTeacherId, req.session.teacherId));
+
+  if (!linkedUser) { res.status(404).json({ error: "No admin account linked to this teacher" }); return; }
+
+  const [school] = await db
+    .select({ slug: schoolsTable.slug })
+    .from(schoolsTable)
+    .where(eq(schoolsTable.id, linkedUser.schoolId!));
+
+  req.session.userId = linkedUser.id;
+  req.session.schoolId = linkedUser.schoolId;
+
+  await new Promise<void>((resolve, reject) => req.session.save(err => err ? reject(err) : resolve()));
+
+  res.json({ slug: school?.slug ?? "", role: linkedUser.role });
+});
+
 router.get("/teacher-auth/me", async (req, res): Promise<void> => {
   if (!req.session.teacherId) {
     res.status(401).json({ error: "Not authenticated" });
