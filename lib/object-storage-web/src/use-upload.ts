@@ -94,7 +94,14 @@ export function useUpload(options: UseUploadOptions = {}) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to upload file to storage");
+        let detail = "";
+        try {
+          const body = await response.text();
+          detail = body ? ` — ${body.slice(0, 200)}` : "";
+        } catch {
+          // ignore
+        }
+        throw new Error(`Upload failed (HTTP ${response.status})${detail}`);
       }
     },
     []

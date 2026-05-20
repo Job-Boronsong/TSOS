@@ -24,7 +24,8 @@ export function PassportPhotoUpload({ currentUrl, onUploaded, onClear }: Passpor
       console.error("Photo upload failed:", err);
       // Revert the optimistic preview so the user knows the upload didn't work.
       setPreview(null);
-      setUploadError("Upload failed — please try again.");
+      // Show the real error message (includes HTTP status from use-upload).
+      setUploadError(err.message || "Upload failed — please try again.");
     },
   });
 

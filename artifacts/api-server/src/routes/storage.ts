@@ -3,9 +3,54 @@ import { Readable } from "stream";
 import { createObjectStorageService, ObjectNotFoundError } from "../lib/objectStorageFactory";
 import { ObjectStorageVpsService } from "../lib/objectStorageVps";
 import { ObjectPermission } from "../lib/objectAcl";
+// Suppress unused import warning — ObjectPermission is only used in commented example code
+void ObjectPermission;
 
 const router: IRouter = Router();
 const objectStorageService = createObjectStorageService();
+
+/**
+ * GET /storage/health
+ *
+ * Diagnostic endpoint — returns which storage backend is active and whether
+ * MinIO is reachable. Safe to call unauthenticated (no secrets returned).
+ */
+router.get("/storage/health", async (req: Request, res: Response) => {
+  const isVps = objectStorageService instanceof ObjectStorageVpsService;
+  const info: Record<string, unknown> = {
+    backend: isVps ? "minio-vps" : "replit",
+    minioEndpoint: isVps ? process.env.MINIO_ENDPOINT ?? "(not set)" : null,
+    privateObjectDir: isVps ? process.env.PRIVATE_OBJECT_DIR ?? "(not set)" : null,
+  };
+
+  if (isVps) {
+    // Ping MinIO with a ListBuckets-style HEAD request on the private bucket.
+    try {
+      const svc = objectStorageService as ObjectStorageVpsService;
+      // Attempt to check if the private bucket exists by doing a HEAD on a
+      // known non-existent key; MinIO returns 404 (object missing) not 403
+      // (auth failure) when credentials are good and bucket exists.
+      const testKey = "__health_check__";
+      // We call getObjectEntityFile which does objectExists internally.
+      // Catch ObjectNotFoundError (expected) vs any other error (bad).
+      try {
+        await svc.getObjectEntityFile(`/objects/${testKey}`);
+      } catch (e) {
+        if (e instanceof Error && e.message !== "Object not found") {
+          throw e;
+        }
+        // ObjectNotFoundError means MinIO is up and bucket exists — good.
+      }
+      info.minioReachable = true;
+      info.bucketStatus = "ok";
+    } catch (err) {
+      info.minioReachable = false;
+      info.minioError = err instanceof Error ? err.message : String(err);
+    }
+  }
+
+  res.json(info);
+});
 
 /**
  * POST /storage/uploads/request-url
@@ -182,8 +227,14 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
       res.end();
     }
   } catch (error) {
-    if (error instanceof ObjectNotFoundError) {
-      req.log.warn({ err: error }, "Object not found");
+    // Check by constructor name because the VPS service defines its own
+    // ObjectNotFoundError class which is a different identity from the one
+    // exported by objectStorageFactory (Replit version).
+    const isNotFound =
+      error instanceof ObjectNotFoundError ||
+      (error instanceof Error && error.constructor.name === "ObjectNotFoundError");
+    if (isNotFound) {
+      req.log.warn({ path: req.params.path }, "Object not found in storage");
       res.status(404).json({ error: "Object not found" });
       return;
     }
