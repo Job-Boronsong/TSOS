@@ -61,7 +61,9 @@ async function minioRequest(
     createHash("sha256").update(canonicalRequest).digest("hex"),
   ].join("\n");
 
-  const signingKey = ["aws4_request", "s3", "us-east-1", dateShort].reduce(
+  // AWS SigV4 signing key derivation — order matters:
+  //   HMAC("AWS4"+secret, date) → HMAC(result, region) → HMAC(result, service) → HMAC(result, "aws4_request")
+  const signingKey = [dateShort, "us-east-1", "s3", "aws4_request"].reduce(
     (key, part) => createHmac("sha256", key).update(part).digest(),
     Buffer.from(`AWS4${MINIO_SECRET_KEY}`) as Buffer | string,
   );
@@ -124,7 +126,8 @@ async function presignUrl(
     createHash("sha256").update(canonicalRequest).digest("hex"),
   ].join("\n");
 
-  const signingKey = ["aws4_request", "s3", "us-east-1", dateShort].reduce(
+  // AWS SigV4 signing key derivation — same correct order as minioRequest.
+  const signingKey = [dateShort, "us-east-1", "s3", "aws4_request"].reduce(
     (key, part) => createHmac("sha256", key).update(part).digest(),
     Buffer.from(`AWS4${MINIO_SECRET_KEY}`) as Buffer | string,
   );
