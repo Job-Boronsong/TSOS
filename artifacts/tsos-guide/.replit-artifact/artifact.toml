@@ -1,0 +1,31 @@
+kind = "slides"
+previewPath = "/tsos-guide/"
+title = "TSOS — App Guide"
+version = "1.0.0"
+id = "artifacts/tsos-guide"
+router = "path"
+
+[[integratedSkills]]
+name = "slides"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/tsos-guide/" ]
+localPort = 22046
+
+[services.development]
+run = "pnpm --filter @workspace/tsos-guide run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tsos-guide", "run", "build" ]
+publicDir = "artifacts/tsos-guide/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22046"
+BASE_PATH = "/tsos-guide/"
