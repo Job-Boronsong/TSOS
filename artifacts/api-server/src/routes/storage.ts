@@ -1,6 +1,7 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import express, { Router, type IRouter, type Request, type Response } from "express";
 import { Readable } from "stream";
 import { createObjectStorageService, ObjectNotFoundError } from "../lib/objectStorageFactory";
+import { ObjectStorageVpsService } from "../lib/objectStorageVps";
 import { ObjectPermission } from "../lib/objectAcl";
 
 const router: IRouter = Router();
@@ -27,6 +28,36 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
   } catch (error) {
     req.log.error({ err: error }, "Error generating upload URL");
     res.status(500).json({ error: "Failed to generate upload URL" });
+  }
+});
+
+/**
+ * PUT /storage/upload-proxy/*path
+ *
+ * VPS-only: Receives the file body from the browser and writes it directly
+ * to MinIO. This is needed because MinIO is on an internal Docker network
+ * (minio:9000) the browser cannot reach — so uploads must be proxied through
+ * the API server instead of going directly to a MinIO presigned URL.
+ */
+router.put("/storage/upload-proxy/*path", express.raw({ type: "*/*", limit: "20mb" }), async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!(objectStorageService instanceof ObjectStorageVpsService)) {
+      res.status(404).json({ error: "Upload proxy not available" });
+      return;
+    }
+    const raw = req.params.path;
+    const bucketAndObject = Array.isArray(raw) ? raw.join("/") : String(raw);
+    const contentType = String(req.headers["content-type"] ?? "application/octet-stream");
+    const body = req.body as Buffer;
+    if (!Buffer.isBuffer(body) || body.length === 0) {
+      res.status(400).json({ error: "Empty or missing file body" });
+      return;
+    }
+    await objectStorageService.uploadObject(bucketAndObject, body, contentType);
+    res.status(200).end();
+  } catch (error) {
+    req.log.error({ err: error }, "Upload proxy error");
+    res.status(500).json({ error: "Upload failed" });
   }
 });
 

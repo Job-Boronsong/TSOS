@@ -184,7 +184,20 @@ export class ObjectStorageVpsService {
     const objectId = randomUUID();
     const fullPath = `${privateObjectDir}/uploads/${objectId}`;
     const { bucketName, objectName } = parseObjectPath(fullPath);
-    return presignUrl(bucketName, objectName, "PUT", 900);
+    // Return an API-relative path so the browser uploads through the API proxy,
+    // not directly to minio:9000 (which is an internal Docker hostname the
+    // browser cannot reach).
+    return `/api/storage/upload-proxy/${bucketName}/${objectName}`;
+  }
+
+  async uploadObject(bucketAndObject: string, body: Buffer, contentType: string): Promise<void> {
+    const path = bucketAndObject.startsWith("/") ? bucketAndObject : `/${bucketAndObject}`;
+    const { bucketName, objectName } = parseObjectPath(path);
+    const res = await minioRequest("PUT", bucketName, objectName, body, contentType);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`MinIO upload failed (${res.status}): ${text}`);
+    }
   }
 
   async getObjectEntityFile(objectPath: string): Promise<{ bucket: string; key: string }> {
@@ -200,6 +213,17 @@ export class ObjectStorageVpsService {
   }
 
   normalizeObjectEntityPath(rawPath: string): string {
+    // rawPath is what getObjectEntityUploadURL() returned:
+    //   "/api/storage/upload-proxy/tsos-private/uploads/uuid"
+    // Convert to the path the browser uses to fetch the stored file:
+    //   "/objects/uploads/uuid"
+    const prefix = "/api/storage/upload-proxy/";
+    if (rawPath.startsWith(prefix)) {
+      const bucketAndObject = rawPath.slice(prefix.length); // "tsos-private/uploads/uuid"
+      const slashIdx = bucketAndObject.indexOf("/");
+      const objectName = slashIdx === -1 ? bucketAndObject : bucketAndObject.slice(slashIdx + 1);
+      return `/objects/${objectName}`;
+    }
     return rawPath;
   }
 
