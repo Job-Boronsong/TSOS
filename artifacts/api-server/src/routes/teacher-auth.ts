@@ -118,6 +118,9 @@ router.post("/teacher-auth/switch-to-admin", async (req, res): Promise<void> => 
     .from(schoolsTable)
     .where(eq(schoolsTable.id, linkedUser.schoolId!));
 
+  // Clear mustChangePassword — the teacher already authenticated via their own credentials
+  await db.update(usersTable).set({ mustChangePassword: false }).where(eq(usersTable.id, linkedUser.id));
+
   req.session.userId = linkedUser.id;
   req.session.schoolId = linkedUser.schoolId;
 
