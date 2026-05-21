@@ -227,7 +227,7 @@ export default function Slide01Title() {
           zIndex: 10,
         }}
       >
-        01 / 16
+        01 / 17
       </div>
     </div>
   );
