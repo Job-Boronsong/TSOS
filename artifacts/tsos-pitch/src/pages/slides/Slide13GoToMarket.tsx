@@ -78,8 +78,8 @@ export default function Slide13GoToMarket() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5vh" }}>
             {[
-              { stage: "Stage 1", title: "Greater Accra Beachhead", desc: "Private schools in Greater Accra Region — fastest adopters, English instruction, higher digital readiness", color: "#4F7FFF", status: "Now" },
-              { stage: "Stage 2", title: "Ghana-Wide", desc: "Public schools and rural districts — partner with GES for procurement", color: "#7C6BF0", status: "Year 1" },
+              { stage: "Stage 1", title: "Ghana Private Schools", desc: "Private schools across Ghana — highest digital readiness, English instruction, fastest to adopt and pay", color: "#4F7FFF", status: "Now" },
+              { stage: "Stage 2", title: "Ghana Public Sector", desc: "Public schools and rural districts nationwide — partner with GES for bulk procurement", color: "#7C6BF0", status: "Year 1" },
               { stage: "Stage 3", title: "West Africa Expansion", desc: "Nigeria, Côte d'Ivoire, Senegal — same architecture, localised billing and grading", color: "#34D399", status: "Year 2+" },
             ].map((s) => (
               <div key={s.stage} style={{ display: "flex", gap: "1.5vw", padding: "2vh 2vw", backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "0.8vw" }}>
@@ -101,7 +101,7 @@ export default function Slide13GoToMarket() {
       </div>
 
       <div style={{ position: "absolute", bottom: "4vh", left: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>TORRENTIAL SCHOOL OPERATIONS SUITE</div>
-      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>13 / 16</div>
+      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>13 / 17</div>
     </div>
   );
 }

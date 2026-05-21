@@ -92,8 +92,8 @@
     "position": 12,
     "filepath": "src/pages/slides/Slide12BusinessModel.tsx",
     "title": "Business Model",
-    "description": "500 GHS/month flat SaaS fee, volume discounts, grace period, zero transaction fees",
-    "speakerNotes": "Simple, predictable, scalable pricing.\n\n- Base price: 500 GHS per school per month — set by super admin, adjustable per market\n- Volume discounts encourage annual commitments: 5% for 3–6 months, 10% for 7+ months\n- 3-day grace period after expiry before auto-deactivation — fair to schools, automatic for us\n- No per-transaction fees on student payments — schools keep 100% of what they collect\n- Revenue model: every new school adds a clean 500 GHS/month to MRR\n- 1,000 schools = GHS 500,000/month (~USD 33,000/month at current rates)"
+    "description": "500 GHS/month flat SaaS fee, 5% discount for 12+ months, grace period, zero transaction fees",
+    "speakerNotes": "Simple, predictable, scalable pricing.\n\n- Base price: 500 GHS per school per month — set by super admin, adjustable per market\n- One volume discount tier: 5% off for 12+ month commitments\n- 3-day grace period after expiry before auto-deactivation — fair to schools, automatic for us\n- No per-transaction fees on student payments — schools keep 100% of what they collect\n- Revenue model: every new school adds a clean 500 GHS/month to MRR\n- 1,000 schools = GHS 500,000/month (~USD 33,000/month at current rates)"
   },
   {
     "id": "a1b2c3d4-0013-4000-8000-000000000013",
@@ -101,15 +101,15 @@
     "filepath": "src/pages/slides/Slide13GoToMarket.tsx",
     "title": "Go-to-Market",
     "description": "Three channels: direct sales, education office partnerships, word of mouth. Three expansion stages.",
-    "speakerNotes": "We have three parallel acquisition channels and a clear geographic expansion roadmap.\n\n- Direct sales: school proprietors and owners — highest intent, direct relationship, fastest close\n- Education office partnerships: District Education Offices handle procurement for clusters of schools\n- Word of mouth: teachers talk to teachers — low CAC, high trust, organic referrals\n- Beachhead: private schools in Greater Accra — highest digital readiness, English instruction, fastest adopters\n- Stage 2: expand to public schools via GES partnership and rural districts\n- Stage 3: West Africa — Nigeria, Côte d'Ivoire, Senegal — same architecture, localised billing"
+    "speakerNotes": "We have three parallel acquisition channels and a clear geographic expansion roadmap.\n\n- Direct sales: school proprietors and owners — highest intent, direct relationship, fastest close\n- Education office partnerships: District Education Offices handle procurement for clusters of schools\n- Word of mouth: teachers talk to teachers — low CAC, high trust, organic referrals\n- Stage 1: private schools across Ghana — highest digital readiness, English instruction, fastest adopters\n- Stage 2: expand to public schools via GES partnership and rural districts nationwide\n- Stage 3: West Africa — Nigeria, Côte d'Ivoire, Senegal — same architecture, localised billing"
   },
   {
     "id": "a1b2c3d4-0014-4000-8000-000000000014",
     "position": 14,
     "filepath": "src/pages/slides/Slide14TechStack.tsx",
     "title": "Technology Stack",
-    "description": "React/Vite/Dexie frontend, Express/PostgreSQL backend, MinIO storage, Docker Compose VPS",
-    "speakerNotes": "The stack is modern, open-source, and deployable on a single VPS for low infrastructure cost.\n\n- Frontend: React + Vite + Tailwind CSS + Dexie.js for IndexedDB, shadcn/ui components\n- Backend: Node.js 24, Express 5, PostgreSQL with Drizzle ORM, Zod validation\n- Offline layer: IndexedDB write queue, pull/push sync engine, online/offline detection\n- Storage: MinIO on VPS with AWS SigV4 signing and an upload proxy route\n- Deployment: Docker Compose on a single Ubuntu VPS — low infra cost, easy to scale out\n- Full TypeScript coverage across all packages via pnpm monorepo + OpenAPI spec-first codegen"
+    "description": "React/Vite/Dexie frontend, Express/PostgreSQL backend, MinIO on Namecheap VPS, Docker Compose",
+    "speakerNotes": "The stack is modern, open-source, and deployed on an external VPS for full control and low cost.\n\n- Frontend: React + Vite + Tailwind CSS + Dexie.js for IndexedDB, shadcn/ui components\n- Backend: Node.js 24, Express 5, PostgreSQL with Drizzle ORM, Zod validation\n- Offline layer: IndexedDB write queue, pull/push sync engine, online/offline detection\n- Storage: MinIO self-hosted on Namecheap VPS with AWS SigV4 signing and an upload proxy route\n- Deployment: Docker Compose on Namecheap VPS with Nginx reverse proxy — full infrastructure control\n- Full TypeScript coverage across all packages via pnpm monorepo + OpenAPI spec-first codegen"
   },
   {
     "id": "a1b2c3d4-0015-4000-8000-000000000015",

@@ -74,9 +74,8 @@ export default function Slide12BusinessModel() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2vh" }}>
           <div style={{ fontSize: "1.1vw", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.5vh" }}>Volume Discounts</div>
           {[
-            { range: "1–2 months", discount: "0%", multiplier: "1.0x", color: "rgba(255,255,255,0.2)" },
-            { range: "3–6 months", discount: "5% off", multiplier: "0.95x", color: "#4F7FFF" },
-            { range: "7+ months", discount: "10% off", multiplier: "0.9x", color: "#7C6BF0" },
+            { range: "1–11 months", discount: "0%", multiplier: "1.0x", color: "rgba(255,255,255,0.2)" },
+            { range: "12+ months", discount: "5% off", multiplier: "0.95x", color: "#34D399" },
           ].map((tier) => (
             <div key={tier.range} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.8vh 2vw", backgroundColor: "rgba(255,255,255,0.03)", border: `1px solid ${tier.color}40`, borderRadius: "0.6vw" }}>
               <div style={{ fontSize: "1.15vw", fontWeight: 600, color: tier.color }}>{tier.range}</div>
@@ -105,7 +104,7 @@ export default function Slide12BusinessModel() {
       </div>
 
       <div style={{ position: "absolute", bottom: "4vh", left: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>TORRENTIAL SCHOOL OPERATIONS SUITE</div>
-      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>12 / 16</div>
+      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>12 / 17</div>
     </div>
   );
 }

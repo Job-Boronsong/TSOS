@@ -77,12 +77,12 @@ export default function Slide14TechStack() {
             {
               layer: "Storage",
               color: "#FACC15",
-              items: ["MinIO (VPS)", "Replit Object Storage", "AWS SigV4 signing", "Presigned URLs", "Upload proxy"],
+              items: ["MinIO (self-hosted)", "Namecheap VPS", "AWS SigV4 signing", "Presigned URLs", "Upload proxy"],
             },
             {
               layer: "Deployment",
               color: "#FB923C",
-              items: ["Docker Compose", "Ubuntu 24.04 VPS", "Nginx reverse proxy", "pnpm monorepo", "esbuild CJS bundle"],
+              items: ["Docker Compose", "Namecheap VPS", "Nginx reverse proxy", "pnpm monorepo", "esbuild CJS bundle"],
             },
           ].map((col) => (
             <div
@@ -123,7 +123,7 @@ export default function Slide14TechStack() {
       </div>
 
       <div style={{ position: "absolute", bottom: "4vh", left: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>TORRENTIAL SCHOOL OPERATIONS SUITE</div>
-      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>14 / 16</div>
+      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>14 / 17</div>
     </div>
   );
 }
