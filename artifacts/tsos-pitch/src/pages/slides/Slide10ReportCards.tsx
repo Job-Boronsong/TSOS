@@ -11,7 +11,7 @@ export default function Slide10ReportCards() {
         color: "#FFFFFF",
       }}
     >
-      <div style={{ position: "absolute", top: "10vh", right: "5vw", width: "40vw", height: "40vw", borderRadius: "50%", backgroundColor: "#FACC15", opacity: 0.04, filter: "blur(12vw)" }} />
+      <div style={{ position: "absolute", top: "10vh", right: "5vw", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(250,204,21,0.08) 0%, rgba(250,204,21,0) 70%)" }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "4vw 4vw", pointerEvents: "none" }} />
 
       <div style={{ position: "absolute", top: "5vh", left: "5vw", display: "flex", alignItems: "center", gap: "1vw", zIndex: 10 }}>

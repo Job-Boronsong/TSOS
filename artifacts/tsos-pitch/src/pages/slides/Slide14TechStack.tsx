@@ -11,7 +11,7 @@ export default function Slide14TechStack() {
         color: "#FFFFFF",
       }}
     >
-      <div style={{ position: "absolute", bottom: "0", right: "0", width: "50vw", height: "50vw", borderRadius: "50%", backgroundColor: "#7C6BF0", opacity: 0.06, filter: "blur(14vw)" }} />
+      <div style={{ position: "absolute", bottom: "0", right: "0", width: "50vw", height: "50vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(124,107,240,0.12) 0%, rgba(124,107,240,0) 70%)" }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "4vw 4vw", pointerEvents: "none" }} />
 
       <div style={{ position: "absolute", top: "5vh", left: "5vw", display: "flex", alignItems: "center", gap: "1vw", zIndex: 10 }}>

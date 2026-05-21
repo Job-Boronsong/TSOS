@@ -14,8 +14,8 @@ export default function Slide17Contact() {
         justifyContent: "center",
       }}
     >
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", borderRadius: "50%", backgroundColor: "#4F7FFF", opacity: 0.07, filter: "blur(18vw)" }} />
-      <div style={{ position: "absolute", bottom: "-10vh", right: "-5vw", width: "40vw", height: "40vw", borderRadius: "50%", backgroundColor: "#7C6BF0", opacity: 0.08, filter: "blur(12vw)" }} />
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "70vw", height: "70vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(79,127,255,0.14) 0%, rgba(79,127,255,0) 70%)" }} />
+      <div style={{ position: "absolute", bottom: "-10vh", right: "-5vw", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(124,107,240,0.16) 0%, rgba(124,107,240,0) 70%)" }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "4vw 4vw", pointerEvents: "none" }} />
 
       <div style={{ position: "absolute", top: "5vh", left: "5vw", display: "flex", alignItems: "center", gap: "1vw", zIndex: 10 }}>

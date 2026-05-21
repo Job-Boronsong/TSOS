@@ -12,8 +12,8 @@ export default function Slide02Problem() {
       }}
     >
       {/* Accent blobs */}
-      <div style={{ position: "absolute", top: "-10vh", right: "-5vw", width: "45vw", height: "45vw", borderRadius: "50%", backgroundColor: "#4F7FFF", opacity: 0.05, filter: "blur(8vw)" }} />
-      <div style={{ position: "absolute", bottom: "-15vh", left: "-10vw", width: "50vw", height: "50vw", borderRadius: "50%", backgroundColor: "#7C6BF0", opacity: 0.06, filter: "blur(10vw)" }} />
+      <div style={{ position: "absolute", top: "-10vh", right: "-5vw", width: "45vw", height: "45vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(79,127,255,0.10) 0%, rgba(79,127,255,0) 70%)" }} />
+      <div style={{ position: "absolute", bottom: "-15vh", left: "-10vw", width: "50vw", height: "50vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(124,107,240,0.12) 0%, rgba(124,107,240,0) 70%)" }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "4vw 4vw", pointerEvents: "none" }} />
 
       {/* Header */}

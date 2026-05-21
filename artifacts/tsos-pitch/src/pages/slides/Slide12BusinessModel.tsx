@@ -11,7 +11,7 @@ export default function Slide12BusinessModel() {
         color: "#FFFFFF",
       }}
     >
-      <div style={{ position: "absolute", top: "0", right: "-10vw", width: "50vw", height: "50vw", borderRadius: "50%", backgroundColor: "#34D399", opacity: 0.05, filter: "blur(12vw)" }} />
+      <div style={{ position: "absolute", top: "0", right: "-10vw", width: "50vw", height: "50vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(52,211,153,0.10) 0%, rgba(52,211,153,0) 70%)" }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "4vw 4vw", pointerEvents: "none" }} />
 
       <div style={{ position: "absolute", top: "5vh", left: "5vw", display: "flex", alignItems: "center", gap: "1vw", zIndex: 10 }}>
