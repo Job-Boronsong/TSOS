@@ -17,6 +17,7 @@ import payrollRouter from "./payroll";
 import promotionRouter from "./promotion";
 import emailRouter from "./email";
 import staffUsersRouter from "./staff-users";
+import stockRouter from "./stock";
 
 const router: IRouter = Router();
 
@@ -38,5 +39,6 @@ router.use(payrollRouter);
 router.use(promotionRouter);
 router.use(emailRouter);
 router.use(staffUsersRouter);
+router.use(stockRouter);
 
 export default router;

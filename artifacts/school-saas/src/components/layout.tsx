@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LogOut, LayoutDashboard, Building2, Users, BookOpen, CheckSquare, DollarSign, FileText, Settings, BarChart2, Clock, CalendarDays, UserCheck, Megaphone, TrendingUp, UtensilsCrossed, Banknote, ShieldAlert, GraduationCap, UserCog, GraduationCap as TeacherIcon } from "lucide-react";
+import { LogOut, LayoutDashboard, Building2, Users, BookOpen, CheckSquare, DollarSign, FileText, Settings, BarChart2, Clock, CalendarDays, UserCheck, Megaphone, TrendingUp, UtensilsCrossed, Banknote, ShieldAlert, GraduationCap, UserCog, GraduationCap as TeacherIcon, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SyncStatus } from "./sync-status";
@@ -200,6 +200,7 @@ export function SchoolAdminLayout({ children, schoolSlug }: { children: ReactNod
     { name: "Discipline", href: `/school/${slug}/discipline`, icon: ShieldAlert, roles: ["school_admin", "head_teacher"] },
     { name: "Payroll", href: `/school/${slug}/payroll`, icon: Banknote, roles: ["school_admin", "head_teacher", "finance_officer"] },
     { name: "Promotion", href: `/school/${slug}/promotion`, icon: GraduationCap, roles: ["school_admin", "head_teacher"] },
+    { name: "Stock", href: `/school/${slug}/stock`, icon: Package, roles: ["school_admin", "head_teacher", "finance_officer"] },
     { name: "Settings", href: `/school/${slug}/settings`, icon: Settings, roles: ["school_admin"] },
     { name: "Staff Access", href: `/school/${slug}/staff-access`, icon: UserCog, roles: ["school_admin"] },
   ];

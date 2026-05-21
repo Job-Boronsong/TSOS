@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { Link } from "wouter";
 import { SchoolAdminLayout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -8,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Users, CheckSquare, DollarSign, TrendingUp, TrendingDown, AlertCircle, Clock, AlertTriangle, RefreshCw, CalendarDays, XCircle } from "lucide-react";
+import { Users, CheckSquare, DollarSign, TrendingUp, TrendingDown, AlertCircle, Clock, AlertTriangle, RefreshCw, CalendarDays, XCircle, Package } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { useLocalStudents, useLocalAttendance, useLocalPayments, useLocalExpenditures, useLocalFeeSettings, useLocalClasses } from "@/lib/offline-hooks";
 import { useSyncContext } from "@/lib/sync-context";
@@ -362,6 +363,15 @@ export default function SchoolDashboard({ params }: Props) {
   const { isOffline, initialSyncDone, syncProgress } = useSyncContext();
   const smoothPct = useSmoothProgress(syncProgress.pct);
 
+  const [lowStockItems, setLowStockItems] = useState<{ id: number; name: string; currentQuantity: number; unit: string }[]>([]);
+  useEffect(() => {
+    if (!schoolId) return;
+    fetch(`/api/schools/${schoolId}/stock/low`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : [])
+      .then(setLowStockItems)
+      .catch(() => {});
+  }, [schoolId]);
+
   const activeStudents = (students ?? []).filter(s => s.status === "active");
   const todayAttendance = attendance ?? [];
   const presentToday = todayAttendance.filter(a => a.status === "present").length;
@@ -477,6 +487,23 @@ export default function SchoolDashboard({ params }: Props) {
             </Card>
           ))}
         </div>
+
+        {lowStockItems.length > 0 && (
+          <Link href={`/school/${schoolSlug}/stock`}>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-amber-100 transition-colors">
+              <Package className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-semibold text-amber-800">
+                  {lowStockItems.length} stock item{lowStockItems.length > 1 ? "s" : ""} below reorder level
+                </span>
+                <span className="text-sm text-amber-700 ml-1">
+                  — {lowStockItems.map(i => `${i.name} (${i.currentQuantity} ${i.unit})`).join(", ")}
+                </span>
+              </div>
+              <span className="text-xs text-amber-600 font-medium shrink-0">View Stock →</span>
+            </div>
+          </Link>
+        )}
 
         <div className="grid gap-4 md:grid-cols-2">
           <Card>

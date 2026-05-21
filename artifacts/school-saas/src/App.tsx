@@ -48,6 +48,7 @@ import PromotionPage from "@/pages/school/promotion";
 import TeacherAnnouncements from "@/pages/teacher/announcements";
 import TeacherCalendar from "@/pages/teacher/calendar";
 import StaffAccessPage from "@/pages/school/staff-access";
+import StockPage from "@/pages/school/stock";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -363,6 +364,14 @@ function Router() {
         {(params) => (
           <SchoolAdminGuard>
             <PayrollPage params={params} />
+          </SchoolAdminGuard>
+        )}
+      </Route>
+
+      <Route path="/school/:schoolSlug/stock">
+        {(params) => (
+          <SchoolAdminGuard>
+            <StockPage params={params} />
           </SchoolAdminGuard>
         )}
       </Route>

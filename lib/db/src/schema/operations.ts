@@ -181,3 +181,39 @@ export const feedingFundEntriesTable = pgTable("feeding_fund_entries", {
 export const insertFeedingFundEntrySchema = createInsertSchema(feedingFundEntriesTable).omit({ id: true, createdAt: true });
 export type InsertFeedingFundEntry = z.infer<typeof insertFeedingFundEntrySchema>;
 export type FeedingFundEntry = typeof feedingFundEntriesTable.$inferSelect;
+
+// ── Stock Management ──────────────────────────────────────────
+
+export const stockItemsTable = pgTable("stock_items", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schoolsTable.id),
+  name: text("name").notNull(),
+  category: text("category").notNull().default("other"), // stationery|feeding|equipment|cleaning|medical|other
+  unit: text("unit").notNull().default("pieces"),
+  reorderLevel: numeric("reorder_level", { precision: 10, scale: 2 }).notNull().default("0"),
+  currentQuantity: numeric("current_quantity", { precision: 10, scale: 2 }).notNull().default("0"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const insertStockItemSchema = createInsertSchema(stockItemsTable).omit({ id: true, createdAt: true });
+export type InsertStockItem = z.infer<typeof insertStockItemSchema>;
+export type StockItem = typeof stockItemsTable.$inferSelect;
+
+export const stockMovementsTable = pgTable("stock_movements", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schoolsTable.id),
+  itemId: integer("item_id").notNull().references(() => stockItemsTable.id),
+  type: text("type").notNull(), // intake|issue|adjustment
+  quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),
+  reference: text("reference"),
+  notes: text("notes"),
+  cost: numeric("cost", { precision: 10, scale: 2 }),
+  expenditureId: integer("expenditure_id"),
+  date: date("date").notNull(),
+  createdBy: integer("created_by"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const insertStockMovementSchema = createInsertSchema(stockMovementsTable).omit({ id: true, createdAt: true });
+export type InsertStockMovement = z.infer<typeof insertStockMovementSchema>;
+export type StockMovement = typeof stockMovementsTable.$inferSelect;
