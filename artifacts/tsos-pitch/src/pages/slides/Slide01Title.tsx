@@ -58,9 +58,7 @@ export default function Slide01Title() {
           width: "50vw",
           height: "50vw",
           borderRadius: "50%",
-          backgroundColor: "#4F7FFF",
-          opacity: 0.07,
-          filter: "blur(10vw)",
+          background: "radial-gradient(circle, rgba(79,127,255,0.10) 0%, rgba(79,127,255,0) 70%)",
         }}
       />
 
