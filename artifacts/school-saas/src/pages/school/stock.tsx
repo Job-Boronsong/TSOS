@@ -67,7 +67,7 @@ export default function StockPage({ params }: Props) {
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item?: StockItem }>({ open: false });
 
   // Item form
-  const [itemForm, setItemForm] = useState({ name: "", category: "other", unit: "pieces", reorderLevel: "0" });
+  const [itemForm, setItemForm] = useState({ name: "", category: "other", unit: "pieces", reorderLevel: "0", openingStock: "" });
 
   // Movement form
   const [moveForm, setMoveForm] = useState({ itemId: "", type: "intake", quantity: "", reference: "", notes: "", cost: "", date: format(new Date(), "yyyy-MM-dd") });
@@ -111,12 +111,12 @@ export default function StockPage({ params }: Props) {
   // ── Handlers ────────────────────────────────────────────────
 
   const openAddItem = () => {
-    setItemForm({ name: "", category: "other", unit: "pieces", reorderLevel: "0" });
+    setItemForm({ name: "", category: "other", unit: "pieces", reorderLevel: "0", openingStock: "" });
     setItemDialog({ open: true });
   };
 
   const openEditItem = (item: StockItem) => {
-    setItemForm({ name: item.name, category: item.category, unit: item.unit, reorderLevel: String(item.reorderLevel) });
+    setItemForm({ name: item.name, category: item.category, unit: item.unit, reorderLevel: String(item.reorderLevel), openingStock: "" });
     setItemDialog({ open: true, item });
   };
 
@@ -131,9 +131,25 @@ export default function StockPage({ params }: Props) {
         method: itemDialog.item ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ...itemForm, reorderLevel: Number(itemForm.reorderLevel) }),
+        body: JSON.stringify({ name: itemForm.name, category: itemForm.category, unit: itemForm.unit, reorderLevel: Number(itemForm.reorderLevel) }),
       });
       if (!res.ok) { toast({ title: (await res.json()).error, variant: "destructive" }); return; }
+      // For new items, record opening stock as an intake movement if provided
+      if (!itemDialog.item && itemForm.openingStock && Number(itemForm.openingStock) > 0) {
+        const created: StockItem = await res.json();
+        await fetch(`/api/schools/${schoolId}/stock/movements`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            itemId: created.id,
+            type: "intake",
+            quantity: Number(itemForm.openingStock),
+            reference: "Opening stock",
+            date: format(new Date(), "yyyy-MM-dd"),
+          }),
+        });
+      }
       toast({ title: itemDialog.item ? "Item updated" : "Item added" });
       setItemDialog({ open: false });
       await fetchItems();
@@ -629,6 +645,12 @@ export default function StockPage({ params }: Props) {
               <Label>Reorder Level <span className="text-muted-foreground text-xs">(alert when stock falls to or below this)</span></Label>
               <Input type="number" min="0" value={itemForm.reorderLevel} onChange={e => setItemForm(f => ({ ...f, reorderLevel: e.target.value }))} />
             </div>
+            {!itemDialog.item && (
+              <div className="space-y-1.5">
+                <Label>Opening Stock <span className="text-muted-foreground text-xs">(current quantity on hand)</span></Label>
+                <Input type="number" min="0" placeholder="0" value={itemForm.openingStock} onChange={e => setItemForm(f => ({ ...f, openingStock: e.target.value }))} />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setItemDialog({ open: false })}>Cancel</Button>
