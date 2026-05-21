@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useSchoolId } from "@/lib/school-hooks";
-import { Package, Plus, Pencil, Trash2, ArrowDownToLine, ArrowUpFromLine, ClipboardList, AlertTriangle, Printer } from "lucide-react";
+import { Package, Plus, PlusCircle, Pencil, Trash2, ArrowDownToLine, ArrowUpFromLine, ClipboardList, AlertTriangle, Printer } from "lucide-react";
 import { format } from "date-fns";
 
 interface Props { params: { schoolSlug: string } }
@@ -65,6 +65,8 @@ export default function StockPage({ params }: Props) {
   const [itemDialog, setItemDialog] = useState<{ open: boolean; item?: StockItem }>({ open: false });
   const [moveDialog, setMoveDialog] = useState<{ open: boolean; item?: StockItem }>({ open: false });
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item?: StockItem }>({ open: false });
+  const [addStockDialog, setAddStockDialog] = useState<{ open: boolean; item?: StockItem }>({ open: false });
+  const [addStockQty, setAddStockQty] = useState("");
 
   // Item form
   const [itemForm, setItemForm] = useState({ name: "", category: "other", unit: "pieces", reorderLevel: "0", openingStock: "" });
@@ -164,6 +166,36 @@ export default function StockPage({ params }: Props) {
       if (!res.ok) { toast({ title: (await res.json()).error, variant: "destructive" }); return; }
       toast({ title: "Item deleted" });
       setDeleteDialog({ open: false });
+      await fetchItems();
+    } finally { setSubmitting(false); }
+  };
+
+  const openAddStock = (item: StockItem) => {
+    setAddStockQty("");
+    setAddStockDialog({ open: true, item });
+  };
+
+  const submitAddStock = async () => {
+    const item = addStockDialog.item;
+    if (!item || !addStockQty || Number(addStockQty) <= 0) {
+      toast({ title: "Enter a quantity greater than 0", variant: "destructive" }); return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/schools/${schoolId}/stock/movements`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          itemId: item.id,
+          type: "intake",
+          quantity: Number(addStockQty),
+          date: format(new Date(), "yyyy-MM-dd"),
+        }),
+      });
+      if (!res.ok) { toast({ title: (await res.json()).error, variant: "destructive" }); return; }
+      toast({ title: `Added ${addStockQty} ${item.unit} of ${item.name}` });
+      setAddStockDialog({ open: false });
       await fetchItems();
     } finally { setSubmitting(false); }
   };
@@ -348,7 +380,11 @@ export default function StockPage({ params }: Props) {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-1 justify-end">
-                              <Button size="icon" variant="ghost" className="h-8 w-8" title="Record movement" onClick={() => openMoveDialog(item)}>
+                              <Button size="sm" variant="outline" className="h-8 px-2 text-xs text-green-700 border-green-200 hover:bg-green-50" title="Add stock" onClick={() => openAddStock(item)}>
+                                <PlusCircle className="w-3.5 h-3.5 mr-1" />
+                                Add Stock
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-8 w-8" title="Record movement (issue/adjust)" onClick={() => openMoveDialog(item)}>
                                 <ArrowDownToLine className="w-3.5 h-3.5" />
                               </Button>
                               <Button size="icon" variant="ghost" className="h-8 w-8" title="Edit" onClick={() => openEditItem(item)}>
@@ -460,7 +496,7 @@ export default function StockPage({ params }: Props) {
                 <Input placeholder="e.g. End-of-term count" value={stocktakeNotes} onChange={e => setStocktakeNotes(e.target.value)} />
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">Enter the physical count for each item. Leave blank to skip. Items with discrepancies will be auto-adjusted.</p>
+            <p className="text-sm text-muted-foreground">Enter the <strong>total quantity you physically counted</strong> for each item — not the difference. Leave an item blank to skip it. The system will automatically adjust the balance to match what you counted.</p>
             {items.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">No items in catalogue yet.</p>
             ) : (
@@ -609,6 +645,36 @@ export default function StockPage({ params }: Props) {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* ── Quick Add Stock Dialog ── */}
+      <Dialog open={addStockDialog.open} onOpenChange={open => setAddStockDialog(d => ({ ...d, open }))}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Add Stock — {addStockDialog.item?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Current quantity: <strong>{addStockDialog.item?.currentQuantity} {addStockDialog.item?.unit}</strong>
+            </p>
+            <div className="space-y-1.5">
+              <Label>How many are you adding? *</Label>
+              <Input
+                type="number"
+                min="1"
+                placeholder="e.g. 10"
+                value={addStockQty}
+                onChange={e => setAddStockQty(e.target.value)}
+                autoFocus
+                onKeyDown={e => { if (e.key === "Enter") submitAddStock(); }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddStockDialog({ open: false })}>Cancel</Button>
+            <Button onClick={submitAddStock} disabled={submitting}>{submitting ? "Saving…" : "Add Stock"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Add / Edit Item Dialog ── */}
       <Dialog open={itemDialog.open} onOpenChange={open => setItemDialog(d => ({ ...d, open }))}>
