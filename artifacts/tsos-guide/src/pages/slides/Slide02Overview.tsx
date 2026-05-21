@@ -32,32 +32,41 @@ export default function Slide02Overview() {
         <div style={{ fontSize:"1vw", color:"#7AA2F7", textTransform:"uppercase", letterSpacing:"0.05em", fontWeight:600, marginBottom:"2vh" }}>Getting Started</div>
         <h1 style={{ fontSize:"3.8vw", fontWeight:700, color:"#FFFFFF", margin:"0 0 1.5vh 0", letterSpacing:"-0.02em" }}>Module Overview</h1>
         <p style={{ fontSize:"1.2vw", color:"#9AA5CE", lineHeight:1.5, margin:"0 0 4vh 0", maxWidth:"50vw" }}>
-          TSOS is organized into six functional areas. Each handles a distinct part of school operations.
+          TSOS is organized into seven functional areas. Each handles a distinct part of school operations.
         </p>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"1.5vw", flex:1 }}>
-          <div style={{ backgroundColor:"rgba(122,162,247,0.06)", border:"1px solid rgba(122,162,247,0.2)", borderRadius:"0.6vw", padding:"2.5vh 2vw" }}>
-            <div style={{ fontSize:"1vw", color:"#7AA2F7", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1.2vh" }}>Students</div>
-            <div style={{ fontSize:"1vw", color:"#9AA5CE", lineHeight:1.6 }}>Enrollment, ID cards, class history, fee waivers, promotions, bulk CSV import</div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"1.2vw", flex:1 }}>
+          <div style={{ backgroundColor:"rgba(122,162,247,0.06)", border:"1px solid rgba(122,162,247,0.2)", borderRadius:"0.6vw", padding:"2vh 2vw" }}>
+            <div style={{ fontSize:"1vw", color:"#7AA2F7", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1vh" }}>Students</div>
+            <div style={{ fontSize:"0.95vw", color:"#9AA5CE", lineHeight:1.6 }}>Enrollment, ID cards, class history, fee waivers, promotions, bulk CSV import</div>
           </div>
-          <div style={{ backgroundColor:"rgba(158,206,106,0.06)", border:"1px solid rgba(158,206,106,0.2)", borderRadius:"0.6vw", padding:"2.5vh 2vw" }}>
-            <div style={{ fontSize:"1vw", color:"#9ECE6A", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1.2vh" }}>Attendance</div>
-            <div style={{ fontSize:"1vw", color:"#9AA5CE", lineHeight:1.6 }}>Daily student register, teacher GPS check-in, absence reports</div>
+          <div style={{ backgroundColor:"rgba(158,206,106,0.06)", border:"1px solid rgba(158,206,106,0.2)", borderRadius:"0.6vw", padding:"2vh 2vw" }}>
+            <div style={{ fontSize:"1vw", color:"#9ECE6A", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1vh" }}>Attendance</div>
+            <div style={{ fontSize:"0.95vw", color:"#9AA5CE", lineHeight:1.6 }}>Daily student register, teacher GPS check-in, absence reports</div>
           </div>
-          <div style={{ backgroundColor:"rgba(224,175,104,0.06)", border:"1px solid rgba(224,175,104,0.2)", borderRadius:"0.6vw", padding:"2.5vh 2vw" }}>
-            <div style={{ fontSize:"1vw", color:"#E0AF68", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1.2vh" }}>Finance</div>
-            <div style={{ fontSize:"1vw", color:"#9AA5CE", lineHeight:1.6 }}>Fee collection, expenditure tracking, Paystack subscription billing</div>
+          <div style={{ backgroundColor:"rgba(224,175,104,0.06)", border:"1px solid rgba(224,175,104,0.2)", borderRadius:"0.6vw", padding:"2vh 2vw" }}>
+            <div style={{ fontSize:"1vw", color:"#E0AF68", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1vh" }}>Finance</div>
+            <div style={{ fontSize:"0.95vw", color:"#9AA5CE", lineHeight:1.6 }}>Fee collection, expenditure tracking, Paystack subscription billing</div>
           </div>
-          <div style={{ backgroundColor:"rgba(187,154,247,0.06)", border:"1px solid rgba(187,154,247,0.2)", borderRadius:"0.6vw", padding:"2.5vh 2vw" }}>
-            <div style={{ fontSize:"1vw", color:"#BB9AF7", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1.2vh" }}>Academic</div>
-            <div style={{ fontSize:"1vw", color:"#9AA5CE", lineHeight:1.6 }}>Score entry, automated report cards, class timetable, term management</div>
+          <div style={{ backgroundColor:"rgba(187,154,247,0.06)", border:"1px solid rgba(187,154,247,0.2)", borderRadius:"0.6vw", padding:"2vh 2vw" }}>
+            <div style={{ fontSize:"1vw", color:"#BB9AF7", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1vh" }}>Academic</div>
+            <div style={{ fontSize:"0.95vw", color:"#9AA5CE", lineHeight:1.6 }}>Score entry, automated report cards, class timetable, term management</div>
           </div>
-          <div style={{ backgroundColor:"rgba(255,158,100,0.06)", border:"1px solid rgba(255,158,100,0.2)", borderRadius:"0.6vw", padding:"2.5vh 2vw" }}>
-            <div style={{ fontSize:"1vw", color:"#FF9E64", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1.2vh" }}>Staff</div>
-            <div style={{ fontSize:"1vw", color:"#9AA5CE", lineHeight:1.6 }}>Payroll with PAYE/SSNIT, discipline log, announcements, calendar</div>
+          <div style={{ backgroundColor:"rgba(255,158,100,0.06)", border:"1px solid rgba(255,158,100,0.2)", borderRadius:"0.6vw", padding:"2vh 2vw" }}>
+            <div style={{ fontSize:"1vw", color:"#FF9E64", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1vh" }}>Staff</div>
+            <div style={{ fontSize:"0.95vw", color:"#9AA5CE", lineHeight:1.6 }}>Payroll with PAYE/SSNIT, discipline log, announcements, calendar</div>
           </div>
-          <div style={{ backgroundColor:"rgba(122,162,247,0.06)", border:"1px solid rgba(122,162,247,0.15)", borderRadius:"0.6vw", padding:"2.5vh 2vw" }}>
-            <div style={{ fontSize:"1vw", color:"#7AA2F7", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1.2vh" }}>Admin</div>
-            <div style={{ fontSize:"1vw", color:"#9AA5CE", lineHeight:1.6 }}>Multi-school management, subscription billing, school settings</div>
+          <div style={{ backgroundColor:"rgba(122,162,247,0.06)", border:"1px solid rgba(122,162,247,0.15)", borderRadius:"0.6vw", padding:"2vh 2vw" }}>
+            <div style={{ fontSize:"1vw", color:"#7AA2F7", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"1vh" }}>Admin</div>
+            <div style={{ fontSize:"0.95vw", color:"#9AA5CE", lineHeight:1.6 }}>Multi-school management, subscription billing, school settings</div>
+          </div>
+          <div style={{ backgroundColor:"rgba(115,218,202,0.06)", border:"1px solid rgba(115,218,202,0.25)", borderRadius:"0.6vw", padding:"2vh 2vw", gridColumn:"1 / -1", display:"flex", alignItems:"center", gap:"3vw" }}>
+            <div>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.8vw", marginBottom:"0.6vh" }}>
+                <div style={{ fontSize:"1vw", color:"#73DACA", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>Stock &amp; Inventory</div>
+                <span style={{ fontSize:"0.75vw", color:"#73DACA", backgroundColor:"rgba(115,218,202,0.15)", padding:"0.2vh 0.6vw", borderRadius:"0.3vw", fontWeight:600 }}>New</span>
+              </div>
+              <div style={{ fontSize:"0.95vw", color:"#9AA5CE", lineHeight:1.5 }}>Item catalogue with categories &amp; reorder levels, quick Add Stock per item, intake/issue/adjustment movements, periodic stock-take (physical count), low-stock dashboard alerts</div>
+            </div>
           </div>
         </div>
         <div style={{ marginTop:"3vh", display:"flex", justifyContent:"space-between", alignItems:"center" }}>

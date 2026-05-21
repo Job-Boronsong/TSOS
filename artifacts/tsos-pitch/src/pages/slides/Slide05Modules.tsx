@@ -35,13 +35,13 @@ export default function Slide05Modules() {
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: "2vw" }}>
           <h2 style={{ fontSize: "4vw", fontWeight: 800, margin: 0, lineHeight: 1.1, letterSpacing: "-0.03em" }}>
-            Six modules.{" "}
+            Seven modules.{" "}
             <span style={{ color: "#4F7FFF" }}>One platform.</span>
           </h2>
           <div style={{ fontSize: "1.1vw", color: "rgba(255,255,255,0.4)", fontWeight: 300 }}>Every school operation covered.</div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5vw" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.2vw" }}>
           {[
             { title: "Students", color: "#4F7FFF", items: ["Enrollment & ID cards", "Class history & promotions", "Fee waivers, CSV import"] },
             { title: "Attendance", color: "#7C6BF0", items: ["Daily student register", "GPS teacher check-in", "Absence reports"] },
@@ -49,6 +49,7 @@ export default function Slide05Modules() {
             { title: "Academics", color: "#FACC15", items: ["Score entry (5 components)", "Automated report cards", "Class timetable"] },
             { title: "Staff", color: "#F87171", items: ["Payroll with PAYE & SSNIT", "Discipline log", "Announcements"] },
             { title: "Admin", color: "#FB923C", items: ["School settings & calendar", "Multi-school management", "Subscription control"] },
+            { title: "Stock", color: "#2DD4BF", items: ["Item catalogue & reorder alerts", "Intake / issue / adjustments", "Periodic stock-take"] },
           ].map((mod) => (
             <div
               key={mod.title}
@@ -72,7 +73,7 @@ export default function Slide05Modules() {
       </div>
 
       <div style={{ position: "absolute", bottom: "4vh", left: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>TORRENTIAL SCHOOL OPERATIONS SUITE</div>
-      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>05 / 16</div>
+      <div style={{ position: "absolute", bottom: "4vh", right: "5vw", fontSize: "0.9vw", color: "rgba(255,255,255,0.3)" }}>05 / 17</div>
     </div>
   );
 }

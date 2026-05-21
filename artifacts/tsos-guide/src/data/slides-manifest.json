@@ -12,7 +12,7 @@
     "position": 2,
     "filepath": "src/pages/slides/Slide02Overview.tsx",
     "title": "Module Overview",
-    "description": "Six module cards at a glance — Students, Attendance, Finance, Academic, Staff, Admin",
+    "description": "Seven module cards at a glance — Students, Attendance, Finance, Academic, Staff, Admin, Stock & Inventory",
     "speakerNotes": ""
   },
   {
@@ -122,22 +122,30 @@
   {
     "id": "b2c3d4e5-0016-4000-8000-100000000016",
     "position": 16,
+    "filepath": "src/pages/slides/Slide16Stock.tsx",
+    "title": "Stock & Inventory",
+    "description": "Item catalogue with categories and reorder levels, Add Stock quick action, intake/issue/adjustment movements, stock-take physical count flow, low-stock alerts",
+    "speakerNotes": ""
+  },
+  {
+    "id": "b2c3d4e5-0017-4000-8000-100000000017",
+    "position": 17,
     "filepath": "src/pages/slides/Slide16SuperAdmin.tsx",
     "title": "Super Admin",
     "description": "Super admin capabilities, default login credentials, subscription lifecycle states",
     "speakerNotes": ""
   },
   {
-    "id": "b2c3d4e5-0017-4000-8000-100000000017",
-    "position": 17,
+    "id": "b2c3d4e5-0018-4000-8000-100000000018",
+    "position": 18,
     "filepath": "src/pages/slides/Slide17StaffAccess.tsx",
     "title": "Staff Access & Role Switch",
     "description": "Linking a teacher to an admin role (head_teacher / finance_officer), seamless one-click switch from teacher portal to admin view and back",
     "speakerNotes": ""
   },
   {
-    "id": "b2c3d4e5-0018-4000-8000-100000000018",
-    "position": 18,
+    "id": "b2c3d4e5-0019-4000-8000-100000000019",
+    "position": 19,
     "filepath": "src/pages/slides/Slide18Contact.tsx",
     "title": "Contact",
     "description": "Torrential Technologies — email, phone, company website, app website",

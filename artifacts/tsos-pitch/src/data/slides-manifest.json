@@ -36,8 +36,8 @@
     "position": 5,
     "filepath": "src/pages/slides/Slide05Modules.tsx",
     "title": "Core Modules",
-    "description": "Six integrated modules: Students, Attendance, Finance, Academics, Staff, Admin",
-    "speakerNotes": "Six modules, one platform — no integrations, no data silos.\n\n- Students: full lifecycle from enrollment through graduation\n- Attendance: daily student register and GPS-verified teacher check-in\n- Finance: fee collection, expenditure tracking, and Paystack subscription billing\n- Academics: score entry with 5 components, automated report cards, class timetable\n- Staff: payroll with Ghana PAYE, discipline log, and announcements\n- Admin: school settings, operational calendar, multi-school management"
+    "description": "Seven integrated modules: Students, Attendance, Finance, Academics, Staff, Admin, Stock & Inventory",
+    "speakerNotes": "Seven modules, one platform — no integrations, no data silos.\n\n- Students: full lifecycle from enrollment through graduation\n- Attendance: daily student register and GPS-verified teacher check-in\n- Finance: fee collection, expenditure tracking, and Paystack subscription billing\n- Academics: score entry with 5 components, automated report cards, class timetable\n- Staff: payroll with Ghana PAYE, discipline log, and announcements\n- Admin: school settings, operational calendar, multi-school management\n- Stock & Inventory: item catalogue, intake/issue/adjustment movements, periodic stock-take, low-stock alerts"
   },
   {
     "id": "a1b2c3d4-0006-4000-8000-000000000006",
@@ -116,8 +116,8 @@
     "position": 15,
     "filepath": "src/pages/slides/Slide15Traction.tsx",
     "title": "Traction",
-    "description": "Live on production VPS — multi-school, offline sync, Paystack, photos, report cards, payroll all verified",
-    "speakerNotes": "This is not a prototype. TSOS is live and running in production today.\n\n- Two schools fully operational: Greenfield Academy and Sunridge Primary\n- Offline sync confirmed end-to-end: pull on first load, queue writes, push on reconnect\n- Paystack subscription renewal, cancellation, and HMAC webhook verification all tested live\n- Photo upload to MinIO with SigV4 signing — passport photos visible and printable on ID cards\n- Teacher score entry flows through to printable report cards with correct BECE grades\n- Ghana PAYE payroll with SSNIT deductions processed in confirmed payroll runs"
+    "description": "Live on production VPS — multi-school, offline sync, Paystack, photos, report cards, payroll, stock all verified",
+    "speakerNotes": "This is not a prototype. TSOS is live and running in production today.\n\n- Two schools fully operational: Greenfield Academy and Sunridge Primary\n- Offline sync confirmed end-to-end: pull on first load, queue writes, push on reconnect\n- Paystack subscription renewal, cancellation, and HMAC webhook verification all tested live\n- Photo upload to MinIO with SigV4 signing — passport photos visible and printable on ID cards\n- Teacher score entry flows through to printable report cards with correct BECE grades\n- Ghana PAYE payroll with SSNIT deductions processed in confirmed payroll runs\n- Stock & Inventory module live: catalogue, movements, stock-take, and low-stock alerts verified"
   },
   {
     "id": "a1b2c3d4-0016-4000-8000-000000000016",

@@ -80,7 +80,7 @@ export default function Slide16SuperAdmin() {
           </div>
         </div>
         <div style={{ marginTop:"2.5vh", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <div style={{ fontSize:"1vw", color:"#565F89", fontWeight:500 }}>16</div>
+          <div style={{ fontSize:"1vw", color:"#565F89", fontWeight:500 }}>17</div>
           <div style={{ fontSize:"0.9vw", color:"#565F89" }}>Torrential School Operations Suite</div>
         </div>
       </div>

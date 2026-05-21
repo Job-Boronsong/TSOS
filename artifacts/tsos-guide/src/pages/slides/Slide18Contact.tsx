@@ -59,7 +59,7 @@ export default function Slide18Contact() {
         </div>
 
         <div style={{ marginTop:"auto", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <div style={{ fontSize:"1vw", color:"#565F89", fontWeight:500 }}>18</div>
+          <div style={{ fontSize:"1vw", color:"#565F89", fontWeight:500 }}>19</div>
           <div style={{ fontSize:"0.9vw", color:"#565F89" }}>Torrential School Operations Suite</div>
         </div>
       </div>
