@@ -18,6 +18,16 @@ if (!DATABASE_URL) {
 
 const client = new Client({ connectionString: DATABASE_URL });
 
+/** Returns true if the named table exists in the public schema. */
+async function tableExists(name: string): Promise<boolean> {
+  const { rows } = await client.query(
+    `SELECT 1 FROM information_schema.tables
+     WHERE table_schema = 'public' AND table_name = $1`,
+    [name]
+  );
+  return rows.length > 0;
+}
+
 async function seed() {
   await client.connect();
   console.log("Seeding database...");
@@ -39,62 +49,65 @@ async function seed() {
   }
 
   // Create session table for connect-pg-simple (express-session store).
-  // Use a DO block so a pre-existing constraint name never fails the deployment.
-  await client.query(`
-    DO $$
-    BEGIN
-      CREATE TABLE IF NOT EXISTS "session" (
-        "sid"    varchar NOT NULL COLLATE "default",
-        "sess"   json    NOT NULL,
-        "expire" timestamp(6) NOT NULL,
+  // We check existence first so the named CONSTRAINT "session_pkey" never
+  // conflicts with any same-named constraint that may survive on another table
+  // after a drizzle-kit rename incident.
+  if (!(await tableExists("session"))) {
+    await client.query(`
+      CREATE TABLE "session" (
+        "sid"    varchar        NOT NULL COLLATE "default",
+        "sess"   json           NOT NULL,
+        "expire" timestamp(6)   NOT NULL,
         CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
-      ) WITH (OIDS=FALSE);
-    EXCEPTION
-      WHEN duplicate_table  THEN NULL;
-      WHEN duplicate_object THEN NULL;
-    END
-    $$
-  `);
+      ) WITH (OIDS=FALSE)
+    `);
+  }
   await client.query(
     `CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")`
   );
   console.log("  ✓ Session table ready");
 
-  // ── Stock tables ────────────────────────────────────────────────────────────
+  // ── Stock tables ─────────────────────────────────────────────────────────────
   // Created here as raw SQL so they are always present regardless of whether
   // drizzle-kit push misidentifies them as renames of other tables.
-  await client.query(`
-    CREATE TABLE IF NOT EXISTS stock_items (
-      id               serial PRIMARY KEY,
-      school_id        integer NOT NULL REFERENCES schools(id),
-      name             text    NOT NULL,
-      category         text    NOT NULL DEFAULT 'other',
-      unit             text    NOT NULL DEFAULT 'pieces',
-      reorder_level    numeric(10,2) NOT NULL DEFAULT '0',
-      current_quantity numeric(10,2) NOT NULL DEFAULT '0',
-      created_at       timestamptz NOT NULL DEFAULT now()
-    )
-  `);
-  await client.query(`
-    CREATE TABLE IF NOT EXISTS stock_movements (
-      id             serial PRIMARY KEY,
-      school_id      integer NOT NULL REFERENCES schools(id),
-      item_id        integer NOT NULL REFERENCES stock_items(id),
-      type           text    NOT NULL,
-      quantity       numeric(10,2) NOT NULL,
-      reference      text,
-      notes          text,
-      cost           numeric(10,2),
-      expenditure_id integer,
-      date           date    NOT NULL,
-      created_by     integer,
-      created_at     timestamptz NOT NULL DEFAULT now()
-    )
-  `);
-  await client.query(`CREATE INDEX IF NOT EXISTS stock_items_school_idx    ON stock_items(school_id)`);
-  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_school_idx ON stock_movements(school_id)`);
-  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_item_idx   ON stock_movements(item_id)`);
-  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_date_idx   ON stock_movements(school_id, date)`);
+  if (!(await tableExists("stock_items"))) {
+    await client.query(`
+      CREATE TABLE stock_items (
+        id               serial        PRIMARY KEY,
+        school_id        integer       NOT NULL REFERENCES schools(id),
+        name             text          NOT NULL,
+        category         text          NOT NULL DEFAULT 'other',
+        unit             text          NOT NULL DEFAULT 'pieces',
+        reorder_level    numeric(10,2) NOT NULL DEFAULT '0',
+        current_quantity numeric(10,2) NOT NULL DEFAULT '0',
+        created_at       timestamptz   NOT NULL DEFAULT now()
+      )
+    `);
+    console.log("  ✓ stock_items table created");
+  }
+  if (!(await tableExists("stock_movements"))) {
+    await client.query(`
+      CREATE TABLE stock_movements (
+        id             serial        PRIMARY KEY,
+        school_id      integer       NOT NULL REFERENCES schools(id),
+        item_id        integer       NOT NULL REFERENCES stock_items(id),
+        type           text          NOT NULL,
+        quantity       numeric(10,2) NOT NULL,
+        reference      text,
+        notes          text,
+        cost           numeric(10,2),
+        expenditure_id integer,
+        date           date          NOT NULL,
+        created_by     integer,
+        created_at     timestamptz   NOT NULL DEFAULT now()
+      )
+    `);
+    console.log("  ✓ stock_movements table created");
+  }
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_items_school_idx     ON stock_items(school_id)`);
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_school_idx  ON stock_movements(school_id)`);
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_item_idx    ON stock_movements(item_id)`);
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_date_idx    ON stock_movements(school_id, date)`);
   console.log("  ✓ Stock tables ready");
 
   // Create default platform settings row if not exists
