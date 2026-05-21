@@ -1,0 +1,186 @@
+root@server1:~# cd /opt/tsos && git pull && ./deploy/update.sh
+Already up to date.
+╔══════════════════════════════════════════════════════╗
+║           TSOS Update                               ║
+╚══════════════════════════════════════════════════════╝
+
+▶ Building updated Docker images...
+[+] Building 1.2s (57/57) FINISHED                                         
+ => [internal] load local bake definitions                            0.0s
+ => => reading from stdin 1.62kB                                      0.0s
+ => [migrate internal] load build definition from Dockerfile.migrate  0.0s
+ => => transferring dockerfile: 425B                                  0.0s
+ => [api internal] load build definition from Dockerfile.api          0.0s
+ => => transferring dockerfile: 2.11kB                                0.0s
+ => [web internal] load build definition from Dockerfile.web          0.0s
+ => => transferring dockerfile: 1.59kB                                0.0s
+ => [web internal] load metadata for docker.io/library/nginx:alpine   0.0s
+ => [web internal] load metadata for docker.io/library/node:24-slim   0.4s
+ => [migrate internal] load metadata for docker.io/library/node:24-a  0.4s
+ => [api internal] load .dockerignore                                 0.0s
+ => => transferring context: 2B                                       0.0s
+ => [api internal] load build context                                 0.3s
+ => => transferring context: 15.84MB                                  0.3s
+ => [migrate base 1/3] FROM docker.io/library/node:24-alpine@sha256:  0.1s
+ => => resolve docker.io/library/node:24-alpine@sha256:d1b3b4da11eef  0.1s
+ => [migrate internal] load build context                             0.0s
+ => => transferring context: 1.96kB                                   0.0s
+ => [web internal] load build context                                 0.1s
+ => => transferring context: 37.73kB                                  0.0s
+ => [web runner 1/3] FROM docker.io/library/nginx:alpine@sha256:feb6  0.1s
+ => => resolve docker.io/library/nginx:alpine@sha256:feb6f75a08aa55b  0.1s
+ => [web base 1/3] FROM docker.io/library/node:24-slim@sha256:4e6b70  0.1s
+ => => resolve docker.io/library/node:24-slim@sha256:4e6b70dd6cbfc88  0.1s
+ => CACHED [api base 2/3] RUN corepack enable && corepack prepare pn  0.0s
+ => CACHED [api base 3/3] WORKDIR /app                                0.0s
+ => CACHED [migrate 4/7] COPY package.json pnpm-workspace.yaml pnpm-  0.0s
+ => CACHED [migrate 5/7] COPY lib/db/ lib/db/                         0.0s
+ => CACHED [migrate 6/7] RUN pnpm install --frozen-lockfile --ignore  0.0s
+ => CACHED [migrate 7/7] WORKDIR /app/lib/db                          0.0s
+ => CACHED [web base 2/3] RUN corepack enable && corepack prepare pn  0.0s
+ => CACHED [web base 3/3] WORKDIR /app                                0.0s
+ => CACHED [web deps 1/8] COPY package.json pnpm-workspace.yaml pnpm  0.0s
+ => CACHED [web deps 2/8] COPY lib/db/package.json             lib/d  0.0s
+ => CACHED [web deps 3/8] COPY lib/api-spec/package.json       lib/a  0.0s
+ => CACHED [web deps 4/8] COPY lib/api-zod/package.json        lib/a  0.0s
+ => CACHED [web deps 5/8] COPY lib/api-client-react/package.json lib  0.0s
+ => CACHED [web deps 6/8] COPY lib/object-storage-web/package.json l  0.0s
+ => CACHED [web deps 7/8] COPY artifacts/school-saas/package.json ar  0.0s
+ => CACHED [web deps 8/8] RUN pnpm install --frozen-lockfile --ignor  0.0s
+ => CACHED [web builder 1/4] COPY tsconfig.base.json tsconfig.json .  0.0s
+ => CACHED [web builder 2/4] COPY lib/ lib/                           0.0s
+ => CACHED [web builder 3/4] COPY artifacts/school-saas/ artifacts/s  0.0s
+ => CACHED [web builder 4/4] RUN PORT=80 BASE_PATH=/ NODE_ENV=produc  0.0s
+ => CACHED [web runner 2/3] COPY --from=builder /app/artifacts/schoo  0.0s
+ => CACHED [web runner 3/3] COPY deploy/nginx-static.conf /etc/nginx  0.0s
+ => [migrate] exporting to image                                      0.2s
+ => => exporting layers                                               0.0s
+ => => exporting manifest sha256:0ebe0c65fee69b334d960666e891ff8c0a7  0.0s
+ => => exporting config sha256:ec2ce6be4dfc6cfd239fc87438348c0db023a  0.0s
+ => => exporting attestation manifest sha256:e0b60db2d0f51b37f64bb78  0.0s
+ => => exporting manifest list sha256:f66638a26555ac5a2f6fc478b2e52f  0.0s
+ => => naming to docker.io/library/deploy-migrate:latest              0.0s
+ => => unpacking to docker.io/library/deploy-migrate:latest           0.0s
+ => [web] exporting to image                                          0.2s
+ => => exporting layers                                               0.0s
+ => => exporting manifest sha256:609cf5e141dc54468956197abe08536b639  0.0s
+ => => exporting config sha256:6382885b88a27bb68a712dbe3d91603db83b8  0.0s
+ => => exporting attestation manifest sha256:c8c4017c013dd5cdfe4cb50  0.0s
+ => => exporting manifest list sha256:02882b65f8f89cd6024053918bb34b  0.0s
+ => => naming to docker.io/library/deploy-web:latest                  0.0s
+ => => unpacking to docker.io/library/deploy-web:latest               0.0s
+ => CACHED [api deps 1/8] COPY package.json pnpm-workspace.yaml pnpm  0.0s
+ => CACHED [api deps 2/8] COPY lib/db/package.json             lib/d  0.0s
+ => CACHED [api deps 3/8] COPY lib/api-spec/package.json       lib/a  0.0s
+ => CACHED [api deps 4/8] COPY lib/api-zod/package.json        lib/a  0.0s
+ => CACHED [api deps 5/8] COPY lib/api-client-react/package.json lib  0.0s
+ => CACHED [api deps 6/8] COPY lib/object-storage-web/package.json l  0.0s
+ => CACHED [api deps 7/8] COPY artifacts/api-server/package.json art  0.0s
+ => CACHED [api runner 11/13] RUN pnpm install --frozen-lockfile --i  0.0s
+ => CACHED [api deps 8/8] RUN pnpm install --frozen-lockfile --ignor  0.0s
+ => CACHED [api builder 1/4] COPY tsconfig.base.json tsconfig.json .  0.0s
+ => CACHED [api builder 2/4] COPY lib/ lib/                           0.0s
+ => CACHED [api builder 3/4] COPY artifacts/api-server/ artifacts/ap  0.0s
+ => CACHED [api builder 4/4] RUN pnpm --filter @workspace/api-server  0.0s
+ => CACHED [api runner 12/13] COPY --from=builder /app/artifacts/api  0.0s
+ => CACHED [api runner 13/13] WORKDIR /app/artifacts/api-server       0.0s
+ => [api] exporting to image                                          0.1s
+ => => exporting layers                                               0.0s
+ => => exporting manifest sha256:3077fb51b8576b0aa9863c8e721966143b3  0.0s
+ => => exporting config sha256:2ca0c19cb7e8c2f31121811349daf374e90e4  0.0s
+ => => exporting attestation manifest sha256:2cf8a0f3a3c4ec92c583ede  0.0s
+ => => exporting manifest list sha256:856ad12347f82e28ceee023a1bf4fe  0.0s
+ => => naming to docker.io/library/deploy-api:latest                  0.0s
+ => => unpacking to docker.io/library/deploy-api:latest               0.0s
+ => [web] resolving provenance for metadata file                      0.0s
+ => [migrate] resolving provenance for metadata file                  0.0s
+ => [api] resolving provenance for metadata file                      0.0s
+[+] build 3/4
+ ✔ Image deploy-web     Built                                          1.3s
+ ⠙ Image deploy-minio   Building                                       1.3s
+ ✔ Image deploy-migrate Built                                          1.3s
+ ✔ Image deploy-api     Built                                          1.3s
+  ✓ Images built
+
+▶ Running database migrations...
+[+]  1/1t 1/11
+ ✔ Container deploy-postgres-1 Running                                 0.0s
+Container deploy-postgres-1 Waiting 
+Container deploy-postgres-1 Healthy 
+Container deploy-migrate-run-84b10c98f7ce Creating 
+Container deploy-migrate-run-84b10c98f7ce Created 
+$ drizzle-kit push --force --config ./drizzle.config.ts
+Reading config file '/app/lib/db/drizzle.config.ts'
+Using 'pg' driver for database querying
+[✓] Pulling schema from database...
+
++ id column will be created
+
++ school_id column will be created
+
++ name column will be created
+
++ category column will be created
+
++ unit column will be created
+
++ reorder_level column will be created
+
++ current_quantity column will be created
+
++ created_at column will be created
+--- all columns conflicts in stock_items table resolved ---
+
+error: multiple primary keys for table "stock_items" are not allowed
+    at /app/node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Object.query (/app/node_modules/.pnpm/drizzle-kit@0.31.9/node_modules/drizzle-kit/bin.cjs:80623:26)
+    at async pgPush (/app/node_modules/.pnpm/drizzle-kit@0.31.9/node_modules/drizzle-kit/bin.cjs:84485:13)
+    at async Object.handler (/app/node_modules/.pnpm/drizzle-kit@0.31.9/node_modules/drizzle-kit/bin.cjs:93943:9)
+    at async run (/app/node_modules/.pnpm/drizzle-kit@0.31.9/node_modules/drizzle-kit/bin.cjs:93189:7) {
+  length: 128,
+  severity: 'ERROR',
+  code: '42P16',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'index.c',
+  line: '223',
+  routine: 'index_check_primary_key'
+}
+$ node --import tsx/esm src/seed.ts
+Seeding database...
+  ✓ Superadmin already exists — skipped
+Seed failed: error: relation "session_pkey" already exists
+    at /app/node_modules/.pnpm/pg@8.20.0/node_modules/pg/lib/client.js:631:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async seed (/app/lib/db/src/seed.ts:56:5) {
+  length: 94,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'index.c',
+  line: '885',
+  routine: 'index_create'
+}
+[ELIFECYCLE] Command failed with exit code 1.
+
+root@server1:/opt/tsos# 

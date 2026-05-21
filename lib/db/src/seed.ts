@@ -4,7 +4,7 @@
  * platform settings if they don't exist.
  * Uses pgcrypto's crypt() so bcryptjs can verify the password at runtime.
  *
- * All DDL is idempotent — safe to run on every deployment.
+ * All DDL is idempotent and self-healing — safe to run on every deployment.
  */
 import pg from "pg";
 
@@ -35,6 +35,23 @@ async function seed() {
   // Enable pgcrypto for bcrypt support
   await client.query("CREATE EXTENSION IF NOT EXISTS pgcrypto");
 
+  // ── Self-healing: detect drizzle-kit rename accident ─────────────────────────
+  // drizzle-kit push --force may rename the existing `session` table to
+  // `stock_items` instead of creating stock_items fresh.  We detect this by
+  // looking for the `session_pkey` index sitting on the `stock_items` table
+  // (PostgreSQL index names are schema-scoped so the old name is preserved).
+  // When found, we rename stock_items back to session before any other DDL runs.
+  const { rows: misnamedSession } = await client.query(`
+    SELECT 1 FROM pg_indexes
+    WHERE schemaname = 'public'
+      AND tablename  = 'stock_items'
+      AND indexname  = 'session_pkey'
+  `);
+  if (misnamedSession.length > 0) {
+    await client.query(`ALTER TABLE stock_items RENAME TO session`);
+    console.log("  ✓ Restored session table (drizzle-kit had misnamed it stock_items)");
+  }
+
   // Create superadmin if not exists
   const { rowCount } = await client.query(
     `INSERT INTO users (username, password_hash, name, role)
@@ -48,10 +65,9 @@ async function seed() {
     console.log("  ✓ Superadmin already exists — skipped");
   }
 
-  // Create session table for connect-pg-simple (express-session store).
-  // We check existence first so the named CONSTRAINT "session_pkey" never
-  // conflicts with any same-named constraint that may survive on another table
-  // after a drizzle-kit rename incident.
+  // Create session table for connect-pg-simple.
+  // We gate on tableExists so the named CONSTRAINT/INDEX "session_pkey" is only
+  // declared when the table (and therefore its backing index) doesn't exist yet.
   if (!(await tableExists("session"))) {
     await client.query(`
       CREATE TABLE "session" (
@@ -61,6 +77,7 @@ async function seed() {
         CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
       ) WITH (OIDS=FALSE)
     `);
+    console.log("  ✓ Session table created");
   }
   await client.query(
     `CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")`
@@ -68,8 +85,8 @@ async function seed() {
   console.log("  ✓ Session table ready");
 
   // ── Stock tables ─────────────────────────────────────────────────────────────
-  // Created here as raw SQL so they are always present regardless of whether
-  // drizzle-kit push misidentifies them as renames of other tables.
+  // Created here as raw SQL so they are always present regardless of what
+  // drizzle-kit push does to them.
   if (!(await tableExists("stock_items"))) {
     await client.query(`
       CREATE TABLE stock_items (
