@@ -1,7 +1,10 @@
 /**
  * Production seed — runs after drizzle-kit push.
- * Creates the superadmin user and default platform settings if they don't exist.
+ * Creates the superadmin user, session table, stock tables, and default
+ * platform settings if they don't exist.
  * Uses pgcrypto's crypt() so bcryptjs can verify the password at runtime.
+ *
+ * All DDL is idempotent — safe to run on every deployment.
  */
 import pg from "pg";
 
@@ -35,19 +38,64 @@ async function seed() {
     console.log("  ✓ Superadmin already exists — skipped");
   }
 
-  // Create session table for connect-pg-simple (express-session store)
+  // Create session table for connect-pg-simple (express-session store).
+  // Use a DO block so a pre-existing constraint name never fails the deployment.
   await client.query(`
-    CREATE TABLE IF NOT EXISTS "session" (
-      "sid"    varchar NOT NULL COLLATE "default",
-      "sess"   json    NOT NULL,
-      "expire" timestamp(6) NOT NULL,
-      CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
-    ) WITH (OIDS=FALSE)
+    DO $$
+    BEGIN
+      CREATE TABLE IF NOT EXISTS "session" (
+        "sid"    varchar NOT NULL COLLATE "default",
+        "sess"   json    NOT NULL,
+        "expire" timestamp(6) NOT NULL,
+        CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
+      ) WITH (OIDS=FALSE);
+    EXCEPTION
+      WHEN duplicate_table  THEN NULL;
+      WHEN duplicate_object THEN NULL;
+    END
+    $$
   `);
   await client.query(
     `CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")`
   );
   console.log("  ✓ Session table ready");
+
+  // ── Stock tables ────────────────────────────────────────────────────────────
+  // Created here as raw SQL so they are always present regardless of whether
+  // drizzle-kit push misidentifies them as renames of other tables.
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS stock_items (
+      id               serial PRIMARY KEY,
+      school_id        integer NOT NULL REFERENCES schools(id),
+      name             text    NOT NULL,
+      category         text    NOT NULL DEFAULT 'other',
+      unit             text    NOT NULL DEFAULT 'pieces',
+      reorder_level    numeric(10,2) NOT NULL DEFAULT '0',
+      current_quantity numeric(10,2) NOT NULL DEFAULT '0',
+      created_at       timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS stock_movements (
+      id             serial PRIMARY KEY,
+      school_id      integer NOT NULL REFERENCES schools(id),
+      item_id        integer NOT NULL REFERENCES stock_items(id),
+      type           text    NOT NULL,
+      quantity       numeric(10,2) NOT NULL,
+      reference      text,
+      notes          text,
+      cost           numeric(10,2),
+      expenditure_id integer,
+      date           date    NOT NULL,
+      created_by     integer,
+      created_at     timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_items_school_idx    ON stock_items(school_id)`);
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_school_idx ON stock_movements(school_id)`);
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_item_idx   ON stock_movements(item_id)`);
+  await client.query(`CREATE INDEX IF NOT EXISTS stock_movements_date_idx   ON stock_movements(school_id, date)`);
+  console.log("  ✓ Stock tables ready");
 
   // Create default platform settings row if not exists
   await client.query(
