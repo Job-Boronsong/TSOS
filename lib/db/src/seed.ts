@@ -2,7 +2,12 @@
  * Production seed — runs after drizzle-kit push.
  * Creates the superadmin user, session table, stock tables, and default
  * platform settings if they don't exist.
- * Uses pgcrypto's crypt() so bcryptjs can verify the password at runtime.
+ * Uses pgcrypto's crypt() (produces $2a$ hashes compatible with bcryptjs).
+ *
+ * Superadmin password logic:
+ *   - SUPER_ADMIN_PASSWORD env var is set  → always upsert (reset) the password
+ *   - SUPER_ADMIN_PASSWORD not set, user missing → create with default "superadmin123"
+ *   - SUPER_ADMIN_PASSWORD not set, user exists  → leave password untouched
  *
  * All DDL is idempotent and self-healing — safe to run on every deployment.
  */
@@ -52,17 +57,40 @@ async function seed() {
     console.log("  ✓ Restored session table (drizzle-kit had misnamed it stock_items)");
   }
 
-  // Create superadmin if not exists
-  const { rowCount } = await client.query(
-    `INSERT INTO users (username, password_hash, name, role)
-     VALUES ('superadmin', crypt('superadmin123', gen_salt('bf', 10)), 'Super Admin', 'super_admin')
-     ON CONFLICT (username) DO NOTHING`
-  );
-  if (rowCount && rowCount > 0) {
-    console.log("  ✓ Superadmin created (username: superadmin, password: superadmin123)");
-    console.log("  ⚠  Change the superadmin password immediately after first login!");
+  // ── Superadmin account ───────────────────────────────────────────────────────
+  // If SUPER_ADMIN_PASSWORD is provided we ALWAYS upsert so the seed is the
+  // single source of truth for the superadmin password on every deploy.
+  // Without the env var we fall back to DO NOTHING (safe for environments where
+  // the password has been deliberately changed through the app).
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+  if (superAdminPassword) {
+    if (superAdminPassword.length < 8) {
+      console.error("  ✗ SUPER_ADMIN_PASSWORD must be at least 8 characters");
+      process.exit(1);
+    }
+    await client.query(
+      `INSERT INTO users (username, password_hash, name, role)
+       VALUES ('superadmin', crypt($1, gen_salt('bf', 10)), 'Super Admin', 'super_admin')
+       ON CONFLICT (username) DO UPDATE
+         SET password_hash        = crypt($1, gen_salt('bf', 10)),
+             failed_login_attempts = 0,
+             locked_until          = NULL`,
+      [superAdminPassword]
+    );
+    console.log("  ✓ Superadmin password set from SUPER_ADMIN_PASSWORD env var");
   } else {
-    console.log("  ✓ Superadmin already exists — skipped");
+    const { rowCount } = await client.query(
+      `INSERT INTO users (username, password_hash, name, role)
+       VALUES ('superadmin', crypt('superadmin123', gen_salt('bf', 10)), 'Super Admin', 'super_admin')
+       ON CONFLICT (username) DO NOTHING`
+    );
+    if (rowCount && rowCount > 0) {
+      console.log("  ✓ Superadmin created (username: superadmin, password: superadmin123)");
+      console.log("  ⚠  Set SUPER_ADMIN_PASSWORD env var before running seed to use a custom password.");
+    } else {
+      console.log("  ✓ Superadmin already exists — password unchanged");
+      console.log("  ℹ  To reset the superadmin password, set SUPER_ADMIN_PASSWORD and re-run seed.");
+    }
   }
 
   // Create session table for connect-pg-simple.

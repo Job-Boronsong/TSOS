@@ -10,7 +10,8 @@
   "scripts": {
     "push": "drizzle-kit push --config ./drizzle.config.ts",
     "push-force": "drizzle-kit push --force --config ./drizzle.config.ts",
-    "seed": "node --import tsx/esm src/seed.ts"
+    "seed": "node --import tsx/esm src/seed.ts",
+    "reset-superadmin": "node --import tsx/esm src/reset-superadmin.ts"
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
