@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, inArray, sql, desc, gte, lte } from "drizzle-orm";
-import { db, teachersTable, schoolsTable, classesTable, classSubjectsTable, studentsTable, scoresTable, attendanceTable, timetableSlotsTable, teacherAttendanceTable, schoolSettingsTable, announcementsTable, announcementReadsTable, calendarEventsTable, subscriptionsTable, usersTable } from "@workspace/db";
+import { db, teachersTable, schoolsTable, classesTable, classSubjectsTable, studentsTable, scoresTable, attendanceTable, timetableSlotsTable, teacherAttendanceTable, schoolSettingsTable, announcementsTable, announcementReadsTable, calendarEventsTable, subscriptionsTable, usersTable, reportRemarksTable } from "@workspace/db";
 import bcrypt from "bcryptjs";
 
 declare module "express-session" {
@@ -556,6 +556,15 @@ router.get("/schools/:schoolId/students/:studentId/report", async (req, res): Pr
     }
   }
 
+  // Fetch teacher/head remarks for this report
+  const remarksFilter = [
+    eq(reportRemarksTable.schoolId, schoolId),
+    eq(reportRemarksTable.studentId, studentId),
+  ];
+  if (term) remarksFilter.push(eq(reportRemarksTable.term, String(term)));
+  if (academicYear) remarksFilter.push(eq(reportRemarksTable.academicYear, String(academicYear)));
+  const [remarks] = await db.select().from(reportRemarksTable).where(and(...remarksFilter as any));
+
   res.json({
     student: { ...student, className: cls?.name ?? null },
     school: { name: school?.name, address: school?.address, logoUrl: school?.logoUrl },
@@ -563,7 +572,67 @@ router.get("/schools/:schoolId/students/:studentId/report", async (req, res): Pr
     academicYear: academicYear ?? null,
     scores: scores.map(s => ({ ...s, score: s.score ? Number(s.score) : null, maxScore: Number(s.maxScore) })),
     summary: { totalScore, totalMax, percentage: Math.round(percentage * 10) / 10, overallGrade: overallGrade?.grade ?? null, overallRemarks: overallGrade?.remarks ?? null, position },
+    teacherRemarks: remarks?.teacherRemarks ?? null,
+    headRemarks: remarks?.headRemarks ?? null,
   });
+});
+
+// ─── Save teacher remarks ──────────────────────────────────────────
+
+router.post("/teacher/report-remarks", async (req, res): Promise<void> => {
+  if (!requireTeacher(req, res)) return;
+  const schoolId = req.session.teacherSchoolId!;
+  const { studentId, term, academicYear, teacherRemarks } = req.body;
+  if (!studentId || !term || !academicYear) {
+    res.status(400).json({ error: "studentId, term, academicYear required" }); return;
+  }
+  const [existing] = await db.select({ id: reportRemarksTable.id }).from(reportRemarksTable)
+    .where(and(
+      eq(reportRemarksTable.schoolId, schoolId),
+      eq(reportRemarksTable.studentId, Number(studentId)),
+      eq(reportRemarksTable.term, String(term)),
+      eq(reportRemarksTable.academicYear, String(academicYear)),
+    ));
+  if (existing) {
+    await db.update(reportRemarksTable)
+      .set({ teacherRemarks: teacherRemarks ?? null, updatedAt: new Date() })
+      .where(eq(reportRemarksTable.id, existing.id));
+  } else {
+    await db.insert(reportRemarksTable).values({
+      schoolId, studentId: Number(studentId), term: String(term),
+      academicYear: String(academicYear), teacherRemarks: teacherRemarks ?? null,
+    });
+  }
+  res.json({ ok: true });
+});
+
+// ─── Save headmaster remarks (school admin or teacher) ─────────────
+
+router.post("/schools/:schoolId/students/:studentId/head-remarks", async (req, res): Promise<void> => {
+  const schoolId = parseInt(req.params.schoolId, 10);
+  const studentId = parseInt(req.params.studentId, 10);
+  const { term, academicYear, headRemarks } = req.body;
+  if (!term || !academicYear) {
+    res.status(400).json({ error: "term, academicYear required" }); return;
+  }
+  const [existing] = await db.select({ id: reportRemarksTable.id }).from(reportRemarksTable)
+    .where(and(
+      eq(reportRemarksTable.schoolId, schoolId),
+      eq(reportRemarksTable.studentId, studentId),
+      eq(reportRemarksTable.term, String(term)),
+      eq(reportRemarksTable.academicYear, String(academicYear)),
+    ));
+  if (existing) {
+    await db.update(reportRemarksTable)
+      .set({ headRemarks: headRemarks ?? null, updatedAt: new Date() })
+      .where(eq(reportRemarksTable.id, existing.id));
+  } else {
+    await db.insert(reportRemarksTable).values({
+      schoolId, studentId, term: String(term),
+      academicYear: String(academicYear), headRemarks: headRemarks ?? null,
+    });
+  }
+  res.json({ ok: true });
 });
 
 // ─── Teacher: mark student attendance ──────────────────────────────

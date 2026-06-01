@@ -3,6 +3,7 @@ import { useLocation, useSearch } from "wouter";
 import { useTeacherAuth } from "@/lib/teacher-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Printer, Plus, Trash2, Save, Eye, Edit2, CheckCircle2, User } from "lucide-react";
@@ -73,6 +74,7 @@ export default function StudentReport({ params }: Props) {
   const [report, setReport] = useState<any>(null);
   const [loadingReport, setLoadingReport] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [teacherRemarks, setTeacherRemarks] = useState("");
 
   useEffect(() => {
     fetch(`/api/teacher/my-students?classId=${classId}`, { credentials: "include" })
@@ -127,9 +129,25 @@ export default function StudentReport({ params }: Props) {
       { credentials: "include" }
     )
       .then(r => r.json())
-      .then(setReport)
+      .then(data => {
+        setReport(data);
+        if (data.teacherRemarks !== undefined) setTeacherRemarks(data.teacherRemarks ?? "");
+      })
       .catch(() => setReport(null))
       .finally(() => setLoadingReport(false));
+  }, [session, studentId, term, academicYear]);
+
+  // Load existing teacher remarks when term/year changes (edit mode)
+  useEffect(() => {
+    const schoolId = session?.teacher?.schoolId;
+    if (!schoolId || !term || !academicYear) return;
+    fetch(
+      `/api/schools/${schoolId}/students/${studentId}/report?term=${term}&academicYear=${encodeURIComponent(academicYear)}`,
+      { credentials: "include" }
+    )
+      .then(r => r.json())
+      .then(data => { if (data.teacherRemarks !== undefined) setTeacherRemarks(data.teacherRemarks ?? ""); })
+      .catch(() => {});
   }, [session, studentId, term, academicYear]);
 
   const updateField = (key: string, field: ComponentKey | "subject" | "remarks", value: string) => {
@@ -247,6 +265,18 @@ export default function StudentReport({ params }: Props) {
       } catch { errors++; }
     }
     setRows(updated);
+
+    // Save teacher remarks
+    const schoolId = session?.teacher?.schoolId;
+    if (schoolId) {
+      await fetch("/api/teacher/report-remarks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ studentId: parseInt(studentId), term, academicYear, teacherRemarks }),
+      }).catch(() => {});
+    }
+
     setSaving(false);
     if (errors === 0) { toast({ title: "All scores saved successfully" }); return true; }
     toast({ variant: "destructive", title: `${errors} score(s) failed to save` });
@@ -445,6 +475,22 @@ export default function StudentReport({ params }: Props) {
               </Button>
             </div>
           </div>
+
+          {/* Teacher Remarks */}
+          <div className="bg-white rounded-xl border p-4 space-y-2">
+            <div>
+              <p className="font-medium text-sm">Class Teacher's Remarks</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Overall remarks about this student's conduct, attitude, and performance this term. Saved alongside scores.
+              </p>
+            </div>
+            <Textarea
+              value={teacherRemarks}
+              onChange={e => setTeacherRemarks(e.target.value)}
+              placeholder="e.g. A diligent student who has shown great improvement this term. Keep it up!"
+              className="min-h-[80px] text-sm resize-none"
+            />
+          </div>
         </main>
       )}
 
@@ -593,13 +639,52 @@ export function ReportCard({ report, totalStudents }: { report: any; totalStuden
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-8 pt-4 border-t">
-        {["Class Teacher", "Headmaster / Principal", "Parent / Guardian"].map(role => (
-          <div key={role} className="text-center">
-            <div className="border-b border-dashed mb-2 h-10"></div>
-            <p className="text-xs text-muted-foreground">{role}</p>
+      <div className="border-t pt-4 space-y-3">
+        {/* Class Teacher's Remarks */}
+        <div className="border rounded-lg p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Class Teacher's Remarks</p>
+          {report.teacherRemarks ? (
+            <p className="text-sm leading-relaxed min-h-[2.5rem]">{report.teacherRemarks}</p>
+          ) : (
+            <div className="space-y-2.5 my-1">
+              <div className="border-b border-dashed border-gray-300 h-5" />
+              <div className="border-b border-dashed border-gray-300 h-5" />
+            </div>
+          )}
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Signature:</span>
+            <span className="flex-1 border-b border-dashed border-gray-400" />
+            <span className="text-xs text-muted-foreground ml-4 whitespace-nowrap">Date:</span>
+            <span className="w-24 border-b border-dashed border-gray-400" />
           </div>
-        ))}
+        </div>
+
+        {/* Headmaster / Principal's Remarks */}
+        <div className="border rounded-lg p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Headmaster / Principal's Remarks</p>
+          {report.headRemarks ? (
+            <p className="text-sm leading-relaxed min-h-[2.5rem]">{report.headRemarks}</p>
+          ) : (
+            <div className="space-y-2.5 my-1">
+              <div className="border-b border-dashed border-gray-300 h-5" />
+              <div className="border-b border-dashed border-gray-300 h-5" />
+            </div>
+          )}
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Signature:</span>
+            <span className="flex-1 border-b border-dashed border-gray-400" />
+            <span className="text-xs text-muted-foreground ml-4 whitespace-nowrap">Date:</span>
+            <span className="w-24 border-b border-dashed border-gray-400" />
+          </div>
+        </div>
+
+        {/* Parent / Guardian */}
+        <div className="flex items-center gap-2 pt-1">
+          <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Parent / Guardian's Signature:</span>
+          <span className="flex-1 border-b border-dashed border-gray-400" />
+          <span className="text-xs text-muted-foreground ml-4 whitespace-nowrap">Date:</span>
+          <span className="w-24 border-b border-dashed border-gray-400" />
+        </div>
       </div>
       <footer className="flex items-center justify-center gap-2 py-3 print:hidden">
         <img src={`${import.meta.env.BASE_URL}torrential-tech-logo-light.png`} alt="Torrential Technologies" className="h-4 w-auto object-contain opacity-50" />

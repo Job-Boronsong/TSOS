@@ -146,6 +146,23 @@ export const insertDisciplineRecordSchema = createInsertSchema(disciplineRecords
 export type InsertDisciplineRecord = z.infer<typeof insertDisciplineRecordSchema>;
 export type DisciplineRecord = typeof disciplineRecordsTable.$inferSelect;
 
+// ── Report Remarks (per student per term — teacher + headmaster remarks) ──────
+export const reportRemarksTable = pgTable("report_remarks", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schoolsTable.id),
+  studentId: integer("student_id").notNull().references(() => studentsTable.id),
+  term: text("term").notNull(),
+  academicYear: text("academic_year").notNull(),
+  teacherRemarks: text("teacher_remarks"),
+  headRemarks: text("head_remarks"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+});
+
+export const insertReportRemarksSchema = createInsertSchema(reportRemarksTable).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertReportRemarks = z.infer<typeof insertReportRemarksSchema>;
+export type ReportRemarks = typeof reportRemarksTable.$inferSelect;
+
 // ── Promotion Runs ────────────────────────────────────────────────────────────
 export const promotionRunsTable = pgTable("promotion_runs", {
   id: serial("id").primaryKey(),
