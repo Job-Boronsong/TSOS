@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Lock, User as UserIcon, AlertTriangle } from "lucide-react";
+import { Building2, Lock, User as UserIcon, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 const loginSchema = z.object({
@@ -31,6 +31,7 @@ export default function Login() {
   const queryClient = useQueryClient();
   const { data: schools } = useListSchools();
   const [isAdminLogin, setIsAdminLogin] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [lockMsg, setLockMsg] = useState<string | null>(null);
@@ -259,7 +260,15 @@ export default function Login() {
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input type="password" placeholder="••••••••" className="pl-9" {...field} />
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="pl-9 pr-10" {...field} />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(v => !v)}
+                            className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                            tabIndex={-1}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
                         </div>
                       </FormControl>
                       <FormMessage />
