@@ -148,8 +148,12 @@ export default function Teachers({ params }: Props) {
     (t.subject || "").toLowerCase().includes(search.toLowerCase())
   );
 
+  const PRIMARY_SUBJECTS = ["English Language", "Mathematics", "Integrated Science", "Social Studies", "Religious & Moral Education", "Creative Arts", "Ghanaian Language", "French", "ICT", "Physical Education", "History"];
+
   const selectedClass = classes.find(c => String(c.id) === assignClassId);
   const isJhsClass = selectedClass?.level === "jhs";
+  // Hybrid: non-JHS class with subject-teacher mode enabled — assign as subject teacher, not homeroom
+  const isHybridClass = !isJhsClass && !!selectedClass?.useSubjectTeachers;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,17 +184,15 @@ export default function Teachers({ params }: Props) {
           createdAt: teacher.createdAt ?? new Date().toISOString(),
         });
 
-        if (isJhsClass && assignJhsSubject.trim()) {
+        if ((isJhsClass || isHybridClass) && assignJhsSubject.trim()) {
           await fetch(`/api/schools/${schoolId}/classes/${assignClassId}/subjects`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify({ subject: assignJhsSubject.trim(), teacherId }),
           });
-          // JHS subject assignments live in the class_subjects table, not in the
-          // local classes record — the dialog re-fetches from the API each time it
-          // opens, so nothing extra to do in Dexie here.
-        } else if (!isJhsClass) {
+          // Subject assignments live in class_subjects table — dialog re-fetches each open.
+        } else if (!isJhsClass && !isHybridClass) {
           await fetch(`/api/schools/${schoolId}/classes/${assignClassId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -330,25 +332,38 @@ export default function Teachers({ params }: Props) {
                       </SelectContent>
                     </Select>
                   </div>
-                  {assignClassId && !isJhsClass && (
+                  {assignClassId && !isJhsClass && !isHybridClass && (
                     <p className="text-xs text-muted-foreground">Will be set as homeroom teacher for {selectedClass?.name}.</p>
                   )}
-                  {assignClassId && isJhsClass && (
+                  {assignClassId && (isJhsClass || isHybridClass) && (
                     <div className="space-y-2">
                       <Label className="text-xs">Subject to Teach <span className="text-destructive">*</span></Label>
-                      <Input
-                        value={assignJhsSubject}
-                        onChange={e => setAssignJhsSubject(e.target.value)}
-                        placeholder="e.g. Mathematics, English, Science"
-                      />
-                      <p className="text-xs text-muted-foreground">JHS: specify which subject this teacher covers in that class.</p>
+                      {isHybridClass ? (
+                        <Select value={assignJhsSubject} onValueChange={setAssignJhsSubject}>
+                          <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+                          <SelectContent>
+                            {PRIMARY_SUBJECTS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          value={assignJhsSubject}
+                          onChange={e => setAssignJhsSubject(e.target.value)}
+                          placeholder="e.g. Mathematics, English, Science"
+                        />
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {isHybridClass
+                          ? `Will be assigned as subject teacher for ${selectedClass?.name} — the homeroom teacher remains unchanged.`
+                          : "JHS: specify which subject this teacher covers in that class."}
+                      </p>
                     </div>
                   )}
                   {assignClassId && <p className="text-xs text-amber-600">Note: class assignment requires an online connection.</p>}
                 </div>
                 </div>
 
-                <Button type="submit" className="w-full shrink-0" disabled={saving || (!!assignClassId && isJhsClass && !assignJhsSubject.trim())}>
+                <Button type="submit" className="w-full shrink-0" disabled={saving || (!!assignClassId && (isJhsClass || isHybridClass) && !assignJhsSubject.trim())}>
                   {saving ? "Adding..." : "Add Teacher"}
                 </Button>
               </form>
