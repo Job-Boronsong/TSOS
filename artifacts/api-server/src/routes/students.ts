@@ -369,10 +369,8 @@ router.get("/schools/:schoolId/classes", async (req, res): Promise<void> => {
       teacherName = t?.name ?? null;
     }
 
-    // For JHS and hybrid non-JHS classes, include subject assignments
-    const subjects = (cls.level === "jhs" || cls.useSubjectTeachers)
-      ? await db.select().from(classSubjectsTable).where(eq(classSubjectsTable.classId, cls.id))
-      : [];
+    // Always include subject assignments — they exist for JHS and any hybrid primary class
+    const subjects = await db.select().from(classSubjectsTable).where(eq(classSubjectsTable.classId, cls.id));
 
     const subjectsEnriched = await Promise.all(subjects.map(async (s) => {
       let subjectTeacherName = null;

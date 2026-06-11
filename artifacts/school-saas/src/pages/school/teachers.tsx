@@ -45,7 +45,7 @@ export default function Teachers({ params }: Props) {
   const [allClasses, setAllClasses] = useState<any[]>([]);
   useEffect(() => {
     if (!schoolId) return;
-    fetch(`/api/schools/${schoolId}/classes`, { credentials: "include" })
+    fetch(`/api/schools/${schoolId}/classes`, { credentials: "include", cache: "no-store" })
       .then(r => r.ok ? r.json() : [])
       .then(setAllClasses)
       .catch(() => {});
