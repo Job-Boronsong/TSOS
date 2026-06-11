@@ -369,8 +369,8 @@ router.get("/schools/:schoolId/classes", async (req, res): Promise<void> => {
       teacherName = t?.name ?? null;
     }
 
-    // For JHS classes, also include subject assignments
-    const subjects = cls.level === "jhs"
+    // For JHS and hybrid non-JHS classes, include subject assignments
+    const subjects = (cls.level === "jhs" || cls.useSubjectTeachers)
       ? await db.select().from(classSubjectsTable).where(eq(classSubjectsTable.classId, cls.id))
       : [];
 

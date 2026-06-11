@@ -1,5 +1,5 @@
 import { useSchoolId } from "@/lib/school-hooks";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SchoolAdminLayout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import { Plus, Search, Trash2, Users, Key, Copy, Check, RefreshCw, ShieldCheck, 
 import { useLocalTeachers, useCreateTeacherOffline, useDeleteTeacherOffline } from "@/lib/offline-hooks";
 import { localDb } from "@/lib/local-db";
 import { useEffect } from "react";
+
+type ClassAssignments = { homeroom: string[]; subjectOf: { className: string; subject: string }[] };
 
 interface Credentials {
   username: string;
@@ -38,6 +40,16 @@ export default function Teachers({ params }: Props) {
   const [saving, setSaving] = useState(false);
   const emptyForm = { name: "", email: "", phone: "", subject: "", status: "active" };
   const [form, setForm] = useState(emptyForm);
+
+  // All classes — loaded on mount for the assignments column
+  const [allClasses, setAllClasses] = useState<any[]>([]);
+  useEffect(() => {
+    if (!schoolId) return;
+    fetch(`/api/schools/${schoolId}/classes`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : [])
+      .then(setAllClasses)
+      .catch(() => {});
+  }, [schoolId]);
 
   // Class assignment (add dialog)
   const [classes, setClasses] = useState<any[]>([]);
@@ -147,6 +159,28 @@ export default function Teachers({ params }: Props) {
     t.name.toLowerCase().includes(search.toLowerCase()) ||
     (t.subject || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  // Compute per-teacher class assignment badges from allClasses
+  const teacherClassMap = useMemo(() => {
+    const map = new Map<number, ClassAssignments>();
+    const ensure = (id: number) => {
+      if (!map.has(id)) map.set(id, { homeroom: [], subjectOf: [] });
+      return map.get(id)!;
+    };
+    for (const cls of allClasses) {
+      // Homeroom: non-JHS plain class with a homeroom teacher
+      if (cls.teacherId && cls.level !== "jhs" && !cls.useSubjectTeachers) {
+        ensure(cls.teacherId).homeroom.push(cls.name);
+      }
+      // Subject assignments (JHS or hybrid non-JHS)
+      for (const s of (cls.subjects ?? [])) {
+        if (s.teacherId) {
+          ensure(s.teacherId).subjectOf.push({ className: cls.name, subject: s.subject });
+        }
+      }
+    }
+    return map;
+  }, [allClasses]);
 
   const PRIMARY_SUBJECTS = ["English Language", "Mathematics", "Integrated Science", "Social Studies", "Religious & Moral Education", "Creative Arts", "Ghanaian Language", "French", "ICT", "Physical Education", "History"];
 
@@ -543,6 +577,7 @@ export default function Teachers({ params }: Props) {
                   <TableHead>Name</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Subject</TableHead>
+                  <TableHead>Class Assignments</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Login</TableHead>
                   <TableHead></TableHead>
@@ -557,6 +592,28 @@ export default function Teachers({ params }: Props) {
                       <div className="text-xs text-muted-foreground">{t.phone}</div>
                     </TableCell>
                     <TableCell>{t.subject || "—"}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        const a = teacherClassMap.get(t.id);
+                        if (!a || (a.homeroom.length === 0 && a.subjectOf.length === 0)) {
+                          return <span className="text-xs text-muted-foreground">—</span>;
+                        }
+                        return (
+                          <div className="flex flex-wrap gap-1">
+                            {a.homeroom.map(cls => (
+                              <Badge key={cls} variant="outline" className="text-xs font-normal px-1.5 py-0">
+                                {cls} <span className="ml-1 text-muted-foreground">HR</span>
+                              </Badge>
+                            ))}
+                            {a.subjectOf.map((s, i) => (
+                              <Badge key={i} className="text-xs font-normal px-1.5 py-0 bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100">
+                                {s.className} · {s.subject}
+                              </Badge>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={t.status === "active" ? "default" : "secondary"} className="capitalize">{t.status}</Badge>
                     </TableCell>
@@ -607,7 +664,7 @@ export default function Teachers({ params }: Props) {
                 ))}
                 {!filtered.length && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No teachers found.</TableCell>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No teachers found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
