@@ -29,6 +29,7 @@ export interface LocalClass {
   grade: string | null;
   level: string; // 'nursery' | 'kg' | 'primary' | 'jhs'
   teacherId: number | null;
+  useSubjectTeachers?: boolean;
   createdAt: string;
   _localOnly?: boolean;
   _localId?: string;

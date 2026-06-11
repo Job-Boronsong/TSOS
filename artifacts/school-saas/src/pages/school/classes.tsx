@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BookOpen, Trash2, Users, GraduationCap, School, Pencil } from "lucide-react";
+import { Plus, BookOpen, Trash2, Users, GraduationCap, School, Pencil, BookMarked } from "lucide-react";
 import { useLocalClasses, useLocalStudents, useLocalTeachers, useCreateClassOffline, useDeleteClassOffline } from "@/lib/offline-hooks";
 import { localDb } from "@/lib/local-db";
 
@@ -26,6 +26,13 @@ const JHS_SUBJECTS = [
   "Mathematics", "English Language", "Science", "Social Studies",
   "ICT", "Religious & Moral Education", "French", "Ghanaian Language",
   "Creative Arts", "Physical Education", "Career Technology", "Elective"
+];
+
+const PRIMARY_SUBJECTS = [
+  "Mathematics", "English Language", "Science",
+  "Our World & Our People", "Religious & Moral Education",
+  "Ghanaian Language", "Creative Arts", "Physical Education",
+  "Computing / ICT", "French", "Elective"
 ];
 
 interface ClassSubject {
@@ -56,12 +63,12 @@ export default function Classes({ params }: Props) {
 
   // ── Edit class ─────────────────────────────────────────────────────
   const [editClass, setEditClass] = useState<any | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", grade: "", level: "primary", teacherId: "" });
+  const [editForm, setEditForm] = useState({ name: "", grade: "", level: "primary", teacherId: "", useSubjectTeachers: false });
   const [editSaving, setEditSaving] = useState(false);
 
   const openEditClass = (cls: any) => {
     setEditClass(cls);
-    setEditForm({ name: cls.name, grade: cls.grade ?? "", level: cls.level ?? "primary", teacherId: cls.teacherId ? String(cls.teacherId) : "__none__" });
+    setEditForm({ name: cls.name, grade: cls.grade ?? "", level: cls.level ?? "primary", teacherId: cls.teacherId ? String(cls.teacherId) : "__none__", useSubjectTeachers: cls.useSubjectTeachers ?? false });
   };
 
   const handleEditClassSave = async (e: React.FormEvent) => {
@@ -70,14 +77,15 @@ export default function Classes({ params }: Props) {
     setEditSaving(true);
     try {
       const teacherId = editForm.level !== "jhs" && editForm.teacherId && editForm.teacherId !== "__none__" ? parseInt(editForm.teacherId) : null;
+      const useSubjectTeachers = editForm.level !== "jhs" ? editForm.useSubjectTeachers : false;
       const res = await fetch(`/api/schools/${schoolId}/classes/${editClass.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name: editForm.name, grade: editForm.grade || null, level: editForm.level, teacherId }),
+        body: JSON.stringify({ name: editForm.name, grade: editForm.grade || null, level: editForm.level, teacherId, useSubjectTeachers }),
       });
       if (!res.ok) throw new Error("Failed to update class");
-      await localDb.classes.update(editClass.id, { name: editForm.name, grade: editForm.grade || null, level: editForm.level, teacherId });
+      await localDb.classes.update(editClass.id, { name: editForm.name, grade: editForm.grade || null, level: editForm.level, teacherId, useSubjectTeachers });
       toast({ title: "Class updated", description: `${editForm.name} saved.` });
       setEditClass(null);
     } catch {
@@ -93,7 +101,7 @@ export default function Classes({ params }: Props) {
   const [addSubjectForm, setAddSubjectForm] = useState({ subject: "", teacherId: "" });
   const [addingSubject, setAddingSubject] = useState(false);
 
-  const emptyForm = { name: "", grade: "", level: "primary", teacherId: "" };
+  const emptyForm = { name: "", grade: "", level: "primary", teacherId: "", useSubjectTeachers: false };
   const [form, setForm] = useState(emptyForm);
 
   const getStudentCount = (classId: number) =>
@@ -110,7 +118,8 @@ export default function Classes({ params }: Props) {
     setSaving(true);
     try {
       const teacherId = form.level !== "jhs" && form.teacherId ? parseInt(form.teacherId) : undefined;
-      await createClass({ name: form.name, grade: form.grade || undefined, level: form.level, teacherId });
+      const useSubjectTeachers = form.level !== "jhs" ? form.useSubjectTeachers : false;
+      await createClass({ name: form.name, grade: form.grade || undefined, level: form.level, teacherId, useSubjectTeachers });
       toast({ title: "Class created", description: "Saved locally, will sync when online." });
       setOpen(false);
       setForm(emptyForm);
@@ -195,7 +204,7 @@ export default function Classes({ params }: Props) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Classes</h1>
-            <p className="text-muted-foreground">Manage class sections. Nursery/KG/Primary use a homeroom teacher; JHS uses subject teachers.</p>
+            <p className="text-muted-foreground">Manage class sections. JHS uses subject teachers; Nursery/KG/Primary use a homeroom teacher (with optional subject teachers for hybrid classes).</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -237,7 +246,26 @@ export default function Classes({ params }: Props) {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground">This teacher is responsible for the whole class.</p>
+                    <p className="text-xs text-muted-foreground">This teacher manages attendance and remaining subjects.</p>
+                  </div>
+                )}
+                {form.level !== "jhs" && (
+                  <div className="flex items-start gap-3 p-3 rounded-md border bg-muted/30">
+                    <input
+                      type="checkbox"
+                      id="create-use-subject-teachers"
+                      checked={form.useSubjectTeachers}
+                      onChange={e => setForm(f => ({ ...f, useSubjectTeachers: e.target.checked }))}
+                      className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-primary"
+                    />
+                    <div>
+                      <label htmlFor="create-use-subject-teachers" className="text-sm font-medium cursor-pointer">
+                        Enable subject teachers (hybrid mode)
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Assign specialist teachers to individual subjects. Homeroom teacher covers the rest.
+                      </p>
+                    </div>
                   </div>
                 )}
                 {form.level === "jhs" && (
@@ -307,14 +335,33 @@ export default function Classes({ params }: Props) {
                         <span>{getStudentCount(cls.id)} students</span>
                       </div>
                       {cls.level !== "jhs" ? (
-                        <div className="flex items-center gap-2 text-sm">
-                          {getTeacherName(cls.teacherId) ? (
-                            <Badge variant="outline" className="text-xs font-normal">
-                              <School className="w-3 h-3 mr-1" />
-                              {getTeacherName(cls.teacherId)}
-                            </Badge>
-                          ) : (
-                            <span className="text-xs text-muted-foreground italic">No homeroom teacher</span>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2 text-sm">
+                            {getTeacherName(cls.teacherId) ? (
+                              <Badge variant="outline" className="text-xs font-normal">
+                                <School className="w-3 h-3 mr-1" />
+                                {getTeacherName(cls.teacherId)}
+                              </Badge>
+                            ) : (
+                              <span className="text-xs text-muted-foreground italic">No homeroom teacher</span>
+                            )}
+                            {cls.useSubjectTeachers && (
+                              <Badge className="text-xs bg-blue-100 text-blue-700 border-blue-200 font-normal">
+                                <BookMarked className="w-3 h-3 mr-1" />hybrid
+                              </Badge>
+                            )}
+                          </div>
+                          {cls.useSubjectTeachers && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full text-xs gap-1"
+                              onClick={() => openSubjectDialog(cls.id)}
+                              disabled={!!cls._localOnly}
+                            >
+                              <GraduationCap className="w-3 h-3" />
+                              Manage Subject Teachers
+                            </Button>
                           )}
                         </div>
                       ) : (
@@ -384,6 +431,25 @@ export default function Classes({ params }: Props) {
                 <p className="text-xs text-amber-600">Requires an online connection to save.</p>
               </div>
             )}
+            {editForm.level !== "jhs" && (
+              <div className="flex items-start gap-3 p-3 rounded-md border bg-muted/30">
+                <input
+                  type="checkbox"
+                  id="edit-use-subject-teachers"
+                  checked={editForm.useSubjectTeachers}
+                  onChange={e => setEditForm(f => ({ ...f, useSubjectTeachers: e.target.checked }))}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-primary"
+                />
+                <div>
+                  <label htmlFor="edit-use-subject-teachers" className="text-sm font-medium cursor-pointer">
+                    Enable subject teachers (hybrid mode)
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Assign specialist teachers to individual subjects via "Manage Subject Teachers" on the card.
+                  </p>
+                </div>
+              </div>
+            )}
             {editForm.level === "jhs" && (
               <div className="p-3 bg-orange-50 border border-orange-200 rounded-md text-sm text-orange-700">
                 <GraduationCap className="w-4 h-4 inline mr-1" />
@@ -413,7 +479,9 @@ export default function Classes({ params }: Props) {
                 <Select value={addSubjectForm.subject} onValueChange={v => setAddSubjectForm(f => ({ ...f, subject: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
                   <SelectContent>
-                    {JHS_SUBJECTS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    {(subjectDialogClass?.level === "jhs" ? JHS_SUBJECTS : PRIMARY_SUBJECTS).map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

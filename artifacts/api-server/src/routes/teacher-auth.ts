@@ -190,18 +190,36 @@ router.get("/teacher/my-classes", async (req, res): Promise<void> => {
   if (!requireTeacher(req, res)) return;
   const teacherId = req.session.teacherId!;
 
-  // Homeroom classes (primary/kg/nursery) — teacher is class teacher
+  // Homeroom classes (all non-JHS levels) — teacher is the class teacher
   const homeroomClasses = await db.select().from(classesTable).where(eq(classesTable.teacherId, teacherId));
 
-  // JHS subject assignments — teacher may teach multiple subjects across multiple classes
+  // Subject assignments — teacher may teach specific subjects across JHS or hybrid primary classes
   const subjectAssignments = await db.select().from(classSubjectsTable).where(eq(classSubjectsTable.teacherId, teacherId));
-  const jhsClassIds = [...new Set(subjectAssignments.map(s => s.classId))];
-  const jhsClasses = jhsClassIds.length
-    ? await db.select().from(classesTable).where(inArray(classesTable.id, jhsClassIds))
+  const subjectClassIds = [...new Set(subjectAssignments.map(s => s.classId))];
+  const subjectClasses = subjectClassIds.length
+    ? await db.select().from(classesTable).where(inArray(classesTable.id, subjectClassIds))
     : [];
 
+  // For hybrid homeroom classes (useSubjectTeachers=true), fetch ALL subjects assigned to any
+  // teacher in those classes so the homeroom teacher knows which are "covered" by others.
+  const hybridHomeroomIds = homeroomClasses
+    .filter(c => c.useSubjectTeachers)
+    .map(c => c.id);
+  const coveredSubjectsByClass: Record<number, string[]> = {};
+  if (hybridHomeroomIds.length > 0) {
+    const allHybridSubjects = await db.select({
+      classId: classSubjectsTable.classId,
+      subject: classSubjectsTable.subject,
+    }).from(classSubjectsTable)
+      .where(inArray(classSubjectsTable.classId, hybridHomeroomIds));
+    for (const s of allHybridSubjects) {
+      if (!coveredSubjectsByClass[s.classId]) coveredSubjectsByClass[s.classId] = [];
+      coveredSubjectsByClass[s.classId].push(s.subject);
+    }
+  }
+
   // Get student counts for all involved classes in one query
-  const allInvolvedIds = [...new Set([...homeroomClasses.map(c => c.id), ...jhsClassIds])];
+  const allInvolvedIds = [...new Set([...homeroomClasses.map(c => c.id), ...subjectClassIds])];
   const studentCounts: Record<number, number> = {};
   if (allInvolvedIds.length) {
     const counts = await db.select({
@@ -218,15 +236,19 @@ router.get("/teacher/my-classes", async (req, res): Promise<void> => {
   // Merge and deduplicate
   const seen = new Set<number>();
   const allClasses: any[] = [];
-  for (const cls of [...homeroomClasses, ...jhsClasses]) {
+  for (const cls of [...homeroomClasses, ...subjectClasses]) {
     if (seen.has(cls.id)) continue;
     seen.add(cls.id);
     const mySubjects = subjectAssignments
       .filter(s => s.classId === cls.id)
       .map(s => s.subject);
+    // coveredSubjects: for hybrid homeroom classes, list subjects assigned to any teacher
+    // (so the homeroom teacher knows which subjects are handled by others)
+    const coveredSubjects = coveredSubjectsByClass[cls.id] ?? null;
     allClasses.push({
       ...cls,
       mySubjects: mySubjects.length > 0 ? mySubjects : null,
+      coveredSubjects,
       studentCount: studentCounts[cls.id] ?? 0,
     });
   }
@@ -384,7 +406,7 @@ router.post("/teacher/scores", async (req, res): Promise<void> => {
   // Total = sum of all components that were supplied
   const parts = [cw, ct, hw, pw, exam];
   const hasAny = parts.some(p => p !== null);
-  const total  = hasAny ? parts.reduce((s, p) => s + (p ?? 0), 0) : null;
+  const total  = hasAny ? parts.reduce((s: number, p) => s + (p ?? 0), 0) : null;
 
   const gradeInfo = total !== null ? computeGrade(total) : null;
 
@@ -737,7 +759,7 @@ router.post("/teacher/add-student", async (req, res): Promise<void> => {
     const { studentClassHistoryTable } = await import("@workspace/db");
     await db.insert(studentClassHistoryTable).values({
       studentId: student.id,
-      classId: parseInt(classId),
+      toClassId: parseInt(classId),
       schoolId,
       changeType: "enrolled",
       changedAt: new Date(),

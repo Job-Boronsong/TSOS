@@ -407,13 +407,15 @@ router.post("/schools/:schoolId/classes", async (req, res): Promise<void> => {
 router.put("/schools/:schoolId/classes/:classId", async (req, res): Promise<void> => {
   const schoolId = parseInt(Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId, 10);
   const classId = parseInt(Array.isArray(req.params.classId) ? req.params.classId[0] : req.params.classId, 10);
-  const { name, grade, level, teacherId } = req.body;
+  const { name, grade, level, teacherId, useSubjectTeachers } = req.body;
 
   const classLevel = level;
   const homroomTeacherId = classLevel !== "jhs" ? (teacherId ?? null) : null;
+  // JHS always uses subject teachers by design; for other levels it's optional
+  const useST = classLevel === "jhs" ? false : (useSubjectTeachers ?? false);
 
   const [cls] = await db.update(classesTable)
-    .set({ name, grade, level: classLevel, teacherId: homroomTeacherId })
+    .set({ name, grade, level: classLevel, teacherId: homroomTeacherId, useSubjectTeachers: useST })
     .where(and(eq(classesTable.id, classId), eq(classesTable.schoolId, schoolId)))
     .returning();
 

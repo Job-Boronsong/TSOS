@@ -116,11 +116,11 @@ export function useDeleteStudentOffline(schoolId: number) {
 }
 
 export function useCreateClassOffline(schoolId: number) {
-  return useCallback(async (data: { name: string; grade?: string; level?: string; teacherId?: number }) => {
+  return useCallback(async (data: { name: string; grade?: string; level?: string; teacherId?: number; useSubjectTeachers?: boolean }) => {
     const _localId = String(tempId());
     const id = Number(_localId);
     const now = nowIso();
-    const cls: LocalClass = { ...data, id, schoolId, createdAt: now, _localOnly: true, _localId, grade: data.grade ?? null, level: data.level ?? "primary", teacherId: data.teacherId ?? null };
+    const cls: LocalClass = { ...data, id, schoolId, createdAt: now, _localOnly: true, _localId, grade: data.grade ?? null, level: data.level ?? "primary", teacherId: data.teacherId ?? null, useSubjectTeachers: data.useSubjectTeachers ?? false };
     await localDb.classes.put(cls);
     await enqueueOperation({ opId: _localId, entity: "class", action: "create", data: { ...data, schoolId, _localId } });
     return cls;

@@ -10,8 +10,10 @@ export const classesTable = pgTable("classes", {
   grade: text("grade"),
   // level determines teaching model: nursery/kg/primary => one homeroom teacher; jhs => subject teachers
   level: text("level").notNull().default("primary"), // 'nursery' | 'kg' | 'primary' | 'jhs'
-  // homeroom teacher (used for nursery/kg/primary only)
+  // homeroom teacher (for all non-JHS classes; stays even when useSubjectTeachers=true)
   teacherId: integer("teacher_id"),
+  // when true, non-JHS class can also have per-subject teachers via class_subjects (hybrid mode)
+  useSubjectTeachers: boolean("use_subject_teachers").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

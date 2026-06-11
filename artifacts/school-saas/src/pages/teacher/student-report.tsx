@@ -372,6 +372,18 @@ export default function StudentReport({ params }: Props) {
             </div>
           </div>
 
+          {/* Hybrid class notice — shown to homeroom teachers when some subjects have dedicated teachers */}
+          {classInfo?.useSubjectTeachers && !classInfo?.mySubjects && classInfo?.coveredSubjects?.length > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-800 flex gap-2">
+              <span className="shrink-0">ℹ️</span>
+              <span>
+                <strong>Hybrid class:</strong> the following subjects are handled by dedicated subject teachers — you do not need to enter scores for them:{" "}
+                <span className="font-medium">{(classInfo.coveredSubjects as string[]).join(", ")}</span>.
+                Enter scores below for all other subjects you teach.
+              </span>
+            </div>
+          )}
+
           <div className="bg-white rounded-xl border overflow-hidden">
             <div className="px-4 py-3 border-b flex items-center">
               <h2 className="font-medium text-sm flex-1">Score Entry</h2>
