@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, count, sql, lt, inArray } from "drizzle-orm";
-import { db, schoolsTable, subscriptionsTable, studentsTable, usersTable, feeSettingsTable, featureTogglesTable, schoolSettingsTable, platformSettingsTable, academicTermsTable, classesTable, teachersTable, attendanceTable, paymentsTable, salesTable, expendituresTable, scoresTable, studentClassHistoryTable, classSubjectsTable, auditLogsTable, timetableSlotsTable, academicCalendarTable, teacherAttendanceTable, studentFeeledgerTable, paymentTransactionsTable } from "@workspace/db";
+import { db, schoolsTable, subscriptionsTable, studentsTable, usersTable, feeSettingsTable, featureTogglesTable, schoolSettingsTable, platformSettingsTable, academicTermsTable, classesTable, teachersTable, attendanceTable, paymentsTable, salesTable, expendituresTable, scoresTable, studentClassHistoryTable, classSubjectsTable, auditLogsTable, timetableSlotsTable, academicCalendarTable, teacherAttendanceTable, studentFeeledgerTable, paymentTransactionsTable, disciplineRecordsTable, reportRemarksTable, feedingRecordsTable } from "@workspace/db";
 import bcrypt from "bcryptjs";
 import { sendSubscriptionThankYou } from "../lib/mailer";
 
@@ -304,6 +304,9 @@ router.delete("/schools/:schoolId", async (req: any, res): Promise<void> => {
   await db.delete(salesTable).where(eq(salesTable.schoolId, schoolId));
   await db.delete(expendituresTable).where(eq(expendituresTable.schoolId, schoolId));
   await db.delete(studentClassHistoryTable).where(eq(studentClassHistoryTable.schoolId, schoolId));
+  await db.delete(disciplineRecordsTable).where(eq(disciplineRecordsTable.schoolId, schoolId));
+  await db.delete(reportRemarksTable).where(eq(reportRemarksTable.schoolId, schoolId));
+  await db.delete(feedingRecordsTable).where(eq(feedingRecordsTable.schoolId, schoolId));
   const schoolClasses = await db.select({ id: classesTable.id }).from(classesTable).where(eq(classesTable.schoolId, schoolId));
   for (const cls of schoolClasses) {
     await db.delete(classSubjectsTable).where(eq(classSubjectsTable.classId, cls.id));
