@@ -126,7 +126,11 @@ export default function Login() {
         return;
       }
 
-      await queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+      // Await the refetch so session is in cache BEFORE we navigate.
+      // Using invalidateQueries + immediate setLocation causes a race:
+      // the route guard mounts, sees the still-stale cache, and redirects
+      // back to /login before the refetch finishes.
+      await queryClient.refetchQueries({ queryKey: getGetMeQueryKey() });
 
       if (data.user?.mustChangePassword) {
         setLocation("/change-password");
@@ -137,16 +141,11 @@ export default function Login() {
       if (role === "super_admin") {
         setLocation("/super-admin");
       } else if (role === "school_admin" || role === "head_teacher" || role === "finance_officer") {
-        // Use slug from login response; fall back to auth/me if it's missing
+        // Prefer slug from login response, then from the freshly-fetched /auth/me
         let slug = data.schoolSlug as string | null | undefined;
         if (!slug) {
-          try {
-            const meRes = await fetch("/api/auth/me", { credentials: "include" });
-            if (meRes.ok) {
-              const me = await meRes.json();
-              slug = me.school?.slug ?? null;
-            }
-          } catch { /* ignore */ }
+          const meData = queryClient.getQueryData<{ school?: { slug?: string } }>(getGetMeQueryKey());
+          slug = meData?.school?.slug ?? null;
         }
         if (slug) {
           const landingPage = role === "finance_officer" ? "finance" : "dashboard";
