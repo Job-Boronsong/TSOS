@@ -148,17 +148,20 @@ router.put("/schools/:schoolId/settings", async (req, res): Promise<void> => {
 
   if (!school) { res.status(404).json({ error: "School not found" }); return; }
 
-  const settingsUpdate: Record<string, unknown> = { themeColor };
+  const settingsUpdate: Record<string, unknown> = {};
+  if (themeColor !== undefined) settingsUpdate.themeColor = themeColor;
   if (checkinLatitude !== undefined) settingsUpdate.checkinLatitude = checkinLatitude === null ? null : Number(checkinLatitude);
   if (checkinLongitude !== undefined) settingsUpdate.checkinLongitude = checkinLongitude === null ? null : Number(checkinLongitude);
   if (checkinRadiusMeters !== undefined) settingsUpdate.checkinRadiusMeters = Number(checkinRadiusMeters) || 50;
 
   const existing = await db.select().from(schoolSettingsTable).where(eq(schoolSettingsTable.schoolId, schoolId));
-  let settings;
-  if (existing.length > 0) {
-    [settings] = await db.update(schoolSettingsTable).set(settingsUpdate).where(eq(schoolSettingsTable.schoolId, schoolId)).returning();
-  } else {
-    [settings] = await db.insert(schoolSettingsTable).values({ schoolId, ...settingsUpdate }).returning();
+  let settings = existing[0] ?? null;
+  if (Object.keys(settingsUpdate).length > 0) {
+    if (existing.length > 0) {
+      [settings] = await db.update(schoolSettingsTable).set(settingsUpdate).where(eq(schoolSettingsTable.schoolId, schoolId)).returning();
+    } else {
+      [settings] = await db.insert(schoolSettingsTable).values({ schoolId, ...settingsUpdate }).returning();
+    }
   }
 
   res.json({
