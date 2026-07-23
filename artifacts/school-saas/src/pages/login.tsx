@@ -65,8 +65,10 @@ export default function Login() {
   const selectedSchoolId = form.watch("schoolId");
   const watchedUsername = form.watch("username");
 
-  // Auto-switch to admin mode when "superadmin" is typed
+  // Auto-switch to admin mode when "superadmin" is typed (only if not manually set)
+  const manualModeSet = useRef(false);
   useEffect(() => {
+    if (manualModeSet.current) return;
     if (watchedUsername === "superadmin" && !isAdminLogin) {
       setIsAdminLogin(true);
     }
@@ -131,9 +133,10 @@ export default function Login() {
         return;
       }
 
-      if (data.user?.role === "super_admin") {
+      const role = data.user?.role as string | undefined;
+      if (role === "super_admin") {
         setLocation("/super-admin");
-      } else if (data.user?.role === "school_admin") {
+      } else if (role === "school_admin" || role === "head_teacher" || role === "finance_officer") {
         // Use slug from login response; fall back to auth/me if it's missing
         let slug = data.schoolSlug as string | null | undefined;
         if (!slug) {
@@ -146,7 +149,10 @@ export default function Login() {
           } catch { /* ignore */ }
         }
         if (slug) {
-          setLocation(`/school/${slug}/dashboard`);
+          const landingPage = role === "finance_officer" ? "finance" : "dashboard";
+          setLocation(`/school/${slug}/${landingPage}`);
+        } else {
+          setErrorMsg("Login succeeded but your school could not be found. Please contact your administrator.");
         }
       }
     } catch {
@@ -284,7 +290,17 @@ export default function Login() {
                   <Button
                     type="button"
                     variant="link"
-                    onClick={() => { setIsAdminLogin(!isAdminLogin); setErrorMsg(null); setLockMsg(null); }}
+                    onClick={() => {
+                      manualModeSet.current = true;
+                      if (isAdminLogin) {
+                        // Switching to school admin — clear superadmin username so the
+                        // auto-switch effect doesn't immediately flip back
+                        form.setValue("username", "");
+                      }
+                      setIsAdminLogin(!isAdminLogin);
+                      setErrorMsg(null);
+                      setLockMsg(null);
+                    }}
                     className="text-xs text-muted-foreground"
                   >
                     {isAdminLogin ? "Sign in as School Admin" : "Sign in as Super Admin"}
