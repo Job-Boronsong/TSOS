@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, count, sql, lt, inArray } from "drizzle-orm";
-import { db, schoolsTable, subscriptionsTable, studentsTable, usersTable, feeSettingsTable, featureTogglesTable, schoolSettingsTable, platformSettingsTable, academicTermsTable, classesTable, teachersTable, attendanceTable, paymentsTable, salesTable, expendituresTable, scoresTable, studentClassHistoryTable, classSubjectsTable, auditLogsTable, timetableSlotsTable, academicCalendarTable, teacherAttendanceTable, studentFeeledgerTable, paymentTransactionsTable, disciplineRecordsTable, reportRemarksTable, feedingRecordsTable } from "@workspace/db";
+import { db, schoolsTable, subscriptionsTable, studentsTable, usersTable, feeSettingsTable, featureTogglesTable, schoolSettingsTable, platformSettingsTable, academicTermsTable, classesTable, teachersTable, attendanceTable, paymentsTable, salesTable, expendituresTable, scoresTable, studentClassHistoryTable, classSubjectsTable, auditLogsTable, timetableSlotsTable, academicCalendarTable, teacherAttendanceTable, studentFeeledgerTable, paymentTransactionsTable, disciplineRecordsTable, reportRemarksTable, feedingRecordsTable, feedingFundEntriesTable, announcementsTable, announcementReadsTable, calendarEventsTable, stockItemsTable, stockMovementsTable, promotionRunsTable, staffSalaryProfilesTable, payrollRunsTable, payrollEntriesTable } from "@workspace/db";
 import bcrypt from "bcryptjs";
 import { sendSubscriptionThankYou } from "../lib/mailer";
 
@@ -292,9 +292,11 @@ router.delete("/schools/:schoolId", async (req: any, res): Promise<void> => {
   const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.id, schoolId));
   if (!school) { res.status(404).json({ error: "School not found" }); return; }
 
+  // ── Leaf tables with no dependants first ───────────────────────────
   await db.delete(auditLogsTable).where(eq(auditLogsTable.schoolId, schoolId));
   await db.delete(timetableSlotsTable).where(eq(timetableSlotsTable.schoolId, schoolId));
   await db.delete(academicCalendarTable).where(eq(academicCalendarTable.schoolId, schoolId));
+  await db.delete(calendarEventsTable).where(eq(calendarEventsTable.schoolId, schoolId));
   await db.delete(teacherAttendanceTable).where(eq(teacherAttendanceTable.schoolId, schoolId));
   await db.delete(studentFeeledgerTable).where(eq(studentFeeledgerTable.schoolId, schoolId));
   await db.delete(academicTermsTable).where(eq(academicTermsTable.schoolId, schoolId));
@@ -307,6 +309,22 @@ router.delete("/schools/:schoolId", async (req: any, res): Promise<void> => {
   await db.delete(disciplineRecordsTable).where(eq(disciplineRecordsTable.schoolId, schoolId));
   await db.delete(reportRemarksTable).where(eq(reportRemarksTable.schoolId, schoolId));
   await db.delete(feedingRecordsTable).where(eq(feedingRecordsTable.schoolId, schoolId));
+  await db.delete(feedingFundEntriesTable).where(eq(feedingFundEntriesTable.schoolId, schoolId));
+  await db.delete(promotionRunsTable).where(eq(promotionRunsTable.schoolId, schoolId));
+  // ── Stock: movements before items ──────────────────────────────────
+  await db.delete(stockMovementsTable).where(eq(stockMovementsTable.schoolId, schoolId));
+  await db.delete(stockItemsTable).where(eq(stockItemsTable.schoolId, schoolId));
+  // ── Payroll: entries before runs, both before teachers ─────────────
+  await db.delete(payrollEntriesTable).where(eq(payrollEntriesTable.schoolId, schoolId));
+  await db.delete(payrollRunsTable).where(eq(payrollRunsTable.schoolId, schoolId));
+  await db.delete(staffSalaryProfilesTable).where(eq(staffSalaryProfilesTable.schoolId, schoolId));
+  // ── Announcements: reads before announcements, both before teachers ─
+  const schoolAnnouncements = await db.select({ id: announcementsTable.id }).from(announcementsTable).where(eq(announcementsTable.schoolId, schoolId));
+  if (schoolAnnouncements.length > 0) {
+    await db.delete(announcementReadsTable).where(inArray(announcementReadsTable.announcementId, schoolAnnouncements.map(a => a.id)));
+  }
+  await db.delete(announcementsTable).where(eq(announcementsTable.schoolId, schoolId));
+  // ── Class subjects, then students / teachers / classes ──────────────
   const schoolClasses = await db.select({ id: classesTable.id }).from(classesTable).where(eq(classesTable.schoolId, schoolId));
   for (const cls of schoolClasses) {
     await db.delete(classSubjectsTable).where(eq(classSubjectsTable.classId, cls.id));
