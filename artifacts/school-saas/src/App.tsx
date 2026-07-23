@@ -1,3 +1,4 @@
+import React from "react";
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -61,9 +62,15 @@ const queryClient = new QueryClient({
 
 function ChangePasswordRoute() {
   const { session, isLoading } = useAuth();
+  // Lock `forced` to the value at first render — prevents the form from switching
+  // mid-interaction when the cache updates mustChangePassword after a successful save.
+  const forcedRef = React.useRef<boolean | null>(null);
+  if (!isLoading && session && forcedRef.current === null) {
+    forcedRef.current = (session.user as any)?.mustChangePassword ?? false;
+  }
   if (isLoading) return null;
   if (!session) return <Redirect to="/login" />;
-  return <ChangePasswordPage forced={(session.user as any)?.mustChangePassword ?? false} />;
+  return <ChangePasswordPage forced={forcedRef.current ?? false} />;
 }
 
 function TeacherChangePasswordRoute() {

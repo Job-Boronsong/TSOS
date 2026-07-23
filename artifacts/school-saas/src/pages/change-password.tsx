@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useLocation } from "wouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +9,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { Lock, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { getGetMeQueryKey } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
 
 const forcedSchema = z.object({
   newPassword: z.string().min(6, "New password must be at least 6 characters"),
@@ -54,6 +51,20 @@ export default function ChangePasswordPage({ forced = false }: ChangePasswordPag
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
 
+  const navigateAfterPasswordChange = (role: string | undefined, schoolSlug: string | null | undefined) => {
+    // Hard redirect (window.location.href) instead of client-side setLocation:
+    // After a password change the React Query cache is updated, which causes
+    // ChangePasswordRoute to re-render with forced=false *before* setLocation
+    // fires — switching the form, stealing focus, and making it look like a loop.
+    // A full page reload resets all state cleanly and avoids the race entirely.
+    if (role === "super_admin") {
+      window.location.href = "/super-admin";
+    } else if (schoolSlug) {
+      const landingPage = role === "finance_officer" ? "finance" : "dashboard";
+      window.location.href = `/school/${schoolSlug}/${landingPage}`;
+    }
+  };
+
   const handleForcedSubmit = async (values: ForcedValues) => {
     setIsPending(true);
     try {
@@ -69,15 +80,10 @@ export default function ChangePasswordPage({ forced = false }: ChangePasswordPag
         return;
       }
       toast({ title: "Password set", description: "Your password has been saved. Welcome!" });
-      await queryClient.refetchQueries({ queryKey: getGetMeQueryKey() });
-      const updated = queryClient.getQueryData<any>(getGetMeQueryKey());
-      const user = updated?.user ?? session?.user;
-      const schoolSlug = updated?.school?.slug ?? (session as any)?.school?.slug;
-      if (user?.role === "super_admin") {
-        setLocation("/super-admin");
-      } else if (schoolSlug) {
-        setLocation(`/school/${schoolSlug}/dashboard`);
-      }
+      // Read slug from current session (no need to refetch — the page reload will do it)
+      const schoolSlug = (session as any)?.school?.slug ?? null;
+      const role = (session?.user as any)?.role as string | undefined;
+      navigateAfterPasswordChange(role, schoolSlug);
     } catch {
       toast({ variant: "destructive", title: "Error", description: "Something went wrong. Please try again." });
     } finally {
@@ -100,15 +106,9 @@ export default function ChangePasswordPage({ forced = false }: ChangePasswordPag
         return;
       }
       toast({ title: "Password changed", description: "Your password has been updated successfully." });
-      await queryClient.refetchQueries({ queryKey: getGetMeQueryKey() });
-      const updated = queryClient.getQueryData<any>(getGetMeQueryKey());
-      const user = updated?.user ?? session?.user;
-      const schoolSlug = updated?.school?.slug ?? (session as any)?.school?.slug;
-      if (user?.role === "super_admin") {
-        setLocation("/super-admin");
-      } else if (schoolSlug) {
-        setLocation(`/school/${schoolSlug}/dashboard`);
-      }
+      const schoolSlug = (session as any)?.school?.slug ?? null;
+      const role = (session?.user as any)?.role as string | undefined;
+      navigateAfterPasswordChange(role, schoolSlug);
     } catch {
       toast({ variant: "destructive", title: "Error", description: "Something went wrong. Please try again." });
     } finally {
