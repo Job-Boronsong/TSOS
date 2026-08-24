@@ -1,0 +1,373 @@
+root@server1:/opt/tsos# ./deploy/update.sh
+╔══════════════════════════════════════════════════════╗
+║           TSOS Update                               ║
+╚══════════════════════════════════════════════════════╝
+
+▶ Building updated Docker images...
+[+] Building 490.7s (38/51)
+ => [internal] load local bake definitions                                                     0.0s
+ => => reading from stdin 1.62kB                                                               0.0s
+ => [web internal] load build definition from Dockerfile.web                                   0.0s
+ => => transferring dockerfile: 1.59kB                                                         0.0s
+ => [migrate internal] load build definition from Dockerfile.migrate                           0.0s
+ => => transferring dockerfile: 425B                                                           0.0s
+ => [api internal] load build definition from Dockerfile.api                                   0.0s
+ => => transferring dockerfile: 2.11kB                                                         0.0s
+ => [web internal] load metadata for docker.io/library/nginx:alpine                            0.0s
+ => [web internal] load metadata for docker.io/library/node:24-slim                            0.5s
+ => [api internal] load metadata for docker.io/library/node:24-alpine                          0.5s
+ => [migrate internal] load .dockerignore                                                      0.0s
+ => => transferring context: 2B                                                                0.0s
+ => [web base 1/3] FROM docker.io/library/node:24-slim@sha256:3638d9a6fe4030bd716be9894382480  0.1s
+ => => resolve docker.io/library/node:24-slim@sha256:3638d9a6fe4030bd716be989438248074489337b  0.0s
+ => [web internal] load build context                                                          0.0s
+ => => transferring context: 37.78kB                                                           0.0s
+ => [web runner 1/3] FROM docker.io/library/nginx:alpine@sha256:feb6f75a08aa55b44576f98c15b88  0.1s
+ => => resolve docker.io/library/nginx:alpine@sha256:feb6f75a08aa55b44576f98c15b8859819ecf54f  0.0s
+ => [api internal] load build context                                                          0.5s
+ => => transferring context: 15.85MB                                                           0.4s
+ => [api 1/7] FROM docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6  0.1s
+ => => resolve docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275b  0.0s
+ => [migrate internal] load build context                                                      0.0s
+ => => transferring context: 2.01kB                                                            0.0s
+ => CACHED [api 2/7] RUN corepack enable && corepack prepare pnpm@latest --activate            0.0s
+ => CACHED [api 3/7] WORKDIR /app                                                              0.0s
+ => CACHED [migrate 4/7] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./               0.0s
+ => CACHED [migrate 5/7] COPY lib/db/ lib/db/                                                  0.0s
+ => ERROR [migrate 6/7] RUN pnpm install --frozen-lockfile --ignore-scripts                  489.4s
+ => CACHED [web base 2/3] RUN corepack enable && corepack prepare pnpm@latest --activate       0.0s
+ => CACHED [web base 3/3] WORKDIR /app                                                         0.0s
+ => CACHED [web deps 1/8] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./              0.0s
+ => CACHED [web deps 2/8] COPY lib/db/package.json             lib/db/                         0.0s
+ => CACHED [web deps 3/8] COPY lib/api-spec/package.json       lib/api-spec/                   0.0s
+ => CACHED [web deps 4/8] COPY lib/api-zod/package.json        lib/api-zod/                    0.0s
+ => CACHED [web deps 5/8] COPY lib/api-client-react/package.json lib/api-client-react/         0.0s
+ => CACHED [web deps 6/8] COPY lib/object-storage-web/package.json lib/object-storage-web/     0.0s
+ => CACHED [web deps 7/8] COPY artifacts/school-saas/package.json artifacts/school-saas/       0.0s
+ => CANCELED [web deps 8/8] RUN pnpm install --frozen-lockfile --ignore-scripts              489.9s
+ => CACHED [api deps 1/8] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./              0.0s
+ => CACHED [api deps 2/8] COPY lib/db/package.json             lib/db/                         0.0s
+ => CACHED [api deps 3/8] COPY lib/api-spec/package.json       lib/api-spec/                   0.0s
+ => CACHED [api deps 4/8] COPY lib/api-zod/package.json        lib/api-zod/                    0.0s
+ => CACHED [api deps 5/8] COPY lib/api-client-react/package.json lib/api-client-react/         0.0s
+ => CACHED [api deps 6/8] COPY lib/object-storage-web/package.json lib/object-storage-web/     0.0s
+ => CACHED [api deps 7/8] COPY artifacts/api-server/package.json artifacts/api-server/         0.0s
+ => CANCELED [api deps 8/8] RUN pnpm install --frozen-lockfile --ignore-scripts              489.4s
+ => CANCELED [api runner 11/13] RUN pnpm install --frozen-lockfile --ignore-scripts --prod   489.2s
+------
+ > [migrate 6/7] RUN pnpm install --frozen-lockfile --ignore-scripts:
+2.350 Scope: all 2 workspace projects
+2.965 ? Verifying lockfile against supply-chain policies (881 entries)...
+3.003 Lockfile is up to date, resolution step is skipped
+3.469 Progress: resolved 1, reused 0, downloaded 0, added 0
+3.485 Packages: +32
+3.485 ++++++++++++++++++++++++++++++++
+4.527 Progress: resolved 32, reused 0, downloaded 0, added 0
+5.533 Progress: resolved 32, reused 0, downloaded 21, added 0
+5.618 Packages are hard linked from the content-addressable store to the virtual store.
+5.618   Content-addressable store is at: /root/.local/share/pnpm/store/v11
+5.618   Virtual store is at:             node_modules/.pnpm
+6.553 Progress: resolved 32, reused 0, downloaded 26, added 8
+7.767 Progress: resolved 32, reused 0, downloaded 26, added 13
+8.807 Progress: resolved 32, reused 0, downloaded 27, added 17
+16.15 [WARN] Request took 12827ms: https://registry.npmjs.org/@babel%2Fgenerator
+17.16 [WARN] Request took 10692ms: https://registry.npmjs.org/@radix-ui%2Freact-context
+17.71 [WARN] Request took 11193ms: https://registry.npmjs.org/@radix-ui%2Freact-direction
+18.22 Progress: resolved 32, reused 0, downloaded 28, added 17
+20.53 [WARN] Request took 14420ms: https://registry.npmjs.org/@google-cloud%2Fstorage
+20.60 Progress: resolved 32, reused 0, downloaded 29, added 17
+21.65 [WARN] Request took 14618ms: https://registry.npmjs.org/@radix-ui%2Freact-presence
+22.28 [WARN] Request took 14121ms: https://registry.npmjs.org/@radix-ui%2Freact-slot
+26.18 [WARN] Request took 15309ms: https://registry.npmjs.org/@radix-ui%2Frect
+26.60 [WARN] Request took 10205ms: https://registry.npmjs.org/@rollup%2Fplugin-replace
+27.76 Progress: resolved 32, reused 0, downloaded 30, added 17
+37.63 [WARN] Request took 26522ms: https://registry.npmjs.org/@radix-ui%2Freact-use-layout-effect
+45.20 [WARN] Request took 26812ms: https://registry.npmjs.org/@rollup%2Fpluginutils
+51.04 Progress: resolved 32, reused 0, downloaded 30, added 18
+51.21 [WARN] Request took 41940ms: https://registry.npmjs.org/@radix-ui%2Freact-use-rect
+51.23 [WARN] Request took 36447ms: https://registry.npmjs.org/@rolldown%2Fpluginutils
+51.24 [WARN] Request took 33551ms: https://registry.npmjs.org/@scalar%2Fjson-magic
+51.39 [WARN] Request took 35922ms: https://registry.npmjs.org/@rollup%2Fplugin-node-resolve
+51.40 [WARN] Request took 30847ms: https://registry.npmjs.org/@scalar%2Fopenapi-types
+51.51 [WARN] Request took 42636ms: https://registry.npmjs.org/@radix-ui%2Freact-use-escape-keydown
+51.53 [WARN] Request took 42899ms: https://registry.npmjs.org/@radix-ui%2Freact-use-callback-ref
+51.57 [WARN] Request took 42384ms: https://registry.npmjs.org/@radix-ui%2Freact-use-previous
+51.60 [WARN] Request took 30674ms: https://registry.npmjs.org/@scalar%2Fopenapi-upgrader
+51.63 [WARN] Request took 48601ms: https://registry.npmjs.org/@babel%2Fcore
+51.65 [WARN] Request took 22681ms: https://registry.npmjs.org/@sec-ant%2Freadable-stream
+51.68 [WARN] Request took 48572ms: https://registry.npmjs.org/@babel%2Fparser
+51.72 [WARN] Request took 41745ms: https://registry.npmjs.org/@radix-ui%2Freact-use-size
+51.75 [WARN] Request took 45355ms: https://registry.npmjs.org/@radix-ui%2Freact-collection
+51.77 [WARN] Request took 44797ms: https://registry.npmjs.org/@radix-ui%2Freact-primitive
+51.81 [WARN] Request took 17837ms: https://registry.npmjs.org/@shikijs%2Fthemes
+52.03 [WARN] Request took 21646ms: https://registry.npmjs.org/@shikijs%2Flangs
+52.09 [WARN] Request took 45516ms: https://registry.npmjs.org/@radix-ui%2Freact-focus-scope
+52.12 [WARN] Request took 34782ms: https://registry.npmjs.org/@rollup%2Frollup-linux-x64-gnu
+52.18 Progress: resolved 32, reused 0, downloaded 31, added 19
+52.20 [WARN] Request took 45081ms: https://registry.npmjs.org/@radix-ui%2Freact-progress
+52.22 [WARN] Request took 22256ms: https://registry.npmjs.org/@shikijs%2Fengine-oniguruma
+52.24 [WARN] Request took 10585ms: https://registry.npmjs.org/@shikijs%2Ftypes
+52.26 [WARN] Request took 44466ms: https://registry.npmjs.org/@radix-ui%2Freact-separator
+52.27 [WARN] Request took 34221ms: https://registry.npmjs.org/@scalar%2Fopenapi-parser
+52.47 [WARN] Request took 45474ms: https://registry.npmjs.org/@radix-ui%2Freact-portal
+52.63 [WARN] Request took 45969ms: https://registry.npmjs.org/@radix-ui%2Freact-menubar
+52.82 [WARN] Request took 44182ms: https://registry.npmjs.org/@radix-ui%2Freact-use-controllable-state
+52.89 [WARN] Request took 46525ms: https://registry.npmjs.org/@radix-ui%2Freact-accordion
+52.99 [WARN] Request took 46345ms: https://registry.npmjs.org/@radix-ui%2Freact-label
+53.01 [WARN] Request took 45082ms: https://registry.npmjs.org/@radix-ui%2Freact-switch
+53.02 [WARN] Request took 44455ms: https://registry.npmjs.org/@radix-ui%2Freact-toggle
+53.06 [WARN] Request took 46691ms: https://registry.npmjs.org/@radix-ui%2Freact-aspect-ratio
+53.21 Progress: resolved 32, reused 0, downloaded 32, added 23
+53.25 [WARN] Request took 46499ms: https://registry.npmjs.org/@radix-ui%2Freact-popper
+53.29 [WARN] Request took 43051ms: https://registry.npmjs.org/@radix-ui%2Freact-visually-hidden
+53.50 [WARN] Request took 46123ms: https://registry.npmjs.org/@radix-ui%2Freact-roving-focus
+54.32 Progress: resolved 32, reused 0, downloaded 32, added 26
+54.55 [WARN] Request took 47900ms: https://registry.npmjs.org/@radix-ui%2Freact-hover-card
+54.64 [WARN] Request took 46796ms: https://registry.npmjs.org/@radix-ui%2Freact-slider
+54.71 [WARN] Request took 46880ms: https://registry.npmjs.org/@radix-ui%2Freact-scroll-area
+54.85 [WARN] Request took 46596ms: https://registry.npmjs.org/@radix-ui%2Freact-toggle-group
+57.90 Progress: resolved 32, reused 0, downloaded 32, added 27
+57.95 [WARN] Request took 51389ms: https://registry.npmjs.org/@radix-ui%2Freact-dropdown-menu
+57.98 [WARN] Request took 49915ms: https://registry.npmjs.org/@radix-ui%2Freact-tabs
+58.00 [WARN] Request took 49936ms: https://registry.npmjs.org/@radix-ui%2Freact-toast
+58.13 [WARN] Request took 50799ms: https://registry.npmjs.org/@radix-ui%2Freact-radio-group
+58.13 [WARN] Request took 51747ms: https://registry.npmjs.org/@radix-ui%2Freact-checkbox
+58.19 [WARN] Request took 52736ms: https://registry.npmjs.org/@babel%2Fpreset-env
+58.42 [WARN] Request took 52020ms: https://registry.npmjs.org/@radix-ui%2Freact-avatar
+58.48 [WARN] Request took 51788ms: https://registry.npmjs.org/@radix-ui%2Freact-navigation-menu
+58.51 [WARN] Request took 50707ms: https://registry.npmjs.org/@radix-ui%2Freact-select
+58.72 [WARN] Request took 52341ms: https://registry.npmjs.org/@radix-ui%2Freact-arrow
+59.80 Progress: resolved 32, reused 0, downloaded 32, added 30
+59.85 [WARN] Request took 53133ms: https://registry.npmjs.org/@radix-ui%2Freact-popover
+60.54 [WARN] Request took 54127ms: https://registry.npmjs.org/@radix-ui%2Freact-collapsible
+60.67 Progress: resolved 32, reused 0, downloaded 32, added 32, done
+60.96 [WARN] Request took 54573ms: https://registry.npmjs.org/@radix-ui%2Freact-alert-dialog
+62.85 [WARN] Request took 54202ms: https://registry.npmjs.org/@radix-ui%2Freact-tooltip
+63.53 [WARN] Request took 57054ms: https://registry.npmjs.org/@radix-ui%2Freact-context-menu
+64.19 [WARN] Request took 57533ms: https://registry.npmjs.org/@radix-ui%2Freact-menu
+64.50 [WARN] Request took 11029ms: https://registry.npmjs.org/@uppy%2Fdashboard
+64.78 [WARN] Request took 11782ms: https://registry.npmjs.org/@types%2Fnodemailer
+65.04 [WARN] Request took 10970ms: https://registry.npmjs.org/@uppy%2Futils
+66.35 [WARN] Request took 13293ms: https://registry.npmjs.org/@types%2Freact-dom
+66.35 [WARN] Request took 12721ms: https://registry.npmjs.org/@uppy%2Fprovider-views
+67.44 [WARN] GET https://registry.npmjs.org/@radix-ui%2Freact-dialog error (23). Will retry in 10 seconds. 2 retries left.
+67.44 [WARN] GET https://registry.npmjs.org/@radix-ui%2Freact-dismissable-layer error (23). Will retry in 10 seconds. 2 retries left.
+67.94 [WARN] Request took 16285ms: https://registry.npmjs.org/@tailwindcss%2Foxide-wasm32-wasi
+71.06 [WARN] Request took 12177ms: https://registry.npmjs.org/browserslist
+76.74 [WARN] Request took 10086ms: https://registry.npmjs.org/esbuild-register
+77.11 [WARN] Request took 10304ms: https://registry.npmjs.org/estree-walker
+80.19 [WARN] Request took 12000ms: https://registry.npmjs.org/eventemitter3
+80.24 [WARN] Request took 12187ms: https://registry.npmjs.org/event-target-shim
+80.96 [WARN] Request took 18750ms: https://registry.npmjs.org/csstype
+81.06 [WARN] Request took 16163ms: https://registry.npmjs.org/ejs
+81.13 [WARN] Request took 11576ms: https://registry.npmjs.org/extend
+81.40 [WARN] Request took 16592ms: https://registry.npmjs.org/drizzle-zod
+81.62 [WARN] Request took 13381ms: https://registry.npmjs.org/express-session
+81.77 [WARN] Request took 11504ms: https://registry.npmjs.org/fast-deep-equal
+82.52 [WARN] Request took 19145ms: https://registry.npmjs.org/deepmerge
+82.68 [WARN] Request took 11542ms: https://registry.npmjs.org/fast-uri
+83.11 [WARN] Request took 31724ms: https://registry.npmjs.org/@tailwindcss%2Fnode
+83.18 [WARN] Request took 25079ms: https://registry.npmjs.org/ajv
+83.24 [WARN] Request took 24669ms: https://registry.npmjs.org/axios
+83.32 [WARN] Request took 15149ms: https://registry.npmjs.org/execa
+87.63 [WARN] Request took 21746ms: https://registry.npmjs.org/es-abstract
+88.42 [WARN] Request took 20102ms: https://registry.npmjs.org/exifr
+96.62 [WARN] Request took 13059ms: https://registry.npmjs.org/forwarded
+211.2 [WARN] Request took 152420ms: https://registry.npmjs.org/baseline-browser-mapping
+211.3 [WARN] Request took 129843ms: https://registry.npmjs.org/fresh
+211.3 [WARN] GET https://registry.npmjs.org/@tailwindcss%2Foxide-linux-x64-gnu error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/@tailwindcss%2Foxide error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/@tailwindcss%2Fvite error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/@tanstack%2Freact-query error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/@types%2Fnode error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/@types%2Freact error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/caniuse-lite error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/commander error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/core-js-compat error (23). Will retry in 10 seconds. 2 retries left.
+211.3 [WARN] GET https://registry.npmjs.org/csv-parse error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/date-fns error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/debug error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/dexie error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/drizzle-kit error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/drizzle-orm error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/electron-to-chromium error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/embla-carousel-react error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/embla-carousel error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/enhanced-resolve error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/enquirer error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/esbuild error (23). Will retry in 10 seconds. 2 retries left.
+211.4 [WARN] GET https://registry.npmjs.org/express-rate-limit error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/@types%2Freact-dom error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/express error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/fast-copy error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/fast-equals error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/fast-glob error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/fast-safe-stringify error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/fast-xml-parser error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/fdir error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/fetch-blob error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/@radix-ui%2Freact-dialog error (23). Will retry in 1 minute. 1 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/@radix-ui%2Freact-dismissable-layer error (23). Will retry in 1 minute. 1 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/find-up error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/follow-redirects error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/foreground-child error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/form-data error (23). Will retry in 10 seconds. 2 retries left.
+211.5 [WARN] GET https://registry.npmjs.org/formdata-polyfill error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/framer-motion error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/fs-extra error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/fsevents error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/function-bind error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/function.prototype.name error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/functions-have-names error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/gaxios error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/gcp-metadata error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/generator-function error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/gensync error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/get-caller-file error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/get-intrinsic error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/get-nonce error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/get-own-enumerable-property-symbols error (23). Will retry in 10 seconds. 2 retries left.
+211.6 [WARN] GET https://registry.npmjs.org/get-proto error (23). Will retry in 10 seconds. 2 retries left.
+212.8
+212.8 devDependencies:
+212.8 + prettier 3.8.1
+212.8 + typescript 5.9.3
+212.8
+235.7 [WARN] Request took 13045ms: https://registry.npmjs.org/debug
+235.8 [WARN] Request took 11005ms: https://registry.npmjs.org/enquirer
+240.3 [WARN] Request took 12076ms: https://registry.npmjs.org/find-up
+240.5 [WARN] Request took 11993ms: https://registry.npmjs.org/foreground-child
+241.1 [WARN] Request took 14246ms: https://registry.npmjs.org/fast-safe-stringify
+244.6 [WARN] Request took 22229ms: https://registry.npmjs.org/csv-parse
+246.6 [WARN] Request took 23621ms: https://registry.npmjs.org/dexie
+249.6 [WARN] Request took 21357ms: https://registry.npmjs.org/fetch-blob
+249.8 [WARN] Request took 13790ms: https://registry.npmjs.org/react-remove-scroll
+266.8 [WARN] Request took 26152ms: https://registry.npmjs.org/regenerate-unicode-properties
+290.9 [WARN] Request took 49726ms: https://registry.npmjs.org/regexpu-core
+291.3 [WARN] Request took 45236ms: https://registry.npmjs.org/reusify
+291.4 [WARN] Request took 45309ms: https://registry.npmjs.org/retry
+291.6 [WARN] Request took 44140ms: https://registry.npmjs.org/run-parallel
+301.0 [WARN] GET https://registry.npmjs.org/react-dom error (23). Will retry in 10 seconds. 2 retries left.
+303.3 [WARN] GET https://registry.npmjs.org/react-hook-form error (23). Will retry in 10 seconds. 2 retries left.
+303.9 [WARN] GET https://registry.npmjs.org/react-is error (23). Will retry in 10 seconds. 2 retries left.
+304.0 [WARN] GET https://registry.npmjs.org/react-refresh error (23). Will retry in 10 seconds. 2 retries left.
+304.8 [WARN] GET https://registry.npmjs.org/@tailwindcss%2Foxide-linux-x64-gnu error (23). Will retry in 1 minute. 1 retries left.
+305.4 [WARN] GET https://registry.npmjs.org/@tailwindcss%2Foxide error (23). Will retry in 1 minute. 1 retries left.
+305.4 [WARN] GET https://registry.npmjs.org/@tailwindcss%2Fvite error (23). Will retry in 1 minute. 1 retries left.
+305.6 [WARN] GET https://registry.npmjs.org/@tanstack%2Freact-query error (23). Will retry in 1 minute. 1 retries left.
+305.6 [WARN] GET https://registry.npmjs.org/@types%2Fnode error (23). Will retry in 1 minute. 1 retries left.
+305.6 [WARN] GET https://registry.npmjs.org/@types%2Freact error (23). Will retry in 1 minute. 1 retries left.
+305.6 [WARN] GET https://registry.npmjs.org/caniuse-lite error (23). Will retry in 1 minute. 1 retries left.
+305.6 [WARN] GET https://registry.npmjs.org/commander error (23). Will retry in 1 minute. 1 retries left.
+305.6 [WARN] GET https://registry.npmjs.org/core-js-compat error (23). Will retry in 1 minute. 1 retries left.
+305.7 [WARN] GET https://registry.npmjs.org/date-fns error (23). Will retry in 1 minute. 1 retries left.
+305.8 [WARN] GET https://registry.npmjs.org/drizzle-kit error (23). Will retry in 1 minute. 1 retries left.
+305.9 [WARN] GET https://registry.npmjs.org/drizzle-orm error (23). Will retry in 1 minute. 1 retries left.
+306.1 [WARN] GET https://registry.npmjs.org/electron-to-chromium error (23). Will retry in 1 minute. 1 retries left.
+306.1 [WARN] GET https://registry.npmjs.org/embla-carousel-react error (23). Will retry in 1 minute. 1 retries left.
+306.4 [WARN] GET https://registry.npmjs.org/embla-carousel error (23). Will retry in 1 minute. 1 retries left.
+306.5 [WARN] GET https://registry.npmjs.org/enhanced-resolve error (23). Will retry in 1 minute. 1 retries left.
+306.8 [WARN] GET https://registry.npmjs.org/esbuild error (23). Will retry in 1 minute. 1 retries left.
+307.0 [WARN] GET https://registry.npmjs.org/express-rate-limit error (23). Will retry in 1 minute. 1 retries left.
+307.3 [WARN] GET https://registry.npmjs.org/@types%2Freact-dom error (23). Will retry in 1 minute. 1 retries left.
+307.6 [WARN] GET https://registry.npmjs.org/express error (23). Will retry in 1 minute. 1 retries left.
+307.9 [WARN] GET https://registry.npmjs.org/fast-copy error (23). Will retry in 1 minute. 1 retries left.
+308.2 [WARN] GET https://registry.npmjs.org/fast-equals error (23). Will retry in 1 minute. 1 retries left.
+308.2 [WARN] GET https://registry.npmjs.org/fast-glob error (23). Will retry in 1 minute. 1 retries left.
+308.3 [WARN] GET https://registry.npmjs.org/fast-xml-parser error (23). Will retry in 1 minute. 1 retries left.
+308.3 [WARN] GET https://registry.npmjs.org/fdir error (23). Will retry in 1 minute. 1 retries left.
+308.4 [WARN] GET https://registry.npmjs.org/follow-redirects error (23). Will retry in 1 minute. 1 retries left.
+308.7 [WARN] GET https://registry.npmjs.org/framer-motion error (23). Will retry in 1 minute. 1 retries left.
+308.7 [WARN] GET https://registry.npmjs.org/fsevents error (23). Will retry in 1 minute. 1 retries left.
+308.8 [WARN] GET https://registry.npmjs.org/gaxios error (23). Will retry in 1 minute. 1 retries left.
+308.8 [WARN] GET https://registry.npmjs.org/gcp-metadata error (23). Will retry in 1 minute. 1 retries left.
+308.9 [WARN] GET https://registry.npmjs.org/react-resizable-panels error (23). Will retry in 10 seconds. 2 retries left.
+309.1 [WARN] GET https://registry.npmjs.org/react error (23). Will retry in 10 seconds. 2 retries left.
+309.1 [WARN] GET https://registry.npmjs.org/readable-stream error (23). Will retry in 10 seconds. 2 retries left.
+309.2 [WARN] Request took 61375ms: https://registry.npmjs.org/safe-array-concat
+309.2 [WARN] Request took 59304ms: https://registry.npmjs.org/safe-push-apply
+309.3 [WARN] GET https://registry.npmjs.org/recharts error (23). Will retry in 10 seconds. 2 retries left.
+309.3 [WARN] GET https://registry.npmjs.org/regjsparser error (23). Will retry in 10 seconds. 2 retries left.
+309.3 [WARN] GET https://registry.npmjs.org/remeda error (23). Will retry in 10 seconds. 2 retries left.
+309.3 [WARN] GET https://registry.npmjs.org/resolve error (23). Will retry in 10 seconds. 2 retries left.
+309.3 [WARN] GET https://registry.npmjs.org/retry-request error (23). Will retry in 10 seconds. 2 retries left.
+309.3 [WARN] GET https://registry.npmjs.org/rollup error (23). Will retry in 10 seconds. 2 retries left.
+309.3 [WARN] GET https://registry.npmjs.org/router error (23). Will retry in 10 seconds. 2 retries left.
+309.3 [WARN] GET https://registry.npmjs.org/safe-buffer error (23). Will retry in 10 seconds. 2 retries left.
+309.5 [WARN] Request took 45509ms: https://registry.npmjs.org/safe-regex-test
+309.6 [WARN] Request took 41418ms: https://registry.npmjs.org/safer-buffer
+310.2 [WARN] Request took 45047ms: https://registry.npmjs.org/safe-stable-stringify
+318.5 [WARN] Request took 29161ms: https://registry.npmjs.org/secure-json-parse
+323.0 [WARN] Request took 13835ms: https://registry.npmjs.org/serialize-javascript
+323.0 [WARN] Request took 12467ms: https://registry.npmjs.org/shallow-equal
+323.2 [WARN] Request took 13957ms: https://registry.npmjs.org/send
+324.0 [WARN] Request took 14492ms: https://registry.npmjs.org/set-function-name
+324.1 [WARN] Request took 14725ms: https://registry.npmjs.org/set-function-length
+324.8 [WARN] Request took 14509ms: https://registry.npmjs.org/setprototypeof
+325.2 [WARN] Request took 15964ms: https://registry.npmjs.org/semver
+330.0 [WARN] GET https://registry.npmjs.org/scheduler error (23). Will retry in 10 seconds. 2 retries left.
+341.6 [WARN] Request took 16528ms: https://registry.npmjs.org/source-map-js
+341.9 [WARN] Request took 15838ms: https://registry.npmjs.org/sourcemap-codec
+342.1 [WARN] Request took 19076ms: https://registry.npmjs.org/retry-request
+342.1 [WARN] Request took 32895ms: https://registry.npmjs.org/serve-static
+342.1 [WARN] Request took 17353ms: https://registry.npmjs.org/smob
+342.1 [WARN] Request took 10682ms: https://registry.npmjs.org/split2
+342.1 [WARN] Request took 17255ms: https://registry.npmjs.org/sonner
+342.1 [WARN] Request took 19120ms: https://registry.npmjs.org/regjsparser
+342.2 [WARN] Request took 17148ms: https://registry.npmjs.org/source-map-support
+342.2 [WARN] Request took 17078ms: https://registry.npmjs.org/source-map
+342.3 [WARN] Request took 19343ms: https://registry.npmjs.org/readable-stream
+342.4 [WARN] Request took 19383ms: https://registry.npmjs.org/resolve
+342.4 [WARN] Request took 17593ms: https://registry.npmjs.org/sonic-boom
+342.6 [WARN] Request took 56201ms: https://registry.npmjs.org/@radix-ui%2Freact-dialog
+342.9 [WARN] Request took 19956ms: https://registry.npmjs.org/react-resizable-panels
+343.1 [WARN] Request took 20054ms: https://registry.npmjs.org/remeda
+345.3 [WARN] Request took 58476ms: https://registry.npmjs.org/@radix-ui%2Freact-dismissable-layer
+345.5 [WARN] Request took 22510ms: https://registry.npmjs.org/recharts
+346.8 [WARN] Request took 23776ms: https://registry.npmjs.org/rollup
+348.0 [WARN] Request took 31966ms: https://registry.npmjs.org/react-hook-form
+348.2 [WARN] Request took 32028ms: https://registry.npmjs.org/react-is
+348.7 [WARN] Request took 32495ms: https://registry.npmjs.org/react-refresh
+349.5 [WARN] Request took 26446ms: https://registry.npmjs.org/react
+349.8 [WARN] Request took 40389ms: https://registry.npmjs.org/react-dom
+356.2 [WARN] Request took 13315ms: https://registry.npmjs.org/typescript
+398.1 [WARN] Request took 10384ms: https://registry.npmjs.org/fast-glob
+398.3 [WARN] Request took 32094ms: https://registry.npmjs.org/commander
+398.3 [WARN] Request took 22984ms: https://registry.npmjs.org/fast-copy
+398.3 [WARN] Request took 27513ms: https://registry.npmjs.org/enhanced-resolve
+398.3 [WARN] Request took 26982ms: https://registry.npmjs.org/express-rate-limit
+399.6 [WARN] Request took 41444ms: https://registry.npmjs.org/typescript
+402.2 [WARN] Request took 31864ms: https://registry.npmjs.org/embla-carousel-react
+402.5 [WARN] Request took 34220ms: https://registry.npmjs.org/core-js-compat
+402.7 [WARN] Request took 18042ms: https://registry.npmjs.org/fast-equals
+403.2 [WARN] Request took 34873ms: https://registry.npmjs.org/date-fns
+404.0 [WARN] Request took 31821ms: https://registry.npmjs.org/express
+405.4 [WARN] Request took 34655ms: https://registry.npmjs.org/embla-carousel
+488.3 [WARN] Request took 13591ms: https://registry.npmjs.org/@types%2Fnode
+488.6 ✗ Lockfile failed supply-chain policy check (881 entries in 8m 5.5s)
+489.1 [ERR_PNPM_BROKEN_METADATA_JSON] The operation was aborted due to timeout
+------
+[+] build 0/4
+ ⠙ Image deploy-migrate Building                                                              490.7s
+ ⠙ Image deploy-api     Building                                                              490.7s
+ ⠙ Image deploy-web     Building                                                              490.7s
+ ⠙ Image deploy-minio   Building                                                              490.7s
+Dockerfile.migrate:6
+
+--------------------
+
+   4 |     COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+
+   5 |     COPY lib/db/ lib/db/
+
+   6 | >>> RUN pnpm install --frozen-lockfile --ignore-scripts
+
+   7 |     WORKDIR /app/lib/db
+
+   8 |     # Push schema first, then seed initial data (superadmin, platform settings)
+
+--------------------
+
+target migrate: failed to solve: process "/bin/sh -c pnpm install --frozen-lockfile --ignore-scripts" did not complete successfully: exit code: 1
+
+root@server1:/opt/tsos#
