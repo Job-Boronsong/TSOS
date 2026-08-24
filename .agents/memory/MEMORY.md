@@ -1,0 +1,1 @@
+- [Dependency audit workflow](dependency-audit-workflow.md) — Re-scan after resolving lockfile changes; advisories can emerge only after the first remediation pass.

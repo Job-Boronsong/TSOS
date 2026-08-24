@@ -51,8 +51,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`✓ Password reset for superadmin (username: ${rows[0].username})`);
-  console.log(`✓ Login with: superadmin / ${newPassword}`);
+  console.log("Superadmin reset completed.");
   await client.end();
 }
 
