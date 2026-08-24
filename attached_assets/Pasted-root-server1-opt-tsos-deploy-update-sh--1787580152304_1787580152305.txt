@@ -1,0 +1,138 @@
+root@server1:/opt/tsos# ./deploy/update.sh
+╔══════════════════════════════════════════════════════╗
+║           TSOS Update                               ║
+╚══════════════════════════════════════════════════════╝
+
+▶ Building updated Docker images...
+  → Building minio...
+[+] Building 0.2s (8/8) FINISHED
+ => [internal] load local bake definitions                                                     0.0s
+ => => reading from stdin 477B                                                                 0.0s
+ => [internal] load build definition from Dockerfile.minio                                     0.0s
+ => => transferring dockerfile: 529B                                                           0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.19                                 0.0s
+ => [internal] load .dockerignore                                                              0.0s
+ => => transferring context: 2B                                                                0.0s
+ => [1/2] FROM docker.io/library/alpine:3.19@sha256:6baf43584bcb78f2e5847d1de515f23499913ac9f  0.0s
+ => => resolve docker.io/library/alpine:3.19@sha256:6baf43584bcb78f2e5847d1de515f23499913ac9f  0.0s
+ => CACHED [2/2] RUN apk add --no-cache ca-certificates curl     && curl -fsSL https://dl.min  0.0s
+ => exporting to image                                                                         0.1s
+ => => exporting layers                                                                        0.0s
+ => => exporting manifest sha256:74257721c7c62c860be86ff97f4e40d5d95d459752cbe18326252ee21e79  0.0s
+ => => exporting config sha256:9b648226a13422104e4a55e0412400e8090bfa1d3d87b69acd0c60bedc9da2  0.0s
+ => => exporting attestation manifest sha256:95b274bb54f3bf356837181b2947a3f81395bf5030a9e7df  0.0s
+ => => exporting manifest list sha256:9b9eb55a75476f1a61c66527aa21ab9860f777de30aaf67da835a1f  0.0s
+ => => naming to docker.io/library/deploy-minio:latest                                         0.0s
+ => => unpacking to docker.io/library/deploy-minio:latest                                      0.0s
+ => resolving provenance for metadata file                                                     0.0s
+[+] build 1/1
+ ✔ Image deploy-minio Built                                                                     0.3s
+  → Building migrate...
+[+] Building 0.6s (14/14) FINISHED
+ => [internal] load local bake definitions                                                     0.0s
+ => => reading from stdin 487B                                                                 0.0s
+ => [internal] load build definition from Dockerfile.migrate                                   0.0s
+ => => transferring dockerfile: 1.10kB                                                         0.0s
+ => [internal] load metadata for docker.io/library/node:24-alpine                              0.4s
+ => [internal] load .dockerignore                                                              0.0s
+ => => transferring context: 2B                                                                0.0s
+ => [stage-0 1/7] FROM docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd5  0.0s
+ => => resolve docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275b  0.0s
+ => [internal] load build context                                                              0.0s
+ => => transferring context: 2.01kB                                                            0.0s
+ => CACHED [stage-0 2/7] RUN corepack enable && corepack prepare pnpm@10.26.1 --activate       0.0s
+ => CACHED [stage-0 3/7] WORKDIR /app                                                          0.0s
+ => CACHED [stage-0 4/7] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./               0.0s
+ => CACHED [stage-0 5/7] COPY lib/db/ lib/db/                                                  0.0s
+ => CACHED [stage-0 6/7] RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/  0.0s
+ => CACHED [stage-0 7/7] WORKDIR /app/lib/db                                                   0.0s
+ => exporting to image                                                                         0.1s
+ => => exporting layers                                                                        0.0s
+ => => exporting manifest sha256:42fcdd81da5d1ccb95f113c31fe8af7533a90462812a26c89bf9f5b36a4f  0.0s
+ => => exporting config sha256:04bc32796743a46337d9bc86f21e484e7884276989d8d193ae0d760188f069  0.0s
+ => => exporting attestation manifest sha256:107e81ad23a7aed9d56d522f803e1381ab623c767c19765a  0.0s
+ => => exporting manifest list sha256:625b7d36e1b654ab2e00806ee81de71bdd19fec9adee003bcbe12a4  0.0s
+ => => naming to docker.io/library/deploy-migrate:latest                                       0.0s
+ => => unpacking to docker.io/library/deploy-migrate:latest                                    0.0s
+ => resolving provenance for metadata file                                                     0.0s
+[+] build 1/1
+ ✔ Image deploy-migrate Built                                                                   0.6s
+  → Building api...
+[+] Building 1.2s (21/23)
+ => [internal] load local bake definitions                                                     0.0s
+ => => reading from stdin 840B                                                                 0.0s
+ => [internal] load build definition from Dockerfile.api                                       0.0s
+ => => transferring dockerfile: 2.88kB                                                         0.0s
+ => [internal] load metadata for docker.io/library/node:24-alpine                              0.1s
+ => [internal] load .dockerignore                                                              0.0s
+ => => transferring context: 2B                                                                0.0s
+ => [base 1/3] FROM docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c  0.0s
+ => => resolve docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275b  0.0s
+ => [internal] load build context                                                              0.2s
+ => => transferring context: 15.85MB                                                           0.2s
+ => CACHED [base 2/3] RUN corepack enable && corepack prepare pnpm@10.26.1 --activate          0.0s
+ => CACHED [base 3/3] WORKDIR /app                                                             0.0s
+ => CACHED [deps 1/8] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./                  0.0s
+ => CACHED [deps 2/8] COPY lib/db/package.json             lib/db/                             0.0s
+ => CACHED [deps 3/8] COPY lib/api-spec/package.json       lib/api-spec/                       0.0s
+ => CACHED [deps 4/8] COPY lib/api-zod/package.json        lib/api-zod/                        0.0s
+ => CACHED [deps 5/8] COPY lib/api-client-react/package.json lib/api-client-react/             0.0s
+ => CACHED [deps 6/8] COPY lib/object-storage-web/package.json lib/object-storage-web/         0.0s
+ => CACHED [deps 7/8] COPY artifacts/api-server/package.json artifacts/api-server/             0.0s
+ => CACHED [runner 11/13] RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share  0.0s
+ => CACHED [deps 8/8] RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnp  0.0s
+ => CACHED [builder 1/4] COPY tsconfig.base.json tsconfig.json ./                              0.0s
+ => CACHED [builder 2/4] COPY lib/ lib/                                                        0.0s
+ => CACHED [builder 3/4] COPY artifacts/api-server/ artifacts/api-server/                      0.0s
+ => ERROR [builder 4/4] RUN pnpm --filter @workspace/api-server run build                      0.7s
+------
+ > [builder 4/4] RUN pnpm --filter @workspace/api-server run build:
+0.564
+0.564 > @workspace/api-server@0.0.0 build /app/artifacts/api-server
+0.564 > node ./build.mjs
+0.564
+0.611 node:internal/modules/package_json_reader:301
+0.611   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+0.611         ^
+0.611
+0.611 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /app/artifacts/api-server/build.mjs
+0.611     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+0.611     at packageResolve (node:internal/modules/esm/resolve:768:81)
+0.611     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+0.611     at defaultResolve (node:internal/modules/esm/resolve:992:11)
+0.611     at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+0.611     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+0.611     at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+0.611     at #resolve (node:internal/modules/esm/loader:683:17)
+0.611     at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+0.611     at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {
+0.611   code: 'ERR_MODULE_NOT_FOUND'
+0.611 }
+0.612
+0.612 Node.js v24.19.0
+0.635 /app/artifacts/api-server:
+0.635  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/api-server@0.0.0 build: `node ./build.mjs`
+0.635 Exit status 1
+------
+[+] build 0/2
+ ⠙ Image deploy-minio Building                                                                  1.3s
+ ⠙ Image deploy-api   Building                                                                  1.3s
+Dockerfile.api:29
+
+--------------------
+
+  27 |     COPY lib/ lib/
+
+  28 |     COPY artifacts/api-server/ artifacts/api-server/
+
+  29 | >>> RUN pnpm --filter @workspace/api-server run build
+
+  30 |
+
+  31 |     # ── Stage 3: Lean production runner ─────────────────────────────────────────
+
+--------------------
+
+failed to solve: process "/bin/sh -c pnpm --filter @workspace/api-server run build" did not complete successfully: exit code: 1
+
+root@server1:/opt/tsos#
