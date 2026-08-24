@@ -1,1 +1,2 @@
 - [Dependency audit workflow](dependency-audit-workflow.md) — Re-scan after resolving lockfile changes; advisories can emerge only after the first remediation pass.
+- [VPS npm registry resilience](vps-npm-registry-resilience.md) — Production Docker builds need serialized pnpm metadata checks and a persistent BuildKit cache on the VPS.

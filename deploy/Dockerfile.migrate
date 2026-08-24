@@ -1,9 +1,20 @@
 FROM node:24-alpine
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Keep production installs reproducible. `pnpm@latest` can introduce new
+# lockfile-verification behavior without a code change.
+RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
+ENV npm_config_fetch_retries=5 \
+    npm_config_fetch_retry_factor=2 \
+    npm_config_fetch_retry_mintimeout=10000 \
+    npm_config_fetch_retry_maxtimeout=120000 \
+    npm_config_fetch_timeout=300000
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY lib/db/ lib/db/
-RUN pnpm install --frozen-lockfile --ignore-scripts
+# Preserve the trusted pnpm store between BuildKit runs. The VPS has a
+# constrained npm-registry connection, so avoiding concurrent cache misses is
+# important. The frozen lockfile and release-age policy remain enforced.
+RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/store,sharing=locked \
+    pnpm install --frozen-lockfile --ignore-scripts --network-concurrency=4
 WORKDIR /app/lib/db
 # Push schema first, then seed initial data (superadmin, platform settings)
 CMD ["sh", "-c", "pnpm run push-force && pnpm run seed"]

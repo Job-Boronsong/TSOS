@@ -1,7 +1,14 @@
 # Use Debian-slim (glibc) for build stages — Alpine (musl) causes rollup native
 # binary mismatch when the lockfile was generated on a glibc host (Replit).
 FROM node:24-slim AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Keep production installs reproducible. `pnpm@latest` can introduce new
+# lockfile-verification behavior without a code change.
+RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
+ENV npm_config_fetch_retries=5 \
+    npm_config_fetch_retry_factor=2 \
+    npm_config_fetch_retry_mintimeout=10000 \
+    npm_config_fetch_retry_maxtimeout=120000 \
+    npm_config_fetch_timeout=300000
 WORKDIR /app
 
 # ── Stage 1: Install all dependencies ───────────────────────────────────────
@@ -13,7 +20,8 @@ COPY lib/api-zod/package.json        lib/api-zod/
 COPY lib/api-client-react/package.json lib/api-client-react/
 COPY lib/object-storage-web/package.json lib/object-storage-web/
 COPY artifacts/school-saas/package.json artifacts/school-saas/
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/store,sharing=locked \
+    pnpm install --frozen-lockfile --ignore-scripts --network-concurrency=4
 
 # ── Stage 2: Vite production build ──────────────────────────────────────────
 FROM deps AS builder

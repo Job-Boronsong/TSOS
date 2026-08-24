@@ -1,5 +1,12 @@
 FROM node:24-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Keep production installs reproducible. `pnpm@latest` can introduce new
+# lockfile-verification behavior without a code change.
+RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
+ENV npm_config_fetch_retries=5 \
+    npm_config_fetch_retry_factor=2 \
+    npm_config_fetch_retry_mintimeout=10000 \
+    npm_config_fetch_retry_maxtimeout=120000 \
+    npm_config_fetch_timeout=300000
 WORKDIR /app
 
 # ── Stage 1: Install all dependencies ───────────────────────────────────────
@@ -11,7 +18,8 @@ COPY lib/api-zod/package.json        lib/api-zod/
 COPY lib/api-client-react/package.json lib/api-client-react/
 COPY lib/object-storage-web/package.json lib/object-storage-web/
 COPY artifacts/api-server/package.json artifacts/api-server/
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/store,sharing=locked \
+    pnpm install --frozen-lockfile --ignore-scripts --network-concurrency=4
 
 # ── Stage 2: Build (esbuild bundles everything into dist/index.mjs) ─────────
 FROM deps AS builder
@@ -24,7 +32,12 @@ RUN pnpm --filter @workspace/api-server run build
 # The esbuild bundle is self-contained, but external packages (nodemailer,
 # @google-cloud/storage) must still exist in node_modules at runtime.
 FROM node:24-alpine AS runner
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
+ENV npm_config_fetch_retries=5 \
+    npm_config_fetch_retry_factor=2 \
+    npm_config_fetch_retry_mintimeout=10000 \
+    npm_config_fetch_retry_maxtimeout=120000 \
+    npm_config_fetch_timeout=300000
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY lib/db/package.json             lib/db/
@@ -33,7 +46,8 @@ COPY lib/api-zod/package.json        lib/api-zod/
 COPY lib/api-client-react/package.json lib/api-client-react/
 COPY lib/object-storage-web/package.json lib/object-storage-web/
 COPY artifacts/api-server/package.json artifacts/api-server/
-RUN pnpm install --frozen-lockfile --ignore-scripts --prod
+RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/store,sharing=locked \
+    pnpm install --frozen-lockfile --ignore-scripts --prod --network-concurrency=4
 COPY --from=builder /app/artifacts/api-server/dist artifacts/api-server/dist
 
 EXPOSE 8080
