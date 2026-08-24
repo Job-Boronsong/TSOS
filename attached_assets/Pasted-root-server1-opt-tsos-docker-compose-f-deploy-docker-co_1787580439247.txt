@@ -1,0 +1,82 @@
+root@server1:/opt/tsos# docker compose \
+  -f deploy/docker-compose.yml \
+  --env-file deploy/.env \
+  build --no-cache api
+[+] Building 15.0s (21/23)
+ => [internal] load local bake definitions                                                     0.0s
+ => => reading from stdin 888B                                                                 0.0s
+ => [internal] load build definition from Dockerfile.api                                       0.0s
+ => => transferring dockerfile: 2.88kB                                                         0.0s
+ => [internal] load metadata for docker.io/library/node:24-alpine                              0.3s
+ => [internal] load .dockerignore                                                              0.0s
+ => => transferring context: 2B                                                                0.0s
+ => CACHED [base 1/3] FROM docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d0899  0.0s
+ => => resolve docker.io/library/node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275b  0.0s
+ => [internal] load build context                                                              0.0s
+ => => transferring context: 19.50kB                                                           0.0s
+ => [base 2/3] RUN corepack enable && corepack prepare pnpm@10.26.1 --activate                 1.4s
+ => [base 3/3] WORKDIR /app                                                                    0.0s
+ => [deps 1/8] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./                         0.0s
+ => [deps 2/8] COPY lib/db/package.json             lib/db/                                    0.0s
+ => [deps 3/8] COPY lib/api-spec/package.json       lib/api-spec/                              0.0s
+ => [deps 4/8] COPY lib/api-zod/package.json        lib/api-zod/                               0.0s
+ => [deps 5/8] COPY lib/api-client-react/package.json lib/api-client-react/                    0.0s
+ => [deps 6/8] COPY lib/object-storage-web/package.json lib/object-storage-web/                0.0s
+ => [deps 7/8] COPY artifacts/api-server/package.json artifacts/api-server/                    0.0s
+ => [deps 8/8] RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/stor  12.2s
+ => [runner 11/13] RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/s  5.7s
+ => [builder 1/4] COPY tsconfig.base.json tsconfig.json ./                                     0.2s
+ => [builder 2/4] COPY lib/ lib/                                                               0.0s
+ => [builder 3/4] COPY artifacts/api-server/ artifacts/api-server/                             0.1s
+ => ERROR [builder 4/4] RUN pnpm --filter @workspace/api-server run build                      0.6s
+------
+ > [builder 4/4] RUN pnpm --filter @workspace/api-server run build:
+0.486
+0.486 > @workspace/api-server@0.0.0 build /app/artifacts/api-server
+0.486 > node ./build.mjs
+0.486
+0.526 node:internal/modules/package_json_reader:301
+0.526   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+0.526         ^
+0.526
+0.526 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /app/artifacts/api-server/build.mjs
+0.526     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+0.526     at packageResolve (node:internal/modules/esm/resolve:768:81)
+0.526     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+0.526     at defaultResolve (node:internal/modules/esm/resolve:992:11)
+0.526     at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+0.526     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+0.526     at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+0.526     at #resolve (node:internal/modules/esm/loader:683:17)
+0.526     at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+0.526     at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {
+0.526   code: 'ERR_MODULE_NOT_FOUND'
+0.526 }
+0.526
+0.526 Node.js v24.19.0
+0.545 /app/artifacts/api-server:
+0.545  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/api-server@0.0.0 build: `node ./build.mjs`
+0.545 Exit status 1
+------
+[+] build 0/2
+ ⠙ Image deploy-minio Building                                                                 15.1s
+ ⠙ Image deploy-api   Building                                                                 15.1s
+Dockerfile.api:29
+
+--------------------
+
+  27 |     COPY lib/ lib/
+
+  28 |     COPY artifacts/api-server/ artifacts/api-server/
+
+  29 | >>> RUN pnpm --filter @workspace/api-server run build
+
+  30 |
+
+  31 |     # ── Stage 3: Lean production runner ─────────────────────────────────────────
+
+--------------------
+
+failed to solve: process "/bin/sh -c pnpm --filter @workspace/api-server run build" did not complete successfully: exit code: 1
+
+root@server1:/opt/tsos#
