@@ -14,7 +14,7 @@ COPY lib/db/ lib/db/
 # constrained npm-registry connection, so avoiding concurrent cache misses is
 # important. The frozen lockfile and release-age policy remain enforced.
 RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/store,sharing=locked \
-    pnpm install --frozen-lockfile --ignore-scripts --network-concurrency=4
+    pnpm install --frozen-lockfile --ignore-scripts --prod=false --network-concurrency=4
 WORKDIR /app/lib/db
 # Push schema first, then seed initial data (superadmin, platform settings)
 CMD ["sh", "-c", "pnpm run push-force && pnpm run seed"]

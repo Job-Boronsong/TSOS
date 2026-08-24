@@ -7,4 +7,4 @@ Keep the frozen lockfile and `minimumReleaseAge` supply-chain policy enabled for
 
 **Why:** Parallel image builds generated hundreds of metadata requests and repeatedly failed with pnpm's metadata-timeout error, even though the lockfile itself was valid.
 
-**How to apply:** Use a pinned pnpm version, share a BuildKit cache only among trusted builds, and build deployment images serially with conservative pnpm network concurrency. Do not bypass the release-age policy as a workaround.
+**How to apply:** Use a pinned pnpm version, share a BuildKit cache only among trusted builds, and build deployment images serially with conservative pnpm network concurrency. Make build-stage installs explicit with `--prod=false` so compiler tools such as esbuild are present; use `--prod` only in runtime stages. Do not bypass the release-age policy as a workaround.

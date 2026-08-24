@@ -21,7 +21,7 @@ COPY lib/api-client-react/package.json lib/api-client-react/
 COPY lib/object-storage-web/package.json lib/object-storage-web/
 COPY artifacts/school-saas/package.json artifacts/school-saas/
 RUN --mount=type=cache,id=tsos-pnpm-store,target=/root/.local/share/pnpm/store,sharing=locked \
-    pnpm install --frozen-lockfile --ignore-scripts --network-concurrency=4
+    pnpm install --frozen-lockfile --ignore-scripts --prod=false --network-concurrency=4
 
 # ── Stage 2: Vite production build ──────────────────────────────────────────
 FROM deps AS builder
