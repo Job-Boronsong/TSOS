@@ -1,0 +1,12 @@
+# Never copy host-installed dependencies into Docker images. Build stages
+# install their own platform-appropriate dependencies with pnpm.
+node_modules
+**/node_modules
+
+# Build output is generated inside the image.
+dist
+**/dist
+
+# Git metadata is not needed by the application images.
+.git
+.gitignore
